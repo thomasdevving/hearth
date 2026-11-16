@@ -1,0 +1,13 @@
+{
+  "$id": "B", "title": "Diary markers", "type": "object", "additionalProperties": false,
+  "properties": {
+    "negative_affect": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "anhedonic_language": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "social_withdrawal": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "hopelessness": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "sleep_complaint": { "type": "boolean" },
+    "themes": { "type": "array", "maxItems": 3, "items": { "type": "string", "enum": ["work_study","relationships","loneliness","sleep","physical","care_and_stress","activity","other"] } },
+    "crisis": { "type": "string", "enum": ["none","possible","explicit"] }
+  },
+  "required": ["negative_affect","anhedonic_language","social_withdrawal","hopelessness","sleep_complaint","themes","crisis"]
+}

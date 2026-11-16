@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Weekly aggregates: only the owner.
+    match /users/{uid}/weeks/{isoWeek} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Generated reflections and reports: only the owner.
+    match /users/{uid}/reports/{reportId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // A share is a self-contained snapshot. Knowing the unguessable id is the capability.
+    // It can be fetched by id but never listed, and only until it expires.
+    match /shares/{shareId} {
+      allow get: if resource.data.expiresAt > request.time;
+      allow list: if false;
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.expiresAt > request.time
+                    && request.resource.data.expiresAt < request.time + duration.value(30, 'd');
+      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

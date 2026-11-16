@@ -1,0 +1,14 @@
+{
+  "id": "MOMENTARY",
+  "title": "Momentary check-in",
+  "verbatim": false,
+  "note": "Working wording. Before release, replace each text with the matching item from the ESM Item Repository (https://osf.io/kg376) and record the repository item id.",
+  "items": [
+    { "id": "mood_low",  "text": "Right now, I feel down.",                 "type": "scale", "min": 1, "max": 7, "min_label": "Not at all", "max_label": "Very much", "repository_item_id": null },
+    { "id": "enjoyment", "text": "I am enjoying what I am doing right now.", "type": "scale", "min": 1, "max": 7, "min_label": "Not at all", "max_label": "Very much", "repository_item_id": null },
+    { "id": "energy",    "text": "Right now, I feel energetic.",             "type": "scale", "min": 1, "max": 7, "min_label": "Not at all", "max_label": "Very much", "repository_item_id": null },
+    { "id": "company",   "text": "Who are you with right now?",              "type": "choice", "options": ["Alone", "Partner or family", "Friends", "Colleagues or classmates", "Others"] }
+  ],
+  "personal_item_options": ["yes", "partly", "no"],
+  "free_text_prompt": "Anything you want to add? You can type or talk."
+}

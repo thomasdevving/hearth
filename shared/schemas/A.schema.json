@@ -1,0 +1,8 @@
+{
+  "$id": "A", "title": "Check-in introduction", "type": "object", "additionalProperties": false,
+  "properties": {
+    "intro": { "type": "string", "maxLength": 160 },
+    "tone": { "type": "string", "enum": ["light","neutral","caring"] }
+  },
+  "required": ["intro","tone"]
+}

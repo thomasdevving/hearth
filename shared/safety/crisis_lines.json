@@ -1,0 +1,10 @@
+{
+  "note": "Verify every number before release. Shown offline; bundled with the app and refreshable from Remote Config.",
+  "default": { "name": "Find a helpline", "url": "https://findahelpline.com", "phone": null },
+  "countries": {
+    "NL": { "name": "113 Zelfmoordpreventie", "phone": "113", "alt_phone": "0800-0113", "url": "https://www.113.nl" },
+    "US": { "name": "988 Suicide & Crisis Lifeline", "phone": "988", "url": "https://988lifeline.org" },
+    "GB": { "name": "Samaritans", "phone": "116 123", "url": "https://www.samaritans.org" }
+  },
+  "emergency_text": "If you are in immediate danger, call your local emergency number."
+}

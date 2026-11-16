@@ -1,0 +1,14 @@
+{
+  "$id": "I", "title": "Spoken check-in to personal item answers", "type": "object", "additionalProperties": false,
+  "properties": {
+    "answers": { "type": "array", "maxItems": 3, "items": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string" },
+        "answer": { "type": "string", "enum": ["yes","partly","no","not_mentioned"] },
+        "quote": { "type": "string", "description": "Verbatim fragment, or empty string when not_mentioned." }
+      },
+      "required": ["item_id","answer","quote"] } }
+  },
+  "required": ["answers"]
+}

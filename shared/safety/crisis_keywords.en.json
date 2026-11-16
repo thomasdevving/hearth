@@ -1,0 +1,11 @@
+{
+  "note": "Case-insensitive substring match on normalised text. Deliberately broad: a false positive only shows the support screen.",
+  "phrases": [
+    "kill myself", "killing myself", "end my life", "ending my life", "take my own life",
+    "suicide", "suicidal", "want to die", "wish i was dead", "wish i were dead",
+    "better off dead", "better off without me", "no reason to live", "don't want to live",
+    "dont want to live", "do not want to live", "don't want to be here anymore",
+    "hurt myself", "hurting myself", "harm myself", "self harm", "self-harm", "cut myself",
+    "can't go on", "cant go on", "end it all", "not wake up"
+  ]
+}

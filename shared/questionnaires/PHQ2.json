@@ -1,0 +1,18 @@
+{
+  "id": "PHQ2",
+  "title": "PHQ-2",
+  "verbatim": true,
+  "verify_against": "Official PHQ-2 text at https://www.phqscreeners.com before release. Do not edit any wording.",
+  "stem": "Over the last 2 weeks, how often have you been bothered by any of the following problems?",
+  "options": [
+    { "label": "Not at all", "value": 0 },
+    { "label": "Several days", "value": 1 },
+    { "label": "More than half the days", "value": 2 },
+    { "label": "Nearly every day", "value": 3 }
+  ],
+  "items": [
+    { "n": 1, "text": "Little interest or pleasure in doing things" },
+    { "n": 2, "text": "Feeling down, depressed, or hopeless" }
+  ],
+  "scoring": { "total": "sum", "range": [0, 6] }
+}

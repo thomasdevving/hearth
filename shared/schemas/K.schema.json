@@ -1,0 +1,5 @@
+{
+  "$id": "K", "title": "Select the user's own actions that fit today", "type": "object", "additionalProperties": false,
+  "properties": { "action_ids": { "type": "array", "maxItems": 2, "items": { "type": "string" } } },
+  "required": ["action_ids"]
+}

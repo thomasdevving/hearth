@@ -1,0 +1,9 @@
+{
+  "$id": "Q_classify", "title": "Ask your data: classify the question", "type": "object", "additionalProperties": false,
+  "properties": {
+    "intent": { "type": "string", "enum": ["trend","compare","why_asked","unsupported","crisis"] },
+    "feature": { "type": "string", "enum": ["none","steps","active_hours","walking_speed","rhythm_stability","rest_duration","rest_midpoint","rest_regularity","home_stay","places_visited","routine_regularity","mood_low","enjoyment","energy","index"] },
+    "period": { "type": "string", "enum": ["none","today","this_week","last_week","last_4_weeks"] }
+  },
+  "required": ["intent","feature","period"]
+}

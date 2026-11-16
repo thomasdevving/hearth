@@ -1,0 +1,11 @@
+{
+  "$id": "H", "title": "Context recognition", "type": "object", "additionalProperties": false,
+  "properties": {
+    "context": { "type": "string", "enum": ["none","holiday","travel","visitors","ill","moving","exams","new_job","loss","other_stress"] },
+    "start_hint": { "type": "string", "maxLength": 40, "description": "Verbatim time phrase for the start, e.g. 'since Tuesday', or 'unknown'." },
+    "end_hint": { "type": "string", "maxLength": 40, "description": "Verbatim time phrase for the end, e.g. 'until Sunday', or 'unknown'." },
+    "confidence": { "type": "string", "enum": ["low","medium","high"] },
+    "quote": { "type": "string" }
+  },
+  "required": ["context","start_hint","end_hint","confidence","quote"]
+}

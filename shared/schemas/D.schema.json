@@ -1,0 +1,8 @@
+{
+  "$id": "D", "title": "Weekly reflection", "type": "object", "additionalProperties": false,
+  "properties": {
+    "reflection": { "type": "string", "maxLength": 1800 },
+    "open_question": { "type": "string", "maxLength": 160 }
+  },
+  "required": ["reflection","open_question"]
+}

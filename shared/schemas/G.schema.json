@@ -1,0 +1,23 @@
+{
+  "$id": "G", "title": "Plan to rules, check-in items and actions", "type": "object", "additionalProperties": false,
+  "properties": {
+    "rules": { "type": "array", "maxItems": 6, "items": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "feature": { "type": "string", "enum": ["steps","active_hours","walking_speed","rhythm_stability","fragmentation","relative_amplitude","rest_duration","rest_midpoint","rest_regularity","home_stay","location_entropy","places_visited","location_variance","routine_regularity","place_visits","screen_time","night_use","communication_time"] },
+        "direction": { "type": "string", "enum": ["higher","lower","later","earlier","less_regular"] },
+        "place_label": { "type": "string", "maxLength": 30, "description": "Only for place_visits, e.g. 'gym'. Empty string otherwise." },
+        "quote": { "type": "string", "description": "Verbatim fragment of the user's text this rule is based on." }
+      },
+      "required": ["feature","direction","place_label","quote"] } },
+    "personal_checkin_items": { "type": "array", "maxItems": 3, "items": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "question": { "type": "string", "maxLength": 80 }, "quote": { "type": "string" } },
+      "required": ["question","quote"] } },
+    "actions": { "type": "array", "maxItems": 6, "items": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "text": { "type": "string", "maxLength": 80 }, "quote": { "type": "string" } },
+      "required": ["text","quote"] } }
+  },
+  "required": ["rules","personal_checkin_items","actions"]
+}

@@ -1,0 +1,5 @@
+{
+  "$id": "C", "title": "Explain a questionnaire result", "type": "object", "additionalProperties": false,
+  "properties": { "explanation": { "type": "string", "maxLength": 600 } },
+  "required": ["explanation"]
+}

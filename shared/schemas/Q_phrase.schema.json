@@ -1,0 +1,5 @@
+{
+  "$id": "Q_phrase", "title": "Ask your data: phrase the computed facts", "type": "object", "additionalProperties": false,
+  "properties": { "answer": { "type": "string", "maxLength": 450 } },
+  "required": ["answer"]
+}
