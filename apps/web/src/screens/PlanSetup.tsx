@@ -255,7 +255,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
   return (
     <Screen title="Your plan" back={first ? undefined : "my_plan"}>
       <p className="muted">
-        Hearth already watches research-based signals of your daily life: rest, activity, rhythm and the places you go. Your own signs make it sharper. Write them in your own words, tick the ones that fit, or both. It all
+        Hearth already watches research-based signals of your daily life: sleep, activity, rhythm, heart rate and the places you go. Your own signs make it sharper. Write them in your own words, tick the ones that fit, or both. It all
         stays on this device.
       </p>
       <label className="stack">

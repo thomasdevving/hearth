@@ -12,3 +12,7 @@ DerivedData/
 .firebaserc
 *-debug.log
 firebase-debug.log
+
+# demo video intermediates
+video/demo/frames/
+video/demo/out/
