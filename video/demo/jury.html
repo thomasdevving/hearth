@@ -81,16 +81,16 @@ const DEMO = [
   { from: 24.0, to: 28.0, n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
   { from: 28.0, to: 30.9, n: 5, title: "Day 109", sub: "Sam’s days have been drifting for six days." },
   { from: 30.9, to: 37.6, n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
-  { from: 37.6, to: 51.2, speed: 1.6, n: 6, title: "A 20-second check-in", sub: "Gemini Nano writes the opening line; every number in it is checked." },
-  { from: 51.2, to: 58.4, n: 7, title: "Sam’s own plan opens", sub: "What Sam said helps, in Sam’s own words." },
-  { from: 58.4, to: 64.4, n: 8, title: "Nothing private left the device", sub: "The privacy ledger lists every model call and exactly what was sent." },
+  { from: 37.6, to: 51.2, speed: 2.2, n: 6, title: "A 20-second check-in", sub: "Gemini Nano writes the opening line; every number in it is checked." },
+  { from: 51.2, to: 58.4, speed: 1.4, n: 7, title: "Sam’s own plan opens", sub: "What Sam said helps, in Sam’s own words." },
+  { from: 58.4, to: 64.4, speed: 1.3, n: 8, title: "Nothing private left the device", sub: "The privacy ledger lists every model call and exactly what was sent." },
 ];
 let demoLen = 0; for (const s of DEMO) { s.start = demoLen; s.len = s.hold !== undefined ? s.dur : (s.to - s.from) / (s.speed || 1); demoLen += s.len; }
 
 const T = {};
 let cur = 0;
 const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("theory", 18); seg("arch", 18); seg("control", 14); seg("numbers", 14); seg("close", 12);
+seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 15); seg("theory", 16); seg("arch", 15); seg("control", 12); seg("numbers", 13); seg("close", 11);
 const TOTAL = cur;
 
 // ---------- sections ----------
@@ -166,6 +166,49 @@ async function demo(t) {
   rr(140, 92, 640, 48, 24, C.amberBg, "#f0c890", 2);
   text("DRAFT: stand-in model. Re-record with Gemini Nano in Chrome", 162, 124, font(600, 20), C.amber);
   webcam(140, 820, 360, 202, "WEBCAM (optional)", ["small, while you narrate"], true);
+}
+
+function watches(t) {
+  bg(0.0);
+  const s = t - T.watches[0];
+  label("What Hearth watches, and why", 120, 110);
+  text("Every signal that research links to harder periods", 120, 175, font(700, 48, "Syne"), C.ink);
+  const G = [
+    { name: "Sleep", src: "watch, or phone stillness", sig: [["↕", "sleep length"], ["→", "later (or earlier) sleep"], ["↓", "regular sleep times"]], why: "Insomnia about doubles the odds of later depression.", cite: "Baglioni 2011, 21 studies" },
+    { name: "Activity", src: "phone steps", sig: [["↓", "steps"], ["↓", "active hours"], ["↓", "walking pace"]], why: "Active people have lower odds of later depression (OR 0.83).", cite: "Schuch 2018, 49 cohorts" },
+    { name: "Daily rhythm", src: "hourly steps, 7 days", sig: [["↓", "steadiness of the day"], ["↑", "stop-and-start activity"], ["↓", "day–night difference"]], why: "A flatter day–night rhythm goes with more depression and bipolar disorder.", cite: "Lyall 2018, 91,105 people" },
+    { name: "Heart", src: "watch", sig: [["↓", "heart rate variability"], ["↑", "resting heart rate"]], why: "Lower HRV in depression, more so when severe; resting heart rate tracks severity.", cite: "Kemp 2010; Siddi 2023" },
+    { name: "Places", src: "iPhone location, stays on the phone", sig: [["↑", "time at home"], ["↓", "places, variety, area"], ["↓", "usual routine"], ["↓", "a place you name (gym)"]], why: "Regular movement goes with fewer symptoms (r = −0.63); GPS changes came first.", cite: "Saeb 2015; Meyerhoff 2021" },
+    { name: "Phone use", src: "off by default", sig: [["↑", "screen time"], ["↑", "use at night"], ["↓", "time in messaging apps"]], why: "More phone time went with higher symptom scores (r = 0.54).", cite: "Saeb 2015" },
+    { name: "Check-ins and words", src: "you, a few taps", sig: [["↑", "feeling down"], ["↓", "enjoyment, energy"], ["•", "language: shown, never scored"]], why: "Low check-ins can prompt a short questionnaire. Language predicts depression months ahead but tracks change poorly, so it is never scored.", cite: "Eichstaedt 2018" },
+  ];
+  const cw = 405, ch = 395, gap = 20;
+  G.forEach((c, i) => fade(ease((s - 0.3 - i * 0.45) / 0.5), () => {
+    const x = 120 + (i % 4) * (cw + gap), y = 220 + Math.floor(i / 4) * (ch + gap);
+    const off = c.name === "Phone use";
+    rr(x, y, cw, ch, 22, off ? C.grey : "#fff", C.line, 2);
+    text(c.name, x + 26, y + 50, font(700, 30, "Syne"), off ? C.muted : C.ink);
+    text(c.src, x + 26, y + 80, font(500, 18), C.muted);
+    c.sig.forEach(([a, l], k) => {
+      const yy = y + 122 + k * 34;
+      rr(x + 26, yy - 22, 30, 30, 15, off ? "#eee" : C.tint);
+      text(a, x + 41, yy, "700 19px 'DejaVu Sans', sans-serif", off ? C.muted : C.mag, "center");
+      text(l, x + 68, yy, font(500, 22), off ? C.muted : C.ink);
+    });
+    const wy = y + 122 + c.sig.length * 34 + 14;
+    wrap(c.why, x + 26, wy, cw - 52, font(400, 19), C.ink2, 25);
+    text(c.cite, x + 26, y + ch - 22, font(500, 16), C.muted);
+  }));
+  // 8th tile: how they are used
+  fade(ease((s - 3.8) / 0.6), () => {
+    const x = 120 + 3 * (cw + gap), y = 220 + ch + gap;
+    rr(x, y, cw, ch, 22, C.tint, "#f3c1dc", 2);
+    text("How they count", x + 26, y + 50, font(700, 30, "Syne"), C.deep);
+    const lines = ["Only against your own usual days, never other people.", "Only the direction that matters for each signal.", "Signs you name yourself count double.", "A holiday or illness you confirm is set aside."];
+    let yy = y + 100;
+    lines.forEach((l) => { yy = wrap(l, x + 26, yy, cw - 52, font(500, 21), C.ink, 28) + 44; });
+  });
+  fade(ease((s - 6) / 0.6), () => text("Read more: " + SCIENCE_URL, 120, 1055, font(700, 24), C.mag));
 }
 
 function theory(t) {
@@ -337,7 +380,8 @@ async function render(t) {
   if (t < T.problem[0]) hook(t, t / T.hook[1]);
   else if (t < T.oneliner[0]) problem(t);
   else if (t < T.demo[0]) oneliner(t);
-  else if (t < T.theory[0]) await demo(t);
+  else if (t < T.watches[0]) await demo(t);
+  else if (t < T.theory[0]) watches(t);
   else if (t < T.arch[0]) theory(t);
   else if (t < T.control[0]) arch(t);
   else if (t < T.numbers[0]) control(t);
