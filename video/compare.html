@@ -18,14 +18,17 @@ const W = 1920, H = 1080;
 const C = { mag: "#ca026a", deep: "#7a0f55", tint: "#fdf0f7", line: "#eee6ec", ink: "#1d1320", ink2: "#4a3f4c", muted: "#6e6470", grey: "#faf6f9", amber: "#b25d00", green: "#2f7d4f" };
 const cv = document.getElementById("c");
 const g = cv.getContext("2d");
-let DATA, LOGO, FLOWER;
+let DATA, LOGO, FLOWER, FLOWER_L;
 
 // time (s) → day (float); holds are segments with equal days
 const SEG = [
   [0, 3.5, 0, 0], [3.5, 10.5, 1, 60], [10.5, 14.5, 60, 68], [14.5, 17.5, 68, 102], [17.5, 24, 102, 110],
   [24, 27.5, 110, 110], [27.5, 29.5, 110, 111.6], [29.5, 32, 111.6, 111.6], [32, 37, 111.6, 150], [37, 38.5, 150, 150],
 ];
-const END_START = 38.5, TOTAL = 46;
+const SBS_END = 38.5; // side-by-side part
+const APP_START = 38.5, APP_SHOT = 5, APP_END = APP_START + 2 + 6 * APP_SHOT; // 70.5
+const IMPACT_START = APP_END, IMPACT_END = IMPACT_START + 15.5; // 86
+const END_START = IMPACT_END, TOTAL = END_START + 7.5;
 function dayAt(t) {
   for (const [a, b, d0, d1] of SEG) if (t >= a && t < b) return d0 + (d1 - d0) * ((t - a) / (b - a));
   return 150;
@@ -240,11 +243,97 @@ function endCard(t) {
   g.restore();
 }
 
+
+// ---------- part 2: what Sam sees in the app (real screens of the web app) ----------
+const SCREENS = [
+  { file: "plan", when: "Day 1", title: "Sam's plan becomes cards", body: "The model on the device turns Sam's own words into signs to watch and things that help. Sam keeps or rejects each card." },
+  { file: "holiday", when: "Day 61", title: "A holiday is not an alarm", body: "From one note, Hearth asks once. A yes sets Sam's location signals aside for that week." },
+  { file: "home", when: "Day 110", title: "Hearth notices", body: "Sam's days have drifted from the usual pattern. Today says Changed, with the reasons." },
+  { file: "checkin", when: "Day 110", title: "A 20-second check-in", body: "Three taps and Sam's own questions. The opening line names what changed." },
+  { file: "myplan", when: "Day 110", title: "Sam's own plan opens", body: "What Sam said helps, in Sam's own words, with what fits today on top." },
+  { file: "ledger", when: "All along", title: "Nothing private left the device", body: "The privacy ledger lists every model call: where it ran and exactly what was sent." },
+];
+function phone(img, x, y, h) {
+  const w = h * (img.width / img.height) + 28;
+  rr(x, y, w, h + 28, 54, "#1d1320");
+  g.save(); g.beginPath(); g.roundRect(x + 14, y + 14, w - 28, h, 42); g.clip();
+  g.fillStyle = "#fff"; g.fillRect(x + 14, y + 14, w - 28, h);
+  g.drawImage(img, x + 14, y + 14 + 26, w - 28, (w - 28) * (img.height / img.width));
+  g.restore();
+  rr(x + w / 2 - 50, y + 24, 100, 24, 12, "#1d1320");
+  return w;
+}
+function sectionTitle(t, t0, line1, line2) {
+  const k = ease((t - t0) / 0.8);
+  g.save(); g.globalAlpha = k;
+  text(line1, W / 2, H / 2 - 10, font(800, 76, "Syne"), C.ink, "center");
+  if (line2) text(line2, W / 2, H / 2 + 60, font(500, 30), C.ink2, "center");
+  g.restore();
+}
+function appSection(t) {
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const fw = 1920, fh = fw * (FLOWER_L.height / FLOWER_L.width);
+  g.save(); g.globalAlpha = 0.25; g.drawImage(FLOWER_L, 0, (H - fh) / 2, fw, fh); g.restore();
+  if (t < APP_START + 2) return sectionTitle(t, APP_START, "What Sam sees in the app", "Real screens of the Hearth web app, on the same simulated days");
+  const i = Math.min(SCREENS.length - 1, Math.floor((t - APP_START - 2) / APP_SHOT));
+  const local = t - APP_START - 2 - i * APP_SHOT;
+  const sc = SCREENS[i];
+  const kin = ease(local / 0.7), kout = i < SCREENS.length - 1 ? 1 - ease((local - (APP_SHOT - 0.5)) / 0.5) : 1;
+  const a = Math.min(kin, kout);
+  g.save(); g.globalAlpha = a;
+  // progress dots
+  SCREENS.forEach((_, j) => { g.beginPath(); g.arc(W / 2 - 75 + j * 30, 1030, 7, 0, Math.PI * 2); g.fillStyle = j === i ? C.mag : "#e9dce5"; g.fill(); });
+  const tx = 170 - (1 - kin) * 40;
+  text(sc.when.toUpperCase(), tx, 330, font(700, 26, "Syne"), C.mag);
+  wrap(sc.title, tx, 410, 820, font(700, 66, "Syne"), C.ink, 76);
+  wrap(sc.body, tx, 560, 760, font(400, 32), C.ink2, 46);
+  g.restore();
+  g.save(); g.globalAlpha = a;
+  const ph = 860, py = (H - ph - 28) / 2 + (1 - kin) * 60;
+  phone(sc.img, 1180, py, ph);
+  g.restore();
+}
+
+// ---------- part 3: why it matters ----------
+function impactSection(t) {
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const fw = 1920, fh = fw * (FLOWER.height / FLOWER.width);
+  g.save(); g.globalAlpha = 0.3; g.drawImage(FLOWER, 0, (H - fh) / 2, fw, fh); g.restore();
+  if (t < IMPACT_START + 2) return sectionTitle(t, IMPACT_START, "Why it matters");
+  const local = t - IMPACT_START - 2;
+  text("Why it matters", 150, 170, font(800, 56, "Syne"), C.ink);
+  const blocks = [
+    { n: "332 million", body: "people live with depression worldwide.", src: "World Health Organization, 2025" },
+    { n: "1 in 2", body: "who recover from a first episode have another, in clinical reviews.", src: "Burcusa & Iacono, Clin Psychol Rev 2007" },
+    { n: "7 days", body: "for Hearth to notice Sam's drift, with none of Sam's words leaving the device.", src: "Hearth's simulation, not a clinical result" },
+  ];
+  blocks.forEach((b, j) => {
+    const k = ease((local - j * 1.4) / 0.8);
+    if (k <= 0) return;
+    const x = 150 + j * 560, y = 270 + (1 - k) * 40;
+    g.save(); g.globalAlpha = k;
+    rr(x, y, 520, 400, 28, "rgba(255,255,255,0.92)", C.line, 2);
+    let fs = 76; g.font = font(800, fs, "Syne"); while (g.measureText(b.n).width > 440) { fs -= 2; g.font = font(800, fs, "Syne"); }
+    text(b.n, x + 40, y + 120, font(800, fs, "Syne"), C.mag);
+    wrap(b.body, x + 40, y + 190, 440, font(500, 30), C.ink, 42);
+    text(b.src, x + 40, y + 368, font(400, 19), C.muted);
+    g.restore();
+  });
+  const k2 = ease((local - 5.2) / 1);
+  if (k2 > 0) {
+    g.save(); g.globalAlpha = k2;
+    wrap("Clinicians already write early-warning plans with their patients. Hearth helps that plan work between appointments: noticing early, privately, in the person's own words.", 150, 790, 1600, font(700, 44, "Syne"), C.ink, 60);
+    g.restore();
+  }
+}
+
 let T = 0;
 function render(t) {
   T = t;
   g.clearRect(0, 0, W, H);
   g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  if (t >= APP_START && t < IMPACT_START) { appSection(t); fadeIn(t, APP_START); return; }
+  if (t >= IMPACT_START && t < END_START) { impactSection(t); fadeIn(t, IMPACT_START); return; }
   const day = dayAt(t);
   header(day);
   panel("left", day, t);
@@ -255,12 +344,20 @@ function render(t) {
     g.save(); g.globalAlpha = 1 - k; g.fillStyle = "#fff"; g.fillRect(0, 160, W, H - 160); g.restore();
   }
   if (t >= END_START) endCard(t);
+  if (t >= SBS_END - 0.6 && t < SBS_END) { g.save(); g.globalAlpha = ease((t - (SBS_END - 0.6)) / 0.6); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.restore(); }
+}
+function fadeIn(t, t0) {
+  const k = 1 - ease((t - t0) / 0.6);
+  if (k > 0) { g.save(); g.globalAlpha = k; g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.restore(); }
 }
 
 async function load() {
   DATA = await (await fetch("./data.json")).json();
   LOGO = new Image(); LOGO.src = "../apps/web/src/assets/hearth-logo.png"; await LOGO.decode();
   FLOWER = new Image(); FLOWER.src = "../apps/web/src/assets/flower-right.webp"; await FLOWER.decode();
+  FLOWER_L = new Image(); FLOWER_L.src = "../apps/web/src/assets/flower-left.webp"; await FLOWER_L.decode();
+  for (const sh of SCREENS) { sh.img = new Image(); sh.img.src = `../apps/web/src/assets/shots/${sh.file}.webp`; await sh.img.decode(); }
+  await document.fonts.load('800 40px "Syne"');
   await document.fonts.load('700 40px "Syne"'); await document.fonts.load('400 20px "Outfit"'); await document.fonts.load('600 20px "Outfit"');
   window.TOTAL = TOTAL; window.render = render; window.ready = true;
   render(Number(new URLSearchParams(location.search).get("t") ?? 25));
