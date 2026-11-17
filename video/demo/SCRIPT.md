@@ -20,7 +20,7 @@ voice-over in any editor (CapCut, iMovie, Premiere, DaVinci).
 | 5 | Sponsor models by name, each with a role, architecture slide | 1:39–1:59 |
 | 6 | Human control, safety, privacy | 1:59–2:14 (and in the demo at 0:50 and 1:03) |
 | 7 | Hard numbers | 2:14–2:29 |
-| 8 | Tagline, sponsor, GitHub, QR, under the limit | 2:29–2:41 |
+| 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:29–2:41 |
 
 ## Script
 
@@ -82,7 +82,9 @@ precision").
 
 ### 2:29–2:41 · Close (optional small WEBCAM)
 > VO / WEBCAM: "When your days drift, Hearth notices. Built with Firebase AI Logic and
-> Gemini. The code is on GitHub."
+> Gemini. Scan the code to try it yourself."
+
+The QR code opens https://hearth-ecru-sigma.vercel.app; the GitHub link is shown under it.
 
 ## Before you submit
 
