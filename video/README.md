@@ -19,7 +19,7 @@ node video/render.cjs
 
 38–70 s, "What Sam sees in the app": six real screens of the web app
 (`apps/web/src/assets/shots/`) on the same simulated days: plan cards (day 1), holiday check
-(day 61), Today showing Changed (day 110), the check-in, Sam's plan, the privacy ledger.
+(day 61), Today showing Changed (day 109), the check-in, Sam's plan, the privacy ledger.
 
 70–86 s, "Why it matters", sources shown on screen:
 - 332 million people live with depression: WHO depression fact sheet, 2025.

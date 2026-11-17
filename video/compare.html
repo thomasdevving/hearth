@@ -22,8 +22,8 @@ let DATA, LOGO, FLOWER, FLOWER_L;
 
 // time (s) → day (float); holds are segments with equal days
 const SEG = [
-  [0, 3.5, 0, 0], [3.5, 10.5, 1, 60], [10.5, 14.5, 60, 68], [14.5, 17.5, 68, 102], [17.5, 24, 102, 110],
-  [24, 27.5, 110, 110], [27.5, 29.5, 110, 111.6], [29.5, 32, 111.6, 111.6], [32, 37, 111.6, 150], [37, 38.5, 150, 150],
+  [0, 3.5, 0, 0], [3.5, 10.5, 1, 60], [10.5, 14.5, 60, 68], [14.5, 17.5, 68, 102], [17.5, 24, 102, 109],
+  [24, 27.5, 109, 109], [27.5, 29.5, 109, 110.6], [29.5, 32, 110.6, 110.6], [32, 37, 110.6, 150], [37, 38.5, 150, 150],
 ];
 const SBS_END = 38.5; // side-by-side part
 const APP_START = 38.5, APP_SHOT = 5, APP_END = APP_START + 2 + 6 * APP_SHOT; // 70.5
@@ -248,9 +248,9 @@ function endCard(t) {
 const SCREENS = [
   { file: "plan", when: "Day 1", title: "Sam's plan becomes cards", body: "The model on the device turns Sam's own words into signs to watch and things that help. Sam keeps or rejects each card." },
   { file: "holiday", when: "Day 61", title: "A holiday is not an alarm", body: "From one note, Hearth asks once. A yes sets Sam's location signals aside for that week." },
-  { file: "home", when: "Day 110", title: "Hearth notices", body: "Sam's days have drifted from the usual pattern. Today says Changed, with the reasons." },
-  { file: "checkin", when: "Day 110", title: "A 20-second check-in", body: "Three taps and Sam's own questions. The opening line names what changed." },
-  { file: "myplan", when: "Day 110", title: "Sam's own plan opens", body: "What Sam said helps, in Sam's own words, with what fits today on top." },
+  { file: "home", when: "Day 109", title: "Hearth notices", body: "Sam's days have drifted from the usual pattern. Today says Changed, with the reasons." },
+  { file: "checkin", when: "Day 109", title: "A 20-second check-in", body: "Three taps and Sam's own questions. The opening line names what changed." },
+  { file: "myplan", when: "Day 109", title: "Sam's own plan opens", body: "What Sam said helps, in Sam's own words, with what fits today on top." },
   { file: "ledger", when: "All along", title: "Nothing private left the device", body: "The privacy ledger lists every model call: where it ran and exactly what was sent." },
 ];
 function phone(img, x, y, h) {
@@ -305,7 +305,7 @@ function impactSection(t) {
   const blocks = [
     { n: "332 million", body: "people live with depression worldwide.", src: "World Health Organization, 2025" },
     { n: "1 in 2", body: "who recover from a first episode have another, in clinical reviews.", src: "Burcusa & Iacono, Clin Psychol Rev 2007" },
-    { n: "7 days", body: "for Hearth to notice Sam's drift, with none of Sam's words leaving the device.", src: "Hearth's simulation, not a clinical result" },
+    { n: `${DATA.firstChange - DATA.declineStart} days`, body: "for Hearth to notice Sam's drift, with none of Sam's words leaving the device.", src: "Hearth's simulation, not a clinical result" },
   ];
   blocks.forEach((b, j) => {
     const k = ease((local - j * 1.4) / 0.8);
