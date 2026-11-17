@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { WeekAggregate } from "@baseline/engine";
+import type { WeekAggregate } from "@hearth/engine";
 import { db, getSettings } from "../store/db";
 import { useData } from "../ui/hooks";
 import { ModelBadge, Screen } from "../ui/kit";

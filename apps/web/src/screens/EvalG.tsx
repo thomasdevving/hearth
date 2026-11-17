@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { VerifiedPlan } from "@baseline/engine";
+import type { VerifiedPlan } from "@hearth/engine";
 import { Screen } from "../ui/kit";
 import { router } from "../inference";
 import { cfg } from "../app/runtime";
@@ -8,7 +8,7 @@ import { G_CASES, scoreCase, summarise, type GCaseResult } from "../eval/taskG";
 import { promptFor } from "../inference/prompts";
 import { H_CASES, H_TODAY, ledgerStats, scoreH } from "../eval/stats";
 import { useData } from "../ui/hooks";
-import type { VerifiedContext } from "@baseline/engine";
+import type { VerifiedContext } from "@hearth/engine";
 
 /** Hidden screen (#/eval_g): runs the task G evaluation set through the real model. */
 export function EvalG() {

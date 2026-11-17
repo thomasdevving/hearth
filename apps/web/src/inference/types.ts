@@ -1,4 +1,4 @@
-import type { TaskId, VerifyContext } from "@baseline/engine";
+import type { TaskId, VerifyContext } from "@hearth/engine";
 
 export type TaskResult<T> =
   | { ok: true; value: T; ranOn: "on_device" | "cloud"; ledgerId: string }

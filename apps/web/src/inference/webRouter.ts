@@ -1,6 +1,6 @@
 // The InferenceRouter for web (docs/02 §5) on the Firebase JS SDK's hybrid inference.
 import { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode, type AI } from "firebase/ai";
-import { mayReachCloud, parseJsonLoose, Q_CLASSIFY_CLASS, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@baseline/engine";
+import { mayReachCloud, parseJsonLoose, Q_CLASSIFY_CLASS, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@hearth/engine";
 import { cloudConfigured, firebaseApp, GEMINI_MODEL } from "../firebase";
 import { db, getSettings, newId } from "../store/db";
 import { nowStamp } from "../app/clock";

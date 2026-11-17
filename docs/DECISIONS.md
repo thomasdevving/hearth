@@ -5,10 +5,10 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 ## M0 / M1
 
 - **Workspace layout.** npm workspaces `packages/*` and `apps/web`. The web app imports the
-  engine source through an alias (`@baseline/engine` → `packages/engine/src`), so the web
+  engine source through an alias (`@hearth/engine` → `packages/engine/src`), so the web
   build does not depend on a prior engine build; `npm run build` still builds both.
 - **Engine bundle.** `tsup` writes ESM (`dist/index.js`, Ajv external) and one IIFE
-  (`dist/engine.js`, Ajv bundled, global `BaselineEngine`) for JavaScriptCore.
+  (`dist/engine.js`, Ajv bundled, global `HearthEngine`) for JavaScriptCore.
 - **Timestamps.** The engine reads the wall-clock digits of an ISO timestamp and ignores the
   UTC offset. Features are defined on local time, and this keeps the engine independent of
   the system time zone. A day with a daylight-saving change is off by one hour for
@@ -295,3 +295,22 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   "diagnose" from onboarding.
 - **Accessibility:** all text colour pairs are at least 4.5:1 (lowest: muted text on the
   warm card, 4.9:1); every control is at least 44 px high; every input has a label.
+
+## Polish: Hearth
+
+- **Name.** The product is now **Hearth** (packages `@hearth/engine`, `@hearth/web`, iOS bundle
+  global `HearthEngine`, local database `hearth`, emulator project `demo-hearth`). The word
+  "baseline" stays where it is the technical term (personal baseline, `baselineWindowDays`,
+  screen id `baseline_phq`, docs/04 title).
+- **Look.** White and magenta (`#c2187e`, 5.6:1 on white; deep `#7a0f55`; tint `#fdf0f7`).
+  Status colours stay separate from the brand colour (steady green, changed amber, help red).
+  Headings in Syne, body in Outfit, both bundled from `@fontsource-variable/*`: a font CDN
+  would be a request before consent (R4). One spacing scale (4/8/12/16/24/32/48 px).
+- **Landing page** at `#/` (the site root): what it does, how it works, the routing in plain
+  words, three measured numbers from `docs/10`, what it is not, the US crisis line, and
+  "Try the demo". In-page links scroll instead of changing the hash, which is the router.
+- **Crisis line default is the US** (988, emergency 911); `crisis_lines.json` gained an
+  `emergency` number per country. The country stays changeable in Settings.
+- **Charts** start at the first day with a usual range (earlier days are scored against a
+  reference still being built), legends show labels only, PHQ-9 labels no longer overlap the
+  axis, and the smoothed line is magenta.

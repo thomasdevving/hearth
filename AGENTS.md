@@ -1,6 +1,6 @@
 # Instructions for the builder
 
-You are building **Baseline** from the specification in `docs/`. Follow this file exactly.
+You are building **Hearth** from the specification in `docs/`. Follow this file exactly.
 
 ## 1. How to work
 

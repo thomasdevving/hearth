@@ -7,7 +7,7 @@
     "noEmit": true,
     "types": ["vite/client"],
     "baseUrl": ".",
-    "paths": { "@baseline/engine": ["../../packages/engine/src/index.ts"] }
+    "paths": { "@hearth/engine": ["../../packages/engine/src/index.ts"] }
   },
   "include": ["src", "test", "vite.config.ts"]
 }

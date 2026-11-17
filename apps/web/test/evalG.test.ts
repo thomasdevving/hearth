@@ -3,7 +3,7 @@ import { db, updateSettings } from "../src/store/db";
 import { WebInferenceRouter } from "../src/inference/webRouter";
 import { G_CASES, scoreCase, summarise } from "../src/eval/taskG";
 import { installFakeLanguageModel } from "./fakeLanguageModel";
-import { verifyPlan, type VerifiedPlan } from "@baseline/engine";
+import { verifyPlan, type VerifiedPlan } from "@hearth/engine";
 
 describe("task G evaluation scoring", () => {
   beforeEach(async () => {

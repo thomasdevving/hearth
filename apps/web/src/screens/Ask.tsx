@@ -1,5 +1,5 @@
 import { useState, useSyncExternalStore } from "react";
-import { askFacts, askTemplate, detectCrisis, type AskFeature, type AskIntent, type AskPeriod } from "@baseline/engine";
+import { askFacts, askTemplate, detectCrisis, type AskFeature, type AskIntent, type AskPeriod } from "@hearth/engine";
 import { db } from "../store/db";
 import { router } from "../inference";
 import { getModelStatus, onModelStatus } from "../inference/status";

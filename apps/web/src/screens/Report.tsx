@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { WeekAggregate } from "@baseline/engine";
+import type { WeekAggregate } from "@hearth/engine";
 import { loadShare } from "../cloud/client";
 import { Screen } from "../ui/kit";
 

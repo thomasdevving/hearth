@@ -1,5 +1,5 @@
 // docs/10 metric 7: task G accuracy on hand-written plans, scored after the guardrails.
-import { verifyQuote, type VerifiedPlan } from "@baseline/engine";
+import { verifyQuote, type VerifiedPlan } from "@hearth/engine";
 import evalSet from "../../../../eval/task_g.json";
 
 export interface GCase {

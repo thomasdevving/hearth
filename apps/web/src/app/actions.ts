@@ -19,7 +19,7 @@ import {
   type QuestionnaireRecord,
   type VerifiedContext,
   type VerifiedPlan,
-} from "@baseline/engine";
+} from "@hearth/engine";
 import { db, getSingleton, newId, putSingleton, updateSettings, getSettings, type InboxItem } from "../store/db";
 import { addInbox, closeInbox, cfg, getEngineState, openInbox, resumeAfterNote, currentReplay, processDay, getMeta } from "./runtime";
 import { getToday, nowStamp, stampAt } from "./clock";
@@ -275,7 +275,7 @@ export async function autoOnboard(): Promise<void> {
 export async function autoAnswer(item: InboxItem): Promise<void> {
   const data = await currentReplay();
   if (!data || item.status !== "open") return;
-  const { scriptedCheckin, scriptedQuestionnaire } = await import("@baseline/engine");
+  const { scriptedCheckin, scriptedQuestionnaire } = await import("@hearth/engine");
   if (item.type === "checkin") {
     const ev = scriptedCheckin(data.script, item.date);
     if (!ev || ev.type === "ignore_checkin") return skipCheckin(item.checkinId);

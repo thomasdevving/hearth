@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { addDays, CONTEXT_TYPES, CONTEXT_TABLE, type ContextLabel } from "@baseline/engine";
+import { addDays, CONTEXT_TYPES, CONTEXT_TABLE, type ContextLabel } from "@hearth/engine";
 import { db, type InboxItem } from "../store/db";
 import { ModelBadge, Screen } from "../ui/kit";
 import { navigate } from "../app/events";

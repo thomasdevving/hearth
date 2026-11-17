@@ -1,4 +1,4 @@
-import type { FeatureId, PlanRule, Place, State } from "@baseline/engine";
+import type { FeatureId, PlanRule, Place, State } from "@hearth/engine";
 
 export const STATE_LABEL: Record<State, string> = {
   WARM_UP: "Learning your pattern",
@@ -8,7 +8,7 @@ export const STATE_LABEL: Record<State, string> = {
 };
 
 export const STATE_TEXT: Record<State, string> = {
-  WARM_UP: "Baseline is still learning what your usual weeks look like. This takes about two weeks.",
+  WARM_UP: "Hearth is still learning what your usual weeks look like. This takes about two weeks.",
   MONITOR: "Your days look like your usual pattern.",
   ELEVATED: "Some of your signals have moved away from your usual pattern for a few days. That can have many reasons.",
   CONFIRMED: "Your answers and your signals both show a change from your usual pattern. Your plan is below.",

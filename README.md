@@ -1,14 +1,14 @@
-# Baseline
+# Hearth
 
 **Hybrid, privacy-first relapse prevention for depression.**
 Entry for #BuildHybridAI 2026 (Firebase AI Logic hybrid inference). Deadline: **30 November 2026, 2 PM PT**.
 
-> Your phone notices your daily rhythm shifting before you do. Baseline turns your own
+> Your phone notices your daily rhythm shifting before you do. Hearth turns your own
 > description of how a relapse starts into measurement rules, watches for exactly those
 > signs, and asks a validated question at the right moment. Your raw data never leaves
 > your phone.
 
-Baseline is a wellbeing and self-insight tool. It is not a medical device and never gives
+Hearth is a wellbeing and self-insight tool. It is not a medical device and never gives
 a diagnosis or treatment advice.
 
 ## Run it

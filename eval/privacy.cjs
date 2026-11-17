@@ -20,7 +20,7 @@ const S3_WORDS = /Spain|skip the gym|sister|going to bed later|didn't eat|stayed
     if (!u.startsWith(BASE) && !u.startsWith("data:") && !u.startsWith("blob:")) leaving.push({ url: u, body: r.postData() ?? "" });
   });
   page.on("dialog", (d) => d.accept());
-  await page.goto(BASE + "/");
+  await page.goto(BASE + "/#/onboarding");
   await page.click("text=Next");
   await page.click("text=Next");
   await page.click("text=Set up my plan");
@@ -65,7 +65,7 @@ const S3_WORDS = /Spain|skip the gym|sister|going to bed later|didn't eat|stayed
   const ledger = await page.evaluate(
     () =>
       new Promise((res) => {
-        const q = indexedDB.open("baseline");
+        const q = indexedDB.open("hearth");
         q.onsuccess = () => {
           const g = q.result.transaction("ledger").objectStore("ledger").getAll();
           g.onsuccess = () => res(g.result.map((e) => e.ranOn));

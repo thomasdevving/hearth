@@ -11,7 +11,7 @@ const week = { isoWeek: "2026-W47", daysWithData: 7, indexMean: 0.3, daysElevate
 
 beforeAll(async () => {
   env = await initializeTestEnvironment({
-    projectId: "demo-baseline",
+    projectId: "demo-hearth",
     firestore: { rules: readFileSync(fileURLToPath(new URL("../firestore.rules", import.meta.url)), "utf8") },
   });
 });

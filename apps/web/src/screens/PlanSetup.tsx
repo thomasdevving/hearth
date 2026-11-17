@@ -7,7 +7,7 @@ import { router } from "../inference";
 import { Card, ModelBadge, Screen } from "../ui/kit";
 import { DIRECTION_TEXT, featureLabel } from "../app/labels";
 import { MicButton } from "../ui/Speech";
-import { detectCrisis, verifyPlan, type VerifiedPlan, type PersonaPlace, type RuleDirection } from "@baseline/engine";
+import { detectCrisis, verifyPlan, type VerifiedPlan, type PersonaPlace, type RuleDirection } from "@hearth/engine";
 
 type Status = { kind: "idle" } | { kind: "working" } | { kind: "cards"; plan: VerifiedPlan; ranOn: "on_device" | "cloud" | "template"; dropped: number } | { kind: "fallback"; reason: string };
 
@@ -115,7 +115,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
     return (
       <Screen title="Your plan as cards" badge={<ModelBadge ranOn={status.ranOn} />}>
         <p className="muted">Each card comes from your own words (the quote). Keep the ones that are right.{status.dropped > 0 ? ` ${status.dropped} suggestion(s) were removed because they were not in your text.` : ""}</p>
-        {plan.rules.length > 0 && <h2>Signs Baseline can watch</h2>}
+        {plan.rules.length > 0 && <h2>Signs Hearth can watch</h2>}
         {plan.rules.map((r, i) => (
           <Card key={`r${i}`} tone={rulesOk[i] ? "accent" : "plain"}>
             <strong>
@@ -202,7 +202,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
 
   return (
     <Screen title="Your plan" back={first ? undefined : "my_plan"}>
-      <p className="muted">In your own words. Baseline turns them into signs it can watch, questions for your check-ins, and the things that help you. It all stays on this device.</p>
+      <p className="muted">In your own words. Hearth turns them into signs it can watch, questions for your check-ins, and the things that help you. It all stays on this device.</p>
       <label className="stack">
         <strong>How does a dip start for you?</strong>
         <textarea rows={4} value={warning} onChange={(e) => setWarning(e.target.value)} placeholder="For example: I go to bed later and stop going to the gym…" />

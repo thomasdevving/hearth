@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { "@baseline/engine": fileURLToPath(new URL("../../packages/engine/src/index.ts", import.meta.url)) },
+    alias: { "@hearth/engine": fileURLToPath(new URL("../../packages/engine/src/index.ts", import.meta.url)) },
   },
   server: { fs: { allow: ["../.."] } },
   build: { outDir: "dist", sourcemap: true, chunkSizeWarningLimit: 1500 },

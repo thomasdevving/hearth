@@ -5,6 +5,8 @@ import { setNavigator } from "./app/events";
 import { ensureLoaded } from "./app/runtime";
 import { getSettings } from "./store/db";
 import { OnDeviceBanner } from "./inference/Banner";
+import { Landing } from "./screens/Landing";
+import { Wordmark } from "./ui/Logo";
 
 const TABS: { id: string; label: string }[] = [
   { id: "home", label: "Today" },
@@ -18,7 +20,7 @@ function parseHash(): { screen: string; params: Record<string, string> } {
   const h = location.hash.replace(/^#\/?/, "");
   const [screen, query] = h.split("?");
   const params = Object.fromEntries(new URLSearchParams(query ?? ""));
-  return { screen: screen || "home", params };
+  return { screen: screen || "landing", params };
 }
 
 export function App() {
@@ -35,7 +37,7 @@ export function App() {
       await ensureLoaded();
       const s = await getSettings();
       const r = parseHash();
-      if (!s.onboarded && !["onboarding", "plan_setup", "baseline_phq", "safety", "report", "eval_g"].includes(r.screen)) location.hash = "#/onboarding";
+      if (!s.onboarded && !["landing", "onboarding", "plan_setup", "baseline_phq", "safety", "report", "eval_g"].includes(r.screen)) location.hash = "#/onboarding";
       setReady(true);
     })();
     return () => window.removeEventListener("hashchange", onHash);
@@ -43,6 +45,7 @@ export function App() {
   useEffect(() => {
     window.scrollTo?.(0, 0);
   }, [route.screen]);
+  if (route.screen === "landing") return <Landing />;
   const Comp = SCREENS[route.screen] ?? SCREENS.home;
   const fullScreen = route.screen === "safety" || route.screen === "report";
   return (
@@ -52,6 +55,9 @@ export function App() {
           Demo: the sensor data is simulated. Everything else is live.
         </div>
       )}
+      <header className="app-header">
+        <Wordmark />
+      </header>
       {!fullScreen && <OnDeviceBanner />}
       {!fullScreen && (
         <nav className="tabs" aria-label="Main">

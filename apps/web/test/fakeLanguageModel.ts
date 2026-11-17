@@ -1,5 +1,5 @@
 // A stand-in for Chrome's Prompt API (globalThis.LanguageModel), for tests only.
-import { SAM_PLAN_EXPECTED } from "@baseline/engine";
+import { SAM_PLAN_EXPECTED } from "@hearth/engine";
 
 export interface FakeCall {
   system: string;

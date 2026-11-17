@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import type { Scenario } from "@baseline/engine";
+import type { Scenario } from "@hearth/engine";
 import { timeMachine, type JumpTarget } from "./controller";
 import { useData } from "../ui/hooks";
 import { getMeta, currentReplay, isTodayProcessed } from "../app/runtime";

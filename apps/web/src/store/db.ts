@@ -17,7 +17,7 @@ import type {
   WeekAggregate,
   Action,
   Contributor,
-} from "@baseline/engine";
+} from "@hearth/engine";
 
 export interface Singleton<T> {
   key: "singleton";
@@ -56,7 +56,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cloudConsent: false,
   onDeviceEnabled: true,
   online: true,
-  country: "NL",
+  country: "US",
   scheduleMode: "triggered",
   sensors: { steps: true, walkingSpeed: true, sleep: true, visits: true, phone: false },
   onboarded: false,
@@ -114,7 +114,7 @@ export interface NetworkLogEntry {
   task: string | null;
 }
 
-export class BaselineDB extends Dexie {
+export class HearthDB extends Dexie {
   day_raw!: Table<DayRaw, string>;
   day_records!: Table<DayRecord, string>;
   engine_state!: Table<Singleton<EngineState>, string>;
@@ -139,7 +139,7 @@ export class BaselineDB extends Dexie {
   network_log!: Table<NetworkLogEntry, number>;
   day_actions!: Table<{ date: string; actions: Action[] }, string>;
 
-  constructor(name = "baseline") {
+  constructor(name = "hearth") {
     super(name);
     this.version(1).stores({
       day_raw: "date",
@@ -168,7 +168,7 @@ export class BaselineDB extends Dexie {
   }
 }
 
-export const db = new BaselineDB();
+export const db = new HearthDB();
 
 export async function getSingleton<T>(table: Table<Singleton<T>, string>): Promise<T | null> {
   return (await table.get("singleton"))?.value ?? null;

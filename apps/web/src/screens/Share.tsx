@@ -6,7 +6,7 @@ import { router } from "../inference";
 import { createShare } from "../cloud/sync";
 import { cloudConfigured } from "../firebase";
 import { navigate } from "../app/events";
-import { catalogueId } from "@baseline/engine";
+import { catalogueId } from "@hearth/engine";
 
 export function Share() {
   const d = useData(async () => ({ weeks: (await db.week_aggregates.orderBy("isoWeek").toArray()).map((w) => w.aggregate).slice(-12), rules: await db.plan_rules.toArray(), settings: await getSettings() }));

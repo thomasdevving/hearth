@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { QUESTIONNAIRES } from "@baseline/engine";
+import { QUESTIONNAIRES } from "@hearth/engine";
 import PHQ9 from "../../../shared/questionnaires/PHQ9.json";
 import { db, updateSettings } from "../src/store/db";
 import { loadPersona, getMeta, openInbox, stepDay } from "../src/app/runtime";
@@ -88,7 +88,7 @@ describe("safety flow (docs/06 §4)", () => {
     const open = (await openInbox()).filter((i) => i.type === "questionnaire");
     expect(open.length).toBeGreaterThan(0);
     const meta = await getMeta();
-    const { scriptedQuestionnaire, simulatePersona } = await import("@baseline/engine");
+    const { scriptedQuestionnaire, simulatePersona } = await import("@hearth/engine");
     const data = simulatePersona(1, "safety");
     const q2 = scriptedQuestionnaire(data.script, "PHQ2", meta!.today)!;
     if (open.some((i) => i.type === "questionnaire" && i.instrument === "PHQ2")) await submitQuestionnaire("PHQ2", q2);

@@ -17,7 +17,7 @@ async function exportAll(): Promise<void> {
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "baseline-export.json";
+  a.download = "hearth-export.json";
   a.click();
   URL.revokeObjectURL(a.href);
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { LedgerEntry } from "@baseline/engine";
+import type { LedgerEntry } from "@hearth/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
 import { Screen } from "../ui/kit";

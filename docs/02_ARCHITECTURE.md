@@ -73,7 +73,7 @@ state and call models through one router.
     │       ├── replay/           time machine
     │       └── firebase.ts
     └── ios/                      SwiftUI app
-        └── Baseline/
+        └── Hearth/
             ├── Engine/           JavaScriptCore bridge + bundled engine.js
             ├── Collectors/       HealthKitCollector, LocationCollector, ScreenTimeCollector
             ├── Inference/        InferenceRouter (Firebase Apple SDK + FoundationModels) + ledger

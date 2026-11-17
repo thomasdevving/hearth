@@ -1,5 +1,5 @@
 // Non-LLM fallbacks (docs/05 §3). Plain, warm, no diagnostic words (R9).
-import type { QuestionnaireResult, WeekAggregate } from "@baseline/engine";
+import type { QuestionnaireResult, WeekAggregate } from "@hearth/engine";
 
 export const INTRO_RANDOM = "Quick check-in. How are you doing right now?";
 export const INTRO_TRIGGERED = "A few things look different from your usual week. How are you doing today?";

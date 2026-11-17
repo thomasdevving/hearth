@@ -3,7 +3,7 @@ import crisisLines from "../../../../shared/safety/crisis_lines.json";
 import { db, getSettings, getSingleton, putSingleton } from "../store/db";
 import { navigate } from "../app/events";
 
-type Line = { name: string; phone: string | null; alt_phone?: string; url: string };
+type Line = { name: string; phone: string | null; alt_phone?: string; url: string; emergency?: string };
 
 /**
  * The safety flow (docs/06 §4). Bundled data only, no network and no model call. The Back
@@ -56,7 +56,15 @@ export function Safety({ params }: { params: Record<string, string> }) {
           </p>
         </div>
         <p>
-          <strong>{crisisLines.emergency_text}</strong>
+          <strong>
+            {line.emergency ? (
+              <>
+                If you are in immediate danger, call <a href={`tel:${line.emergency}`}>{line.emergency}</a>.
+              </>
+            ) : (
+              crisisLines.emergency_text
+            )}
+          </strong>
         </p>
         {contact?.phone && (
           <div>
@@ -113,7 +121,7 @@ export function Safety({ params }: { params: Record<string, string> }) {
             </button>
           )}
         </section>
-        <p className="muted">Baseline is not a crisis service and has not contacted anyone.</p>
+        <p className="muted">Hearth is not a crisis service and has not contacted anyone.</p>
         <button className="secondary" disabled={!canLeave} onClick={() => (history.length > 1 ? history.back() : navigate("home"))} aria-label="Back">
           {canLeave ? "Back" : "Back (in a moment)"}
         </button>

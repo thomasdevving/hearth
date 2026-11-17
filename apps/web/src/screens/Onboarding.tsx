@@ -12,7 +12,7 @@ export function Onboarding() {
   if (!s) return null;
   const pages = [
     <>
-      <p className="item-text">Baseline helps you notice early when your days start to change, and shows you your own plan when they do.</p>
+      <p className="item-text">Hearth helps you notice early when your days start to change, and shows you your own plan when they do.</p>
       <p>It learns your usual pattern from steps, rest times, walking pace and the places you go. It compares each day only with your own usual days, not with anyone else.</p>
       <p>When something changes for a few days, it asks how you are. If the change continues, it offers a short questionnaire and shows the plan you wrote.</p>
     </>,
@@ -27,7 +27,7 @@ export function Onboarding() {
       <p>Some check-ins are random on purpose, so you can see later whether the app's questions are useful for you.</p>
     </>,
     <>
-      <h2>What Baseline is not</h2>
+      <h2>What Hearth is not</h2>
       <p>It cannot tell you what is wrong, and it is not a crisis service. Nobody watches your data and the app never contacts anyone for you.</p>
       <p>If you ever need help right away, the “I need help now” button shows support lines and your own safety plan, even offline.</p>
       <h2>Optional: the cloud model</h2>
@@ -49,11 +49,11 @@ export function Onboarding() {
           }}
         />
       </label>
-      <p className="muted">In this demo the sensors are simulated: you follow Sam, a made-up person, for 150 days. On iPhone, Baseline would ask for Health and location access here.</p>
+      <p className="muted">In this demo the sensors are simulated: you follow Sam, a made-up person, for 150 days. On iPhone, Hearth would ask for Health and location access here.</p>
     </>,
   ];
   return (
-    <Screen title="Welcome to Baseline">
+    <Screen title="Welcome to Hearth">
       {pages[page]}
       <div className="row">
         {page > 0 && (

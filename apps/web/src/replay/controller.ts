@@ -4,7 +4,7 @@ import { BLOCKING, currentReplay, getMeta, openInbox, stepDay, loadPersona } fro
 import { getSettings, db } from "../store/db";
 import { emitChange, navigate } from "../app/events";
 import type { InboxItem } from "../store/db";
-import type { Scenario } from "@baseline/engine";
+import type { Scenario } from "@hearth/engine";
 
 export type JumpTarget = "holiday" | "first_change" | "phq9";
 

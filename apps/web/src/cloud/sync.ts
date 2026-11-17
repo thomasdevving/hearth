@@ -1,6 +1,6 @@
 // Weekly aggregate upload (docs/07 §3–4): only with consent, the first one after a preview.
 import { collection, deleteDoc, doc, getDocs, setDoc, Timestamp } from "firebase/firestore";
-import type { WeekAggregate } from "@baseline/engine";
+import type { WeekAggregate } from "@hearth/engine";
 import { db, getSettings, newId, updateSettings } from "../store/db";
 import { addInbox, openInbox } from "../app/runtime";
 import { getToday } from "../app/clock";

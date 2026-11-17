@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { QuestionnaireRecord } from "@baseline/engine";
+import type { QuestionnaireRecord } from "@hearth/engine";
 import { db, updateSettings } from "../store/db";
 import { Card, ModelBadge, Screen } from "../ui/kit";
 import { navigate } from "../app/events";
@@ -59,7 +59,7 @@ export function Result({ params }: { params: Record<string, string> }) {
       {onboardingHigh && (
         <Card tone="warm">
           <strong>A note about your answers</strong>
-          <span>Baseline is built for people who are currently doing fairly well. Your answers suggest now may be a good moment to talk to your GP or clinician. You can still use the app.</span>
+          <span>Hearth is built for people who are currently doing fairly well. Your answers suggest now may be a good moment to talk to your GP or clinician. You can still use the app.</span>
         </Card>
       )}
       {r.flagged && !baseline && (

@@ -1,5 +1,5 @@
 {
-  "name": "baseline",
+  "name": "hearth",
   "private": true,
   "version": "0.1.0",
   "workspaces": [
@@ -10,7 +10,7 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-baseline \"vitest run --root firebase\"",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-hearth \"vitest run --root firebase\"",
     "eval": "tsx eval/engine_metrics.ts && tsx eval/text_metrics.ts"
   },
   "devDependencies": {

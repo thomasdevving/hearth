@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type uPlot from "uplot";
-import type { ContextLabel, DayRecord, DiaryMarkers, Domain, QuestionnaireRecord } from "@baseline/engine";
+import type { ContextLabel, DayRecord, DiaryMarkers, Domain, QuestionnaireRecord } from "@hearth/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
 import { Screen } from "../ui/kit";
@@ -47,7 +47,7 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
             }
             ctx.fillStyle = INK2;
             ctx.font = `${11 * devicePixelRatio}px system-ui, sans-serif`;
-            ctx.fillText(CONTEXT_LABEL[c.type] ?? c.type, x0 + 4, top + 14 * devicePixelRatio);
+            ctx.fillText(CONTEXT_LABEL[c.type] ?? c.type, x0 + 4, top + height - 8 * devicePixelRatio);
             ctx.restore();
           }
         },
@@ -59,6 +59,7 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
           let lastLabel = -Infinity;
           for (const q of qs) {
             if (q.instrument !== "PHQ9") continue;
+            if (sec(q.takenAt.slice(0, 10)) < (u.scales.x.min ?? 0)) continue;
             const x = u.valToPos(sec(q.takenAt.slice(0, 10)), "x", true);
             ctx.save();
             ctx.strokeStyle = INK;
@@ -71,7 +72,10 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
             ctx.fillStyle = INK;
             ctx.font = `${10 * devicePixelRatio}px system-ui, sans-serif`;
             if (x - lastLabel > 48 * devicePixelRatio) {
-              ctx.fillText(`PHQ-9 ${q.result.total}`, x + 3, top + height - 6 * devicePixelRatio);
+              const label = `PHQ-9 ${q.result.total}`;
+              const w = ctx.measureText(label).width;
+              const right = u.bbox.left + u.bbox.width;
+              ctx.fillText(label, x + 4 + w > right ? x - w - 4 : x + 4, top + 14 * devicePixelRatio);
               lastLabel = x;
             }
             ctx.restore();
@@ -82,7 +86,11 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
   };
 }
 
-function indexChart(records: DayRecord[], contexts: ContextLabel[], qs: QuestionnaireRecord[]) {
+function indexChart(all: DayRecord[], contexts: ContextLabel[], qs: QuestionnaireRecord[]) {
+  // Before the usual range exists the index is scored against a reference still being built;
+  // the chart starts at the first day with a limit.
+  const first = all.findIndex((r) => r.UCL !== null);
+  const records = first > 0 ? all.slice(first) : all;
   const xs = records.map((r) => sec(r.date));
   const data: uPlot.AlignedData = [
     xs,
@@ -93,13 +101,13 @@ function indexChart(records: DayRecord[], contexts: ContextLabel[], qs: Question
   const opts: Omit<uPlot.Options, "width"> = {
     height: 220,
     cursor: { drag: { x: false, y: false } },
-    legend: { show: true },
+    legend: { show: true, live: false },
     scales: { x: { time: true }, y: { range: (_u, _min, max) => [0, Math.max(1, (max ?? 1) * 1.1)] } },
     axes: axes("index"),
     series: [
       { label: "Date", value: (_u, v) => (v == null ? "–" : new Date(v * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })) },
       { label: "Daily index", stroke: "#8b8a85", width: 1, points: { show: true, size: 4, fill: "#8b8a85" }, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
-      { label: "Smoothed", stroke: "#2a78d6", width: 2, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
+      { label: "Smoothed", stroke: "#c2187e", width: 2.5, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
       { label: "Your usual range (limit)", stroke: INK, width: 1.5, dash: [6, 4], value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
     ],
     plugins: [contextPlugin(contexts, qs)],
@@ -107,13 +115,15 @@ function indexChart(records: DayRecord[], contexts: ContextLabel[], qs: Question
   return { opts, data };
 }
 
-function domainChart(records: DayRecord[], contexts: ContextLabel[]) {
+function domainChart(all: DayRecord[], contexts: ContextLabel[]) {
+  const first = all.findIndex((r) => r.UCL !== null);
+  const records = first > 0 ? all.slice(first) : all;
   const domains: Domain[] = ["activity", "rhythm", "sleep", "mobility", "phone"];
   const used = domains.filter((d) => records.some((r) => r.domainScores[d] !== undefined));
   const data: uPlot.AlignedData = [records.map((r) => sec(r.date)), ...used.map((d) => records.map((r) => r.domainScores[d] ?? null))];
   const opts: Omit<uPlot.Options, "width"> = {
     height: 180,
-    legend: { show: true },
+    legend: { show: true, live: false },
     scales: { x: { time: true }, y: { range: [0, 3] } },
     axes: axes("change"),
     series: [{ label: "Date" }, ...used.map((d) => ({ label: d[0].toUpperCase() + d.slice(1), stroke: DOMAIN_COLOR[d], width: 2, value: (_u: uPlot, v: number | null) => (v == null ? "–" : v.toFixed(2)) }))],
@@ -129,7 +139,7 @@ function markerChart(diary: { date: string; markers: DiaryMarkers | null }[]) {
   const data: uPlot.AlignedData = [diary.map((x) => sec(x.date)), ...keys.map((k) => diary.map((x) => x.markers?.[k] ?? null))];
   const opts: Omit<uPlot.Options, "width"> = {
     height: 160,
-    legend: { show: true },
+    legend: { show: true, live: false },
     scales: { x: { time: true }, y: { range: [0, 3] } },
     axes: axes("0–3"),
     series: [{ label: "Date" }, ...keys.map((_, i) => ({ label: names[i], stroke: colors[i], width: 2, points: { show: true, size: 6 } }))],

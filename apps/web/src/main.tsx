@@ -6,6 +6,8 @@ import { WebInferenceRouter } from "./inference/webRouter";
 import { checkOnDevice } from "./inference/availability";
 import { setModelStatus } from "./inference/status";
 import { cloudConfigured } from "./firebase";
+import "@fontsource-variable/syne";
+import "@fontsource-variable/outfit";
 import "./styles.css";
 
 installNetworkLog();

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SAM_PLAN_TEXT, SAM_HOLIDAY_TEXT, type VerifiedPlan, type VerifiedContext } from "@baseline/engine";
+import { SAM_PLAN_TEXT, SAM_HOLIDAY_TEXT, type VerifiedPlan, type VerifiedContext } from "@hearth/engine";
 import { db, updateSettings } from "../src/store/db";
 import { WebInferenceRouter, onDeviceSchema, buildUserMessage } from "../src/inference/webRouter";
 import { installNetworkLog } from "../src/inference/netlog";

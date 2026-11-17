@@ -2,7 +2,7 @@
 
 ## 1. One sentence
 
-Baseline helps people who have had a depressive episode notice the early signs of a
+Hearth helps people who have had a depressive episode notice the early signs of a
 relapse: it compares their daily behaviour with their own normal pattern and, when it
 changes, asks a validated question and shows them their own plan.
 
