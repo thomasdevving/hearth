@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cfg, currentReplay } from "../app/runtime";
 import { savePlan, openSafety } from "../app/actions";
 import { db, getSettings, getSingleton } from "../store/db";
 import { navigate } from "../app/events";
 import { router } from "../inference";
-import { Card, ModelBadge, Screen } from "../ui/kit";
+import { ModelBadge, Screen } from "../ui/kit";
 import { DIRECTION_TEXT, featureLabel } from "../app/labels";
 import { MicButton } from "../ui/Speech";
 import { detectCrisis, verifyPlan, type VerifiedPlan, type PersonaPlace, type RuleDirection } from "@hearth/engine";
@@ -165,46 +165,59 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
     const toggle = (arr: boolean[], set: (v: boolean[]) => void, i: number, v: boolean) => set(arr.map((x, k) => (k === i ? v : x)));
     return (
       <Screen title="Your plan as cards" badge={<ModelBadge ranOn={status.ranOn} />}>
-        <p className="muted">Each card shows where it came from: your own words, or a sign you ticked. Keep the ones that are right.{status.dropped > 0 ? ` ${status.dropped} suggestion(s) were removed because they were not in your text.` : ""}</p>
-        {plan.rules.length > 0 && <h2>Signs Hearth can watch</h2>}
-        {plan.rules.map((r, i) => (
-          <Card key={`r${i}`} tone={rulesOk[i] ? "accent" : "plain"}>
-            <strong>
-              {r.feature === "place_visits" ? `Visits to the ${r.place_label}` : featureLabel(r.feature)} {DIRECTION_TEXT[r.direction]}
-            </strong>
-            <Origin quote={r.quote} />
-            {r.feature === "place_visits" && (
-              <label>
-                Which place is your {r.place_label}?{" "}
-                <select value={picks[i] ?? ""} onChange={(e) => setPicks({ ...picks, [i]: e.target.value })} aria-label={`Pick the place for ${r.place_label}`}>
-                  <option value="">Choose…</option>
-                  {places.map((p) => (
-                    <option key={p.label} value={p.label}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-            <Decide value={rulesOk[i]} onChange={(v) => toggle(rulesOk, setRulesOk, i, v)} />
-          </Card>
-        ))}
-        {plan.personal_checkin_items.length > 0 && <h2>Questions for your check-ins</h2>}
-        {plan.personal_checkin_items.map((it, i) => (
-          <Card key={`i${i}`} tone={itemsOk[i] ? "accent" : "plain"}>
-            <strong>{it.question}</strong>
-            <Origin quote={it.quote} />
-            <Decide value={itemsOk[i]} onChange={(v) => toggle(itemsOk, setItemsOk, i, v)} />
-          </Card>
-        ))}
-        {plan.actions.length > 0 && <h2>What helps you</h2>}
-        {plan.actions.map((a, i) => (
-          <Card key={`a${i}`} tone={actionsOk[i] ? "accent" : "plain"}>
-            <strong>{a.text}</strong>
-            <span className="quote">“{a.quote}”</span>
-            <Decide value={actionsOk[i]} onChange={(v) => toggle(actionsOk, setActionsOk, i, v)} />
-          </Card>
-        ))}
+        <p className="muted">Each card shows where it came from: your own words, or a sign you ticked. Untick anything that is not right.</p>
+        {status.dropped > 0 && (
+          <p className="plan-note" role="status">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5" /><path d="M8 7.5v4M8 5h0" /></svg>
+            <span>Hearth left out {status.dropped === 1 ? "1 suggestion" : `${status.dropped} suggestions`} from the model that {status.dropped === 1 ? "was" : "were"} not in your own words.</span>
+          </p>
+        )}
+        {plan.rules.length > 0 && <h2 className="plan-group">Signs Hearth can watch</h2>}
+        {plan.rules.length > 0 && (
+          <ul className="plan-list">
+            {plan.rules.map((r, i) => {
+              const title = `${r.feature === "place_visits" ? `Visits to the ${r.place_label}` : featureLabel(r.feature)} ${DIRECTION_TEXT[r.direction]}`;
+              return (
+                <PlanItem key={`r${i}`} title={title} kept={rulesOk[i]} onChange={(v) => toggle(rulesOk, setRulesOk, i, v)}>
+                  <Origin quote={r.quote} />
+                  {r.feature === "place_visits" && (
+                    <label className="plan-place">
+                      Your {r.place_label}
+                      <select value={picks[i] ?? ""} onChange={(e) => setPicks({ ...picks, [i]: e.target.value })} aria-label={`Pick the place for ${r.place_label}`}>
+                        <option value="">Choose…</option>
+                        {places.map((p) => (
+                          <option key={p.label} value={p.label}>
+                            {p.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                </PlanItem>
+              );
+            })}
+          </ul>
+        )}
+        {plan.personal_checkin_items.length > 0 && <h2 className="plan-group">Questions for your check-ins</h2>}
+        {plan.personal_checkin_items.length > 0 && (
+          <ul className="plan-list">
+            {plan.personal_checkin_items.map((it, i) => (
+              <PlanItem key={`i${i}`} title={it.question} kept={itemsOk[i]} onChange={(v) => toggle(itemsOk, setItemsOk, i, v)}>
+                <Origin quote={it.quote} />
+              </PlanItem>
+            ))}
+          </ul>
+        )}
+        {plan.actions.length > 0 && <h2 className="plan-group">What helps you</h2>}
+        {plan.actions.length > 0 && (
+          <ul className="plan-list">
+            {plan.actions.map((a, i) => (
+              <PlanItem key={`a${i}`} title={a.text} kept={actionsOk[i]} onChange={(v) => toggle(actionsOk, setActionsOk, i, v)}>
+                <span className="quote">“{a.quote}”</span>
+              </PlanItem>
+            ))}
+          </ul>
+        )}
         {plan.rules.length + plan.personal_checkin_items.length + plan.actions.length === 0 && <p>No cards came out of this text. You can add them by hand.</p>}
         <div className="row">
           <button className="secondary" onClick={() => setStatus({ kind: "idle" })}>
@@ -303,16 +316,21 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
   );
 }
 
-function Decide({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+/** One line of the plan: what it is, where it came from, and a tick to keep it (on by default). */
+function PlanItem({ title, kept, onChange, children }: { title: string; kept: boolean; onChange: (v: boolean) => void; children: ReactNode }) {
   return (
-    <div className="row" role="group" aria-label="Keep this card?">
-      <button aria-pressed={value} className={value ? "primary" : "secondary"} onClick={() => onChange(true)}>
-        Keep
+    <li className={`plan-item${kept ? "" : " is-off"}`}>
+      <div className="plan-item-text">
+        <strong>{title}</strong>
+        {children}
+        {!kept && <small className="plan-off">Not kept</small>}
+      </div>
+      <button className="keep-tick" role="switch" aria-checked={kept} aria-label={`Keep: ${title}`} onClick={() => onChange(!kept)}>
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+        </svg>
       </button>
-      <button aria-pressed={!value} className={!value ? "primary" : "secondary"} onClick={() => onChange(false)}>
-        Not right
-      </button>
-    </div>
+    </li>
   );
 }
 

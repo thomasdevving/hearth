@@ -30,7 +30,7 @@ const TOUCH = `
   fs.mkdirSync(OUT, { recursive: true });
   const real = !!process.env.CHROME_PROFILE;
   const opts = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
-  const browser = real ? null : await chromium.launch();
+  const browser = real ? null : await chromium.launch({ args: ["--force-device-scale-factor=2"] });
   const ctx = real ? await chromium.launchPersistentContext(process.env.CHROME_PROFILE, { ...opts, channel: "chrome", headless: false }) : await browser.newContext(opts);
   if (!real) await ctx.addInitScript(fs.readFileSync(path.join(__dirname, "../../eval/fake-language-model.js"), "utf8"));
   await ctx.addInitScript(TOUCH);
@@ -43,8 +43,10 @@ const TOUCH = `
 
   const tap = async (locator, { hold = 450 } = {}) => {
     const el = typeof locator === "string" ? page.locator(locator).first() : locator;
-    await el.scrollIntoViewIfNeeded();
-    await pause(250);
+    await el.waitFor({ state: "visible", timeout: 60000 });
+    const inView = await el.evaluate((e) => { const r = e.getBoundingClientRect(); return r.top > 60 && r.bottom < innerHeight - 190; });
+    if (!inView) { await el.evaluate((e) => e.scrollIntoView({ block: "center", behavior: "smooth" })); await pause(650); }
+    await pause(200);
     const b = await el.boundingBox();
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 12 });
     await pause(180);
@@ -76,7 +78,7 @@ const TOUCH = `
     frames.push({ file, t: f.metadata.timestamp });
     cdp.send("Page.screencastFrameAck", { sessionId: f.sessionId }).catch(() => {});
   });
-  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, everyNthFrame: 1 });
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, everyNthFrame: 1, maxWidth: 780, maxHeight: 1688 });
   t0 = Date.now();
   await pause(600);
 

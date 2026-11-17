@@ -134,6 +134,27 @@ th { background: var(--surface-2); font-weight: 600; position: sticky; top: 0; }
 .badge-on_device { background: #e9f5ee; border-color: #a8d5b9; color: #1e5b37; }
 .badge-cloud { background: #eaf1fb; border-color: #aecaee; color: #1d4a85; }
 
+/* ---------- plan cards (plan setup) ---------- */
+.plan-group { font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: var(--s5) 0 var(--s2); }
+.plan-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); overflow: hidden; }
+.plan-item { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); transition: opacity 0.15s; }
+.plan-item + .plan-item { border-top: 1px solid var(--line); }
+.plan-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.plan-item-text strong { font-weight: 600; font-size: 1rem; line-height: 1.35; }
+.plan-item-text .quote, .plan-item-text .muted { font-size: 0.88rem; }
+.plan-item.is-off .plan-item-text { opacity: 0.5; }
+.plan-off { color: var(--muted); font-size: 0.78rem; }
+.plan-place { display: flex; align-items: center; gap: var(--s2); font-size: 0.88rem; color: var(--ink-2); margin-top: var(--s1); }
+.plan-place select { min-height: 36px; padding: 2px var(--s2); font-size: 0.88rem; }
+.keep-tick { flex: none; width: 44px; height: 44px; min-width: 44px; padding: 0; border: none; background: transparent; display: inline-flex; align-items: center; justify-content: center; color: transparent; }
+.keep-tick svg { box-sizing: content-box; padding: 7px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--white); transition: background 0.15s, border-color 0.15s, color 0.15s; }
+.keep-tick[aria-checked="true"] { color: var(--magenta); }
+.keep-tick[aria-checked="true"] svg { background: var(--magenta-tint); border-color: var(--magenta-line); }
+.keep-tick:hover:not(:disabled) { background: transparent; }
+.keep-tick:hover:not(:disabled) svg { border-color: var(--magenta-line); }
+.plan-note { display: flex; gap: var(--s2); align-items: flex-start; font-size: 0.88rem; color: var(--ink-2); background: var(--surface-2); border-radius: var(--radius-sm); padding: var(--s2) var(--s3); margin: var(--s3) 0 0; }
+.plan-note svg { flex: none; margin-top: 3px; color: var(--magenta); }
+
 /* ---------- science ---------- */
 .sci-lead { font-size: 1.05rem; color: var(--ink-2); }
 .sci-toc { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s4) 0 0; }
