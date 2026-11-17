@@ -45,8 +45,9 @@ opened and confirmed before they are quoted in the submission.
 - **Rest-activity rhythm measures.** van Someren EJW, et al. 1999 (IS, IV, RA); R package
   nparACT documentation. https://ftp.kaist.ac.kr/CRAN/web/packages/nparACT/nparACT.pdf ;
   review: https://pmc.ncbi.nlm.nih.gov/articles/PMC5389454
-- **Relative amplitude and mood disorders.** Lyall LM, et al. *Lancet Psychiatry* 2018
-  (UK Biobank) *(check)*.
+- **Relative amplitude and mood disorders.** Lyall LM, et al. *Lancet Psychiatry*
+  2018;5:507–514, doi:10.1016/S2215-0366(18)30139-1. 91,105 UK Biobank participants; one
+  quintile lower RA: lifetime MDD OR 1.06 (1.04–1.08), bipolar OR 1.11. Cross-sectional.
 - **Sleep from phone use.** Ciman M, Wac K. iSenseSleep. *JMIR mHealth uHealth* 2019.
   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6547769/
 - **Gait.** Zhang Y, et al. Associations between depression symptom severity and daily-life
@@ -55,11 +56,35 @@ opened and confirmed before they are quoted in the submission.
   using a multimodal benchmark and topic analysis. *npj Digital Medicine* 2026;9:230.
   doi:10.1038/s41746-026-02486-9. *(check the within-person result in the full text)*
 - **Absolutist words.** Al-Mosaiwi M, Johnstone T. In an absolute state. *Clinical
-  Psychological Science* 2018;6(4):529–542 *(check)*.
+  Psychological Science* 2018;6(4):529–542, doi:10.1177/2167702617747074. 63 forums,
+  over 6,000 contributors; correlational.
 - **Language before diagnosis.** Eichstaedt JC, et al. Facebook language predicts
-  depression in medical records. *PNAS* 2018;115(44):11203–11208 *(check)*.
+  depression in medical records. *PNAS* 2018;115(44):11203–11208,
+  doi:10.1073/pnas.1802331115. 683 patients, 114 diagnosed; AUC 0.69, up to 3 months ahead.
 - **Routine regularity from mobility.** Canzian L, Musolesi M. Trajectories of depression.
   *UbiComp* 2015 *(check)*.
+
+- **Saeb 2015 figures.** 28 of 40 participants had enough data; circadian movement
+  r = −0.63, phone usage duration r = 0.54 with PHQ-9.
+- **Physical activity.** Schuch FB, et al. Physical activity and incident depression.
+  *Am J Psychiatry* 2018;175:631–648. 49 cohorts, n = 266,939; adjusted OR 0.83.
+  https://pubmed.ncbi.nlm.nih.gov/29690792/
+- **Insomnia.** Baglioni C, et al. Insomnia as a predictor of depression. *J Affect Disord*
+  2011;135:10–19. 21 studies; pooled OR 2.10 (fixed effects), 2.60 (random effects).
+
+### Candidate signals, not implemented (Science screen, "Signals we could add next")
+
+- **Heart rate variability.** Kemp AH, et al. *Biol Psychiatry* 2010;67:1067–1074.
+  https://pubmed.ncbi.nlm.nih.gov/20138254/ Lower HRV in depression, lower with severity.
+- **Resting heart rate.** Siddi S, et al. *Psychol Med* 2023;53(8):3249–3260,
+  doi:10.1017/S0033291723001034. RADAR-MDD, 510 people with recurrent MDD, 2 years, Fitbit.
+- **Daylight.** Burns AC, et al. *J Affect Disord* 2021;295:347–352,
+  doi:10.1016/j.jad.2021.08.056 (over 400,000 UK Biobank, self-reported outdoor light);
+  Burns AC, et al. *Nat Ment Health* 2023, doi:10.1038/s44220-023-00135-8 (86,772 with light
+  sensors; night light higher risk, day light lower risk). Both observational.
+- **Loneliness.** Mann F, et al. *Soc Psychiatry Psychiatr Epidemiol* 2022.
+  https://pubmed.ncbi.nlm.nih.gov/35583561/ Pooled adjusted OR 2.33 (1.62–3.34) for new
+  depression in often-lonely adults. Direction is debated.
 
 ## Questionnaires and momentary assessment
 

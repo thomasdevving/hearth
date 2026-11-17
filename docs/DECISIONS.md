@@ -458,3 +458,17 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   desktop pair retains its original overlap. No duplicated phones or carousel library.
 - Show evaluation numbers beside their explanations on mobile, keep the support
   telephone links at least 44 px tall, and reduce the finale's excess vertical space.
+
+## Science screen (`#/science`, tab "Science")
+
+- A sixth tab, "Science", shows the research behind each signal, the engine's formulas
+  with the live config values (read from `cfg`, not copied), the evaluation results from
+  `docs/10_EVALUATION.md` and the sources. Results are static text dated 2026-11-17.
+- The research findings use the studies' own terms ("depression", "insomnia"). R9 is about
+  what the UI says about the user; the screen never applies these words to the user, and a
+  test checks for that. The banned-word list stays in force for model output.
+- Sources whose DOI could not be checked from the build container link to a PubMed search
+  instead of a guessed DOI.
+- "Signals we could add next" (HRV, resting heart rate, daylight, loneliness) are described
+  as not implemented.
+

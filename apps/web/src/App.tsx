@@ -13,6 +13,7 @@ const TABS: { id: string; label: string }[] = [
   { id: "trends", label: "Trends" },
   { id: "my_plan", label: "Plan" },
   { id: "ledger", label: "Privacy" },
+  { id: "science", label: "Science" },
   { id: "settings", label: "Settings" },
 ];
 
@@ -37,7 +38,7 @@ export function App() {
       await ensureLoaded();
       const s = await getSettings();
       const r = parseHash();
-      if (!s.onboarded && !["landing", "onboarding", "plan_setup", "baseline_phq", "safety", "report", "eval_g"].includes(r.screen)) location.hash = "#/onboarding";
+      if (!s.onboarded && !["landing", "onboarding", "plan_setup", "baseline_phq", "safety", "report", "eval_g", "science"].includes(r.screen)) location.hash = "#/onboarding";
       setReady(true);
     })();
     return () => window.removeEventListener("hashchange", onHash);
