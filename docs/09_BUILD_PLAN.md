@@ -26,8 +26,8 @@ Read: `AGENTS.md`, `docs/02_ARCHITECTURE.md`, `docs/PLATFORM_NOTES.md`.
       in every "must check" row of `docs/PLATFORM_NOTES.md` with what the docs say today
       (SDK versions, inference mode enum names, structured output, how to tell which model
       answered, minimum OS and browser versions).
-- [ ] npm workspaces: root `package.json`, `packages/engine`, `apps/web`. TypeScript strict.
-- [ ] Vitest runs in `packages/engine` with one passing placeholder test.
+- [x] npm workspaces: root `package.json`, `packages/engine`, `apps/web`. TypeScript strict.
+- [x] Vitest runs in `packages/engine` with one passing placeholder test.
 - [ ] `npm run build` at the root builds the engine (ESM + `dist/engine.js` IIFE) and the web app.
 - [ ] Firebase project created; Anonymous Auth, Firestore, Remote Config, AI Logic, App
       Check and Hosting enabled. `apps/web/.env.example` lists the needed keys.
@@ -37,10 +37,10 @@ Done when: `npm test` and `npm run build` succeed from a clean clone.
 ## M1 · Engine foundations
 Read: `docs/07_DATA_MODEL.md` §1, §5.
 
-- [ ] `types.ts` with every type in the specs, names unchanged.
-- [ ] `config.ts`: load defaults, merge overrides, validate.
-- [ ] `stats.ts`: mean, sd, median, MAD, quantile, clamp, haversine, seeded PRNG (mulberry32).
-- [ ] `guardrails/validate.ts`: validate an object against a schema in `shared/schemas`.
+- [x] `types.ts` with every type in the specs, names unchanged.
+- [x] `config.ts`: load defaults, merge overrides, validate.
+- [x] `stats.ts`: mean, sd, median, MAD, quantile, clamp, haversine, seeded PRNG (mulberry32).
+- [x] `guardrails/validate.ts`: validate an object against a schema in `shared/schemas`.
 
 Done when: unit tests cover each function, including empty and single-element inputs.
 
