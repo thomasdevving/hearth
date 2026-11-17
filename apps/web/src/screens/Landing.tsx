@@ -163,10 +163,10 @@ export function Landing() {
         <div>
           <p className="eyebrow">Your own early-warning plan</p>
           <h1>
-            When your days start to drift, <em>Hearth notices,</em> and reminds you what helps.
+            When your days drift, <em>Hearth notices</em> and reminds you what helps.
           </h1>
           <p className="lead">
-            Hearth learns what your usual days look like. When they start to drift, it checks in and shows you the plan you wrote, in your own words. If the change continues, it
+            Hearth learns what your usual days look like. When something changes, it checks in and shows you the plan you wrote, in your own words. If the change continues, it
             offers a short validated questionnaire. What you write stays on your device.
           </p>
           <div className="ctas">
