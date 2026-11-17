@@ -154,6 +154,8 @@ export async function processDay(date: string, hooks: DayHooks = {}): Promise<vo
   if (datesOfIsoWeek(week)[6] === date) {
     await buildWeek(week);
     await hooks.onWeek?.(week);
+    const { syncWeeks } = await import("../cloud/sync");
+    await syncWeeks().catch((e) => console.warn("upload", e));
   }
   emitChange();
   for (const item of created) await hooks.onItem?.(item);

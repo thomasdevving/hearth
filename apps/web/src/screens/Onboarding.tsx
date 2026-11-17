@@ -42,8 +42,9 @@ export function Onboarding() {
           checked={s.cloudConsent}
           disabled={!cloudConfigured}
           onChange={async (e) => {
-            await updateSettings({ cloudConsent: e.target.checked });
-            await onConsentChanged(e.target.checked);
+            const on = e.target.checked; // read before any await: React resets a controlled input
+            await updateSettings({ cloudConsent: on });
+            await onConsentChanged(on);
             emitChange();
           }}
         />

@@ -53,8 +53,9 @@ export function Settings() {
           checked={settings.cloudConsent}
           disabled={!cloudConfigured}
           onChange={async (e) => {
-            await set({ cloudConsent: e.target.checked });
-            await onConsentChanged(e.target.checked);
+            const on = e.target.checked; // read before any await: React resets a controlled input
+            await set({ cloudConsent: on });
+            await onConsentChanged(on);
           }}
         />
       </label>

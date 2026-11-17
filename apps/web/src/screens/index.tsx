@@ -12,16 +12,9 @@ import { ContextConfirm } from "./ContextConfirm";
 import { MyPlan } from "./MyPlan";
 import { Safety } from "./Safety";
 import { Audit } from "./Audit";
-import { Screen } from "../ui/kit";
-
-function Placeholder({ title }: { title: string }) {
-  return (
-    <Screen title={title} back="home">
-      <p className="muted">This screen comes in a later milestone.</p>
-    </Screen>
-  );
-}
-const ph = (t: string) => () => <Placeholder title={t} />;
+import { Weekly } from "./Weekly";
+import { Share } from "./Share";
+import { Report } from "./Report";
 
 export const SCREENS: Record<string, ComponentType<{ params: Record<string, string> }>> = {
   home: Home,
@@ -37,8 +30,8 @@ export const SCREENS: Record<string, ComponentType<{ params: Record<string, stri
   safety: Safety,
   audit: Audit,
   ledger: Ledger,
-  weekly: ph("Weekly reflection"),
-  share: ph("Share with your clinician"),
+  weekly: Weekly,
+  share: Share,
   settings: Settings,
-  report: ph("Report"),
+  report: Report,
 };

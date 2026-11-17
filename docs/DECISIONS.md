@@ -213,3 +213,29 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - **Questionnaires show "Use scripted answer"** (time machine) next to the verbatim items;
   the model never writes on those pages (R1).
 - **React 19** for the web app (one copy in the workspace).
+
+## M7
+
+- **Consent starts the cloud.** App Check, anonymous sign-in and Firestore are initialised
+  only when cloud consent is turned on (R4: before that the app makes no request at all,
+  checked in a browser with a configured project). Turning consent off signs out.
+- **Remote Config** is fetched in the background after consent and never blocks sign-in or
+  uploads. The web replay keeps the bundled engine config (docs/07 §5); only prompt version
+  labels are taken from it.
+- **Weekly upload.** After an ISO week ends (the Sunday is processed) the aggregate is built
+  and, with consent and the network switch on, uploaded to `users/{uid}/weeks/{isoWeek}`.
+  The first time, an `upload_preview` item shows the exact JSON; nothing is sent until the
+  user confirms, then all pending weeks are sent. Uploads are recorded in the network log.
+- **Task D** runs when the `weekly` screen opens: online with consent it is
+  `PREFER_IN_CLOUD` (full, 12 weeks); offline with an on-device model it is the lite variant
+  on the last 2 weeks; otherwise the template with the numbers. The result is stored in
+  `reports` and, with consent, in `users/{uid}/reports`.
+- **Share and report** (P1, built because `result` and `my_plan` link to them): a share is a
+  snapshot in `shares/{id}` with a 128-bit random id and a 7-day expiry; task E (cloud only)
+  adds an overview, otherwise the clinician sees the table only. The `report` screen reads
+  the share without signing in.
+- **Rules test** runs on the Firestore emulator (`npm run test:rules`), which
+  `firebase-tools` downloads on first use.
+- **Not done here: deploying.** Creating the Firebase project, deploying the rules and
+  publishing to Hosting need the owner's Google account (`docs/FIREBASE_SETUP.md`). The
+  whole cloud flow was tested against the Auth and Firestore emulators instead.

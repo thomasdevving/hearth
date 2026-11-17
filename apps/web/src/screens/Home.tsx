@@ -192,9 +192,14 @@ export function Home() {
             );
           })}
       </ul>
-      <button className="link" onClick={() => navigate("trends")}>
-        See all trends ›
-      </button>
+      <div className="row">
+        <button className="link" onClick={() => navigate("trends")}>
+          See all trends ›
+        </button>
+        <button className="link" onClick={() => navigate("weekly")}>
+          Weekly reflection ›
+        </button>
+      </div>
       <NoteBox />
       <HelpButton />
     </Screen>

@@ -115,11 +115,13 @@ Done when: a person can go through the whole default scenario by hand and each s
 ## M7 · Cloud
 Read: `docs/07_DATA_MODEL.md` §3–4, `docs/05_LLM_TASKS.md` tasks D, E.
 
-- [ ] Anonymous sign-in, App Check, Remote Config fetch.
-- [ ] Weekly aggregate upload with first-time preview and confirmation.
-- [ ] Task D: lite on-device and full in cloud; `weekly` screen with model badge.
+- [x] Anonymous sign-in, App Check, Remote Config fetch.
+- [x] Weekly aggregate upload with first-time preview and confirmation.
+- [x] Task D: lite on-device and full in cloud; `weekly` screen with model badge.
 - [ ] Firestore rules deployed; a rules test shows another user cannot read a week document.
+      *(Rules test passes on the emulator: `npm run test:rules`. Deploying needs the Firebase project.)*
 - [ ] Deployed to Firebase Hosting.
+      *(`firebase.json` is ready; deploy with `docs/FIREBASE_SETUP.md` step 10 once the project exists.)*
 
 Done when: the hosted URL works in a fresh Chrome profile, and in offline mode the weekly
 reflection still appears as the lite on-device variant.

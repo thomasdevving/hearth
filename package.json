@@ -2,10 +2,18 @@
   "name": "baseline",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["packages/*", "apps/web"],
+  "workspaces": [
+    "packages/*",
+    "apps/web"
+  ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-baseline \"vitest run --root firebase\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase-tools": "^15.36.0"
   }
 }
