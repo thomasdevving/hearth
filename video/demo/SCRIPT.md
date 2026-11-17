@@ -1,4 +1,4 @@
-# Jury demo: script and voice-over (2:41)
+# Jury demo: script and voice-over (2:53)
 
 Draft video: `video/demo/hearth-jury-draft.mp4` (1920×1080). The small timecode in the top
 right corner of every frame matches the times below, so you can line up your webcam clips and
@@ -7,20 +7,20 @@ voice-over in any editor (CapCut, iMovie, Premiere, DaVinci).
 - **WEBCAM** = a placeholder. Put your own clip on top of it.
 - **VO** = voice-over over the screen. About 2.5 words per second is a calm pace; the lines
   below fit their slots at that pace.
-- The time limit is 3:00. The draft is 2:41, so you have about 15 seconds of slack.
+- The time limit is 3:00. The draft is 2:53, so keep your clips inside their placeholders.
 
 ## How it maps to the recipe
 
 | # | Recipe point | Where |
 |---|---|---|
 | 1 | Recognisable problem, ≤ 30 s | 0:00–0:30 webcam hook + "Today" slide |
-| 2 | One sentence, repeated at the end | 0:30 and 2:29 (same sentence) |
+| 2 | One sentence, repeated at the end | 0:30 and 2:41 (same sentence) |
 | 3 | A real, live demo with visible effect | 0:38–1:39, the real web app |
 | 4 | The agent catches or verifies a mistake, and you say so | 0:46–0:50 "Caught and checked" (quote check), plus the holiday confirmation |
-| 5 | Sponsor models by name, each with a role, architecture slide | 1:39–1:59 |
-| 6 | Human control, safety, privacy | 1:59–2:14 (and in the demo at 0:50 and 1:03) |
-| 7 | Hard numbers | 2:14–2:29 |
-| 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:29–2:41 |
+| 5 | Sponsor models by name, each with a role, architecture slide | 1:55–2:13 (theory first, 1:39–1:55) |
+| 6 | Human control, safety, privacy | 2:13–2:27 (and in the demo at 0:50 and 1:03) |
+| 7 | Hard numbers | 2:27–2:41 |
+| 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:41–2:53 |
 
 ## Script
 
@@ -58,19 +58,24 @@ Your own words, to camera. A suggestion to adapt:
 | 1:25 | Sam's plan | "And Sam's own plan opens, with what Sam said helps." |
 | 1:32 | Privacy ledger | "Every model call is in this ledger. All of them ran on the device. Nothing Sam wrote left the browser." |
 
-### 1:39–1:59 · Architecture
+### 1:39–1:55 · The theory, briefly
+> VO: "Under the hood, Hearth watches signals research links to harder periods, like sleep,
+> rhythm and heart rate. It compares them only with your own usual days, and looks for a
+> steady drift, not one bad day. Every formula and source: hearth-ecru-sigma.vercel.app/science."
+
+### 1:55–2:13 · Architecture
 > VO: "Hearth is hybrid by design, through Firebase AI Logic. The engine computes every score
 > and threshold in plain code. Gemini Nano runs on the device for anything personal: the plan,
 > notes, check-ins. Gemini 3.5 Flash in the cloud only writes a weekly reflection and a report
 > for your doctor, from weekly numbers, and only after you opt in. Firebase handles anonymous
 > sign-in, sync and remote configuration."
 
-### 1:59–2:14 · Control, safety and privacy
+### 2:13–2:27 · Control, safety and privacy
 > VO: "You stay in control: you confirm every card and every context, and the cloud is off
 > until you say yes. Your words never leave the device, every call is logged, the
 > questionnaires are never rewritten, and the 988 support screen works offline."
 
-### 2:14–2:29 · Numbers
+### 2:27–2:41 · Numbers
 > VO: "On fifty simulated people, Hearth noticed a drift after a median of seven days,
 > with about one false-alarm day per hundred. Confirming a holiday removed all ninety-two
 > holiday alarms. With the cloud off, zero requests left the browser, and on-device calls
@@ -80,7 +85,7 @@ Fill in the amber card before recording: run `#/eval_g` in Chrome with Gemini Na
 the precision it shows (and say it, for example: "Gemini Nano read the plans with __ percent
 precision").
 
-### 2:29–2:41 · Close (optional small WEBCAM)
+### 2:41–2:53 · Close (optional small WEBCAM)
 > VO / WEBCAM: "When your days drift, Hearth notices. Built with Firebase AI Logic and
 > Gemini. Scan the code to try it yourself."
 

@@ -25,6 +25,7 @@ const font = (w, s, fam = "Outfit") => `${w} ${s}px ${fam}`;
 const ONE_LINER = "Hearth notices when your days drift from your usual pattern, and reminds you what helps, in your own words, on your own device.";
 const GITHUB = "github.com/thomasdevving/BuildHybridAI-2026";
 const SITE = "hearth-ecru-sigma.vercel.app";
+const SCIENCE_URL = "hearth-ecru-sigma.vercel.app/science";
 
 function text(str, x, y, f, color, align = "left") { g.font = f; g.fillStyle = color; g.textAlign = align; g.textBaseline = "alphabetic"; g.fillText(str, x, y); }
 function wrap(str, x, y, maxW, f, color, lh, align = "left") {
@@ -90,7 +91,7 @@ let demoLen = 0; for (const s of DEMO) { s.start = demoLen; s.len = s.hold !== u
 const T = {};
 let cur = 0;
 const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("arch", 20); seg("control", 15); seg("numbers", 15); seg("close", 12);
+seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("theory", 16); seg("arch", 18); seg("control", 14); seg("numbers", 14); seg("close", 12);
 const TOTAL = cur;
 
 // ---------- sections ----------
@@ -166,6 +167,36 @@ async function demo(t) {
   rr(140, 92, 640, 48, 24, C.amberBg, "#f0c890", 2);
   text("DRAFT: stand-in model. Re-record with Gemini Nano in Chrome", 162, 124, font(600, 20), C.amber);
   webcam(140, 820, 360, 202, "WEBCAM (optional)", ["small, while you narrate"], true);
+}
+
+function theory(t) {
+  bg(0.12, "L");
+  const s = t - T.theory[0];
+  label("How it works: the theory, briefly", 120, 130);
+  text("Research-based signals, compared only with you", 120, 200, font(700, 50, "Syne"), C.ink);
+  const cols = [
+    { n: "1", title: "Signals research links to harder periods", body: "Sleep, activity, daily rhythm, heart rate and the places you go. Insomnia roughly doubles the odds of later depression; a flatter day\u2013night rhythm and lower heart rate variability go with it too.", tag: "Baglioni 2011 \u00b7 Lyall 2018 \u00b7 Kemp 2010" },
+    { n: "2", title: "Your own usual days are the baseline", body: "Each signal becomes a robust z-score against your last 56 ordinary days. Signals are averaged per group, then into one daily index.", formula: "z = (x \u2212 median) / (1.4826 \u00b7 MAD)", tag: "never compared with other people" },
+    { n: "3", title: "A drift, not one bad day", body: "EWMA and CUSUM from statistical process control catch a steady change. Your own early signs weigh double, and random check-ins test whether the alerts mean anything for you.", tag: "Birchwood 1989 \u00b7 micro-randomised trials" },
+  ];
+  cols.forEach((c, i) => fade(ease((s - 0.4 - i * 1.1) / 0.6), () => {
+    const x = 120 + i * 570, y = 270;
+    rr(x, y, 530, 560, 28, "rgba(255,255,255,.94)", C.line, 2);
+    g.beginPath(); g.arc(x + 58, y + 64, 26, 0, Math.PI * 2); g.fillStyle = C.tint; g.fill();
+    text(c.n, x + 58, y + 76, font(800, 30, "Syne"), C.mag, "center");
+    let yy = wrap(c.title, x + 36, y + 150, 460, font(700, 32, "Syne"), C.ink, 40);
+    yy = wrap(c.body, x + 36, yy + 52, 460, font(400, 25), C.ink2, 35);
+    if (c.formula) { rr(x + 36, yy + 26, 458, 56, 12, C.grey, C.line, 1.5); text(c.formula, x + 56, yy + 63, "500 19px ui-monospace, Menlo, Consolas, monospace", C.ink); }
+    text(c.tag, x + 36, y + 528, font(500, 19), C.muted);
+  }));
+  fade(ease((s - 5) / 0.7), () => {
+    g.font = font(700, 30);
+    const label2 = "Read more: " + SCIENCE_URL;
+    const w = g.measureText(label2).width + 64;
+    rr(120, 880, w, 76, 38, C.mag);
+    text(label2, 152, 929, font(700, 30), "#fff");
+    text("Every formula, every source, and what did not work.", 120 + w + 30, 929, font(400, 26), C.ink2);
+  });
 }
 
 function box(x, y, w, h, title, body, tone = "plain", tag) {
@@ -266,7 +297,8 @@ async function render(t) {
   if (t < T.problem[0]) hook(t, t / T.hook[1]);
   else if (t < T.oneliner[0]) problem(t);
   else if (t < T.demo[0]) oneliner(t);
-  else if (t < T.arch[0]) await demo(t);
+  else if (t < T.theory[0]) await demo(t);
+  else if (t < T.arch[0]) theory(t);
   else if (t < T.control[0]) arch(t);
   else if (t < T.numbers[0]) control(t);
   else if (t < T.close[0]) numbers(t);
