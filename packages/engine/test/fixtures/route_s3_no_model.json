@@ -1,0 +1,1 @@
+{"fn":"route","input":[{"dataClass":"S3","cloudConsent":true,"onDeviceAvailable":false,"online":true,"prefersCloud":false,"hasLiteVariant":false}],"expectedOutput":{"run":"fallback","reason":"no_model"}}

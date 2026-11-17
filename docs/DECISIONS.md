@@ -84,3 +84,57 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   router talks to the Prompt API through the same request shape; see M5), and every cloud
   path routes to its fallback as if consent were missing.
 - **Web tests** use Vitest with jsdom and `fake-indexeddb`.
+
+## M3
+
+- **Routing gaps.** The table has no row for S2 without an on-device model and without
+  consent: it returns `fallback: no_model`. S1 with consent, online and *not* `prefersCloud`
+  (no current task) uses `PREFER_ON_DEVICE` when a model exists, else `ONLY_IN_CLOUD`.
+- **`verifyTask(task, raw, ctx)`** is the single check every model output passes (R8). It
+  calls `verifyPlan`/`verifyContext`/`verifyMarkers` for G/H/B and applies the number check,
+  banned words, length limits, id checks (K, I) and the PII check (P) for the others.
+  Task A also rejects an intro that asks a question containing a symptom word.
+- **Phone rules in task G** are dropped while `cfg.phone.enabled` is false, so "stop replying
+  to messages" becomes only the check-in item, as in the docs/05 example.
+- **`place_visits` needs a `place_label`**; without one the rule is dropped.
+- **Relative dates.** `resolveDateHint` understands today/yesterday/tomorrow, weekdays with
+  or without since/until/back on/next/last, this/next/last week, this weekend, "N days ago",
+  "in N days", "for N days/weeks" and "the 24th". A start hint that cannot be resolved means
+  today; an end hint means start + 6 days. Both are flagged (`startResolved`/`endResolved`)
+  so the confirmation screen can say so. A hint that is not in the user's text is ignored.
+- **Number check** accepts a number written with fewer decimals than the fact (rounding) and
+  the absolute value of a negative fact; thousands separators are joined.
+- **Crisis keywords** are matched on the lowercased text with straightened apostrophes and,
+  separately, on the quote-normalised text, so hyphen and apostrophe variants match.
+- **Remission score** falls back to the first PHQ-9 ever taken when no unflagged PHQ-9 lies
+  in the last 180 days.
+- **Weekly aggregate rounding**: index and domain means to 2 decimals, check-in means to 1.
+  `daysWithData` counts days with at least one feature value. `topContributors` are the
+  three catalogue ids that were contributors on most days.
+- **Naming a place** (`pickPlace`) labels the nearest learned place within `placeRadiusM` or
+  adds a new place with zero minutes, so later visits are assigned to it.
+- **Free text outside a check-in.** The replay script has free text on fixed days, but
+  check-ins are random. The app therefore lets the user write a short note at any time
+  ("Anything different this week?" on `home`), which goes through the same pipeline as
+  check-in free text (crisis keywords, task H, task B). In the headless runner and the time
+  machine, a day's scripted text is entered during that day, before that day's data is
+  processed at night.
+- **Persona details** (docs/08 §2.1–2.2): starts Thursday 2026-06-18 so the holiday (61–67)
+  and the exam week (96–102) are Monday–Sunday. The holiday is a quiet week between a hotel
+  and a beach 600 m away with long walks (more steps, rest 40 min later). The exam week has
+  rest 25 min later and 10 % fewer steps. During the decline the office day shrinks
+  linearly (home at lunchtime at the end), a skipped gym visit becomes a short shop visit,
+  gym visits per week are `round(3·(1−f))` with Monday dropped first, the Sunday park visit
+  shortens, and Saturday friends stop from day 115. The `slow` scenario runs the decline
+  over days 71–130. The `safety` scenario differs only in PHQ-9 item 9 = 1. A `stable`
+  scenario (no exams, no decline) exists for the false-alarm evaluation. Scripted PHQ-2 = 4
+  and PHQ-9 = 13 apply from the start of the decline (they are only used when the app offers
+  the questionnaire); a PHQ-9 of 6 from day 135 shows the partial recovery.
+- **Rest shift leads.** With rest noise of 25 min on start and end and the 15-minute floor,
+  a linear +100 min over 28 days is not distinguishable from noise when the other signals
+  trip the index (around day 110). Sam's own plan names going to bed later as the first
+  sign, so the rest shift is linear but reaches +100 min after 12 of the 28 days. With this,
+  every point of docs/08 §2.3 holds for seed 1 (engine test `test/replay.test.ts`).
+  Across seeds 1–20 all points hold together for about half the seeds; the misses are
+  which three features rank as contributors and three early false alarms. This is reported
+  in M11 (docs/10 metric 2), not tuned away.

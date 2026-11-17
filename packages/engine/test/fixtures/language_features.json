@@ -1,0 +1,1 @@
+{"fn":"languageFeatures","input":["I always feel that nothing I do is ever enough and my friends say you are fine but they never really listen to me at all"],"expectedOutput":{"W":26,"FPS":0.15384615384615385,"OTH":0.07692307692307693,"ABS":0.19230769230769232,"SF":0.6666637777902963}}

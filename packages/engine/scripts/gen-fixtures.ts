@@ -7,6 +7,7 @@ import type { CheckinRecord, ContextLabel, PlanRule } from "../src/types";
 import { addDays } from "../src/time";
 import { FIXTURE_FNS } from "../test/fixture-fns";
 import { FAR, GYM, START, makeDays, runDays } from "../test/helpers";
+import { SAM_PLAN_EXPECTED, SAM_PLAN_TEXT, runHeadless, simulatePersona } from "../src/simulate/index";
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), "../test/fixtures");
 mkdirSync(dir, { recursive: true });
@@ -76,5 +77,17 @@ const audit = (kind: "triggered" | "random", moods: number[], offset: number): C
 emit("self_audit_informative", "selfAudit", [[...audit("triggered", [5, 4, 5, 6, 4, 5, 5, 4], 0), ...audit("random", [2, 3, 2, 1, 2, 3, 2, 2], 10)], cfg, 20261130]);
 emit("self_audit_unclear", "selfAudit", [[...audit("triggered", [3, 3, 2, 4, 3, 2, 3, 3, 4], 0), ...audit("random", [2, 3, 2, 3, 2, 3, 2, 3, 2], 10)], cfg, 20261130]);
 emit("self_audit_collecting", "selfAudit", [audit("random", [2, 2, 3], 0), cfg, 20261130]);
+
+// M3: guardrails, routing, questionnaires, aggregates.
+emit("route_s3_no_model", "route", [{ dataClass: "S3", cloudConsent: true, onDeviceAvailable: false, online: true, prefersCloud: false, hasLiteVariant: false }]);
+emit("route_s1_offline_lite", "route", [{ dataClass: "S1", cloudConsent: true, onDeviceAvailable: true, online: false, prefersCloud: true, hasLiteVariant: true }]);
+emit("score_phq9_reliable_change", "scoreQuestionnaire", ["PHQ9", [1, 1, 1, 1, 1, 1, 1, 0, 0], { remissionScore: 2 }, cfg]);
+emit("score_phq2_positive", "scoreQuestionnaire", ["PHQ2", [2, 1], { remissionScore: null }, cfg]);
+emit("verify_plan_example", "verifyPlan", [SAM_PLAN_EXPECTED, SAM_PLAN_TEXT, cfg]);
+emit("verify_context_holiday", "verifyContext", [{ context: "holiday", start_hint: "this week", end_hint: "back on Sunday", confidence: "high", quote: "I'm in Spain this week" }, "I'm in Spain this week, back on Sunday.", "2026-08-17", cfg]);
+emit("detect_crisis", "detectCrisis", ["Some days I don’t want to live anymore."]);
+emit("language_features", "languageFeatures", ["I always feel that nothing I do is ever enough and my friends say you are fine but they never really listen to me at all"]);
+const sam = runHeadless(simulatePersona(1, "default"), { seed: 1, days: 70 });
+emit("aggregate_week_holiday", "aggregateWeek", [{ isoWeek: "2026-W34", records: sam.records, checkins: sam.checkins, questionnaires: sam.questionnaires, contexts: sam.contexts, markers: [], note: null }]);
 
 console.log(`wrote ${count} fixtures to ${dir}`);

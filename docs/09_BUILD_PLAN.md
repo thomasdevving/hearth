@@ -62,12 +62,12 @@ Done when: every test in `docs/03` (formulas on hand-computed examples) and `doc
 ## M3 · Guardrails, questionnaires, routing, simulation
 Read: `docs/05_LLM_TASKS.md` §2, §5, §7; `docs/06_QUESTIONNAIRES_SAFETY.md`; `docs/08_DEMO_REPLAY.md`.
 
-- [ ] `guardrails/quotes.ts`, `dates.ts`, `crisis.ts`; number check; PII check; banned words.
-- [ ] `verifyPlan`, `verifyContext`, `verifyMarkers`.
-- [ ] `routing.ts` with the full table.
-- [ ] `questionnaires.ts`.
-- [ ] `aggregate.ts`, `language.ts`.
-- [ ] `simulate/`: persona "Sam", scenarios `default`, `slow`, `safety`.
+- [x] `guardrails/quotes.ts`, `dates.ts`, `crisis.ts`; number check; PII check; banned words.
+- [x] `verifyPlan`, `verifyContext`, `verifyMarkers`.
+- [x] `routing.ts` with the full table.
+- [x] `questionnaires.ts`.
+- [x] `aggregate.ts`, `language.ts`.
+- [x] `simulate/`: persona "Sam", scenarios `default`, `slow`, `safety`.
 
 Done when: tests in `docs/05` §7 and `docs/06` §5 pass, and an end-to-end test runs the
 default scenario day by day with scripted answers and asserts every point of

@@ -1,0 +1,1 @@
+{"fn":"route","input":[{"dataClass":"S1","cloudConsent":true,"onDeviceAvailable":true,"online":false,"prefersCloud":true,"hasLiteVariant":true}],"expectedOutput":{"run":"model","mode":"ONLY_ON_DEVICE","variant":"lite"}}
