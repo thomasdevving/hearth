@@ -18,7 +18,7 @@ export function Report({ params }: { params: Record<string, string> }) {
   if (!data) return <Screen title="Shared summary">Loading…</Screen>;
   return (
     <Screen title="Shared summary">
-      <p className="muted">Shared by a Baseline user. Weekly behaviour summaries and questionnaire scores; no diagnosis is implied.</p>
+      <p className="muted">Shared by the person themselves: weekly summaries of daily patterns and questionnaire scores. They describe changes from that person’s usual pattern, not a condition.</p>
       {data.report && (
         <>
           <h2>Overview (written by the cloud model from the numbers below)</h2>

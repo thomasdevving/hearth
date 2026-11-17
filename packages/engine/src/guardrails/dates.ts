@@ -30,6 +30,10 @@ function onOrAfter(date: string, wd: number): string {
   return addDays(date, (wd - weekdayOf(date) + 7) % 7);
 }
 
+function daysBetweenAbs(a: string, b: string): number {
+  return Math.abs(dayIndex(a) - dayIndex(b));
+}
+
 function count(token: string): number | null {
   if (/^\d+$/.test(token)) return Number(token);
   return NUMBER_WORDS[token] ?? null;
@@ -57,7 +61,7 @@ export function resolveDateHint(hint: string | null | undefined, today: string, 
     return addDays(today, -n * (m[2].startsWith("week") ? 7 : 1));
   }
   // "in 3 days", "for a week", "for two weeks", "for the next 5 days"
-  m = h.match(/\b(in|for|for the next|next) (\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|couple|few)(?: of)? (day|days|week|weeks|night|nights)\b/);
+  m = h.match(/\b(in|for|for the next|next) (?:a |an )?(\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|couple|few)(?: of)? (day|days|week|weeks|night|nights)\b/);
   if (m) {
     const n = count(m[2]) ?? 1;
     const days = n * (m[3].startsWith("week") ? 7 : 1);
@@ -81,9 +85,13 @@ export function resolveDateHint(hint: string | null | undefined, today: string, 
     const wd = WEEKDAYS[wdWord];
     if (/\bnext\b/.test(h)) return addDays(today, ((wd - weekdayOf(today) + 6) % 7) + 1);
     if (/\blast\b/.test(h)) return addDays(today, -(((weekdayOf(today) - wd + 6) % 7) + 1));
-    const forward = /\b(until|till|til|to|through|thru|back|return|returning|home|on|by|before)\b/.test(h) && role === "end";
-    if (role === "end" || forward) return onOrAfter(today, wd);
-    return onOrBefore(today, wd);
+    if (role === "end") return onOrAfter(today, wd);
+    if (/\b(since|ago|started|began)\b/.test(h)) return onOrBefore(today, wd);
+    // "on Friday", "from Friday": the nearer occurrence (ties: the past one). The user sees and
+    // can change the dates before confirming.
+    const back = onOrBefore(today, wd);
+    const ahead = onOrAfter(today, wd);
+    return daysBetweenAbs(ahead, today) < daysBetweenAbs(back, today) ? ahead : back;
   }
 
   // "until the 24th", "since the 3rd"
@@ -118,7 +126,7 @@ export function resolveContextPeriod(startHint: string | null | undefined, endHi
   const start = s ?? today;
   let e = resolveDateHint(endHint, today, "end", start);
   // A single phrase such as "this week" or "for 3 days" can carry both ends.
-  if (e === null && endHint && norm(endHint) === "unknown" && startHint) {
+  if (e === null && endHint && norm(endHint) === "unknown" && startHint && !/\b(since|ago|last)\b/.test(norm(startHint))) {
     const fromStart = resolveDateHint(startHint, today, "end", start);
     if (fromStart !== null && fromStart !== start && /week|days|weekend/.test(norm(startHint))) e = fromStart;
   }

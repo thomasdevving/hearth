@@ -37,3 +37,17 @@ describe("task G evaluation scoring", () => {
     expect(s.recall).toBe(0);
   });
 });
+
+describe("H scoring and ledger statistics", () => {
+  it("scores labels and dates, and summarises the ledger", async () => {
+    const { scoreH, ledgerStats, H_CASES } = await import("../src/eval/stats");
+    expect(H_CASES).toHaveLength(30);
+    const spain = H_CASES[0];
+    expect(scoreH(spain, { type: "holiday", kind: "explains_sensors", start: "2026-11-16", end: "2026-11-22", quote: "x", confidence: "high", startResolved: true, endResolved: true })).toEqual({ label: true, dates: true });
+    expect(scoreH(H_CASES[25], null)).toEqual({ label: true, dates: null });
+    const e = (task: string, ranOn: "on_device" | "cloud" | "none", ms: number) => ({ id: task + ms, at: "", task, promptVersion: "", dataClass: "S2", decision: { run: "fallback", reason: "no_model" }, ranOn, outcome: ranOn === "none" ? "fallback" : "ok", attempts: 1, latencyMs: ranOn === "none" ? null : ms, bytesSent: 0, payloadSent: null }) as never;
+    const st = ledgerStats([e("A", "on_device", 100), e("A", "on_device", 300), e("A", "cloud", 900), e("A", "none", 0)]);
+    expect(st[0]).toMatchObject({ task: "A", calls: 4, fallbacks: 1, onDevice: { p50: 100, p95: 300 }, cloud: { p50: 900 } });
+    expect(st[0].onDeviceShare).toBeCloseTo(2 / 3);
+  });
+});

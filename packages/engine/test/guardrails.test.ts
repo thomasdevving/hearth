@@ -131,10 +131,18 @@ describe("relative dates", () => {
     ["a week ago", "start", "2026-11-12"],
     ["in two days", "end", "2026-11-21"],
     ["until the 24th", "end", "2026-11-24"],
+    ["on Friday", "start", "2026-11-20"],
+    ["on Monday", "start", "2026-11-16"],
+    ["since Friday", "start", "2026-11-13"],
+    ["in a couple of days", "end", "2026-11-21"],
     ["unknown", "start", null],
     ["whenever", "end", null],
   ] as const)("%s (%s)", (hint, role, expected) => {
     expect(resolveDateHint(hint, thu, role)).toBe(expected);
+  });
+  it("'a few days' is a duration and 'since last week' has no end", () => {
+    expect(resolveContextPeriod("unknown", "for a few days", thu, "explains_sensors", defaultConfig)).toMatchObject({ start: thu, end: "2026-11-21", endResolved: true });
+    expect(resolveContextPeriod("since last week", "unknown", thu, "stressor", defaultConfig)).toMatchObject({ start: "2026-11-09", endResolved: false });
   });
   it("a duration is counted from the start", () => {
     expect(resolveDateHint("for a week", thu, "end", "2026-11-17")).toBe("2026-11-23");

@@ -169,9 +169,10 @@ shows only on-device entries.
 Read: `docs/10_EVALUATION.md`.
 
 - [ ] Run every evaluation and write the numbers into `docs/10_EVALUATION.md`.
-- [ ] Copy review against `docs/01_PRODUCT.md` §7.
-- [ ] Accessibility: text contrast, tap targets of at least 44 pt, screen-reader labels on controls.
-- [ ] README: how to run, what is simulated, what is real, privacy summary, limitations.
+      *(Done for metrics 1–6, 8 (code), 9 (keywords), 10. Metrics 7, 8 (labels), 11, 12 need Gemini Nano in Chrome: `#/eval_g`. 13 needs iOS.)*
+- [x] Copy review against `docs/01_PRODUCT.md` §7.
+- [x] Accessibility: text contrast, tap targets of at least 44 pt, screen-reader labels on controls.
+- [x] README: how to run, what is simulated, what is real, privacy summary, limitations.
 
 ## M12 · Submission
 - [ ] Video of at most 3 minutes: one person's story → plan in own words becomes cards

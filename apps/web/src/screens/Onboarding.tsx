@@ -28,7 +28,7 @@ export function Onboarding() {
     </>,
     <>
       <h2>What Baseline is not</h2>
-      <p>It does not diagnose anything and it is not a crisis service. Nobody watches your data and the app never contacts anyone for you.</p>
+      <p>It cannot tell you what is wrong, and it is not a crisis service. Nobody watches your data and the app never contacts anyone for you.</p>
       <p>If you ever need help right away, the “I need help now” button shows support lines and your own safety plan, even offline.</p>
       <h2>Optional: the cloud model</h2>
       <label className="toggle">

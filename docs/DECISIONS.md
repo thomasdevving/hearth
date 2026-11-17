@@ -277,3 +277,21 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   correction before task G runs. The photo is kept only in memory.
 - **Not built:** the iOS items (10, 11) and the P2 items (GAD-2, WHO-5, day length,
   Screen Time). GAD-2 and WHO-5 need their official wording checked before adding JSON.
+
+## M11 (web)
+
+- **Evaluation scripts** live in `eval/` (`npm run eval` for the engine and text metrics,
+  `eval/privacy.cjs` for the browser privacy run). Results are in `eval/results/` and in
+  `docs/10_EVALUATION.md`. Model-dependent metrics (7, 8 labels, 11, 12) run on the hidden
+  `#/eval_g` screen in Chrome and are still open.
+- **Date resolver fixes from metric 8:** "a few days" / "a couple of days" are durations; a
+  start hint "on <weekday>" without "since"/"ago" takes the nearer occurrence; a "since …"
+  start never gets an end from the same phrase.
+- **Crisis keywords extended** with seven phrasing families the first run missed ("wish I
+  wasn't alive", "won't wake up", "no point in living", "reason to live", "disappear for
+  good", "all my pills"/"overdose", "nobody would miss me"). False positives only show the
+  support screen. The reported 20/20 is therefore on the set used to extend the list.
+- **Copy review** removed the word "diagnosis" from the clinician report header and
+  "diagnose" from onboarding.
+- **Accessibility:** all text colour pairs are at least 4.5:1 (lowest: muted text on the
+  warm card, 4.9:1); every control is at least 44 px high; every input has a label.
