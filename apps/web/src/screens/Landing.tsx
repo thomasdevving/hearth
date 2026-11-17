@@ -3,7 +3,7 @@ import { LogoMark, Wordmark } from "../ui/Logo";
 import { HeroPreview } from "./HeroPreview";
 import flowerWebp from "../assets/hero-flower.webp";
 import flowerPng from "../assets/hero-flower.png";
-import flowerLeft from "../assets/flower-left.webp";
+import flowerPlan from "../assets/flower-plan-long.webp";
 import flowerRight from "../assets/flower-right.webp";
 import flowerGarden from "../assets/flower-garden.webp";
 import logoBackdrop from "../assets/hearth-logo-backdrop.svg";
@@ -159,7 +159,7 @@ export function Landing() {
       </div>
 
       <section id="how" aria-labelledby="how-title">
-        <div className="flow-head flow-text-right" style={{ ["--bg" as string]: `url(${flowerLeft})` }}>
+        <div className="flow-head flow-text-right plan-intro" style={{ ["--bg" as string]: `url(${flowerPlan})` }}>
           <div className="flow-head-inner reveal">
             <p className="eyebrow">How it works</p>
             <h2 id="how-title">Research-based signals, sharpened by the signs you know.</h2>

@@ -400,3 +400,15 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   comes first, the questionnaire only if the change continues; a confirmed holiday sets aside
   location signals only; weekly summaries are stored in the user's private cloud space; the
   holiday numbers are across 20 simulated people. "diagnosis" was removed from the footer.
+
+## Compact plan introduction
+
+- The how-it-works introduction is about 25% shorter on desktop, with less vertical
+  padding on mobile. Its flower retains its display scale; a longer, transparent
+  stem continues below the introduction into the next feature instead of being clipped.
+- `flower-plan-long.webp` extends the original left flower downward without changing
+  its bloom or leaves. The privacy flower and other section layouts are unchanged.
+- Hero preview views share a grid cell and both reserve their natural height. The
+  inactive view is hidden visually and from assistive technology. Switching between
+  the plan and signals no longer changes the hero's size or the flower's framing;
+  signal calculations still run only when requested.

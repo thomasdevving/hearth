@@ -201,7 +201,10 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .preview-tabs { display: flex; gap: var(--s1); background: var(--surface-2); border-radius: 999px; padding: var(--s1); }
 .preview-tabs button { flex: 1; min-width: 0; border-color: transparent; background: transparent; padding: var(--s2); font-size: 0.86rem; color: var(--muted); }
 .preview-tabs button[aria-pressed="true"] { color: var(--magenta-deep); background: var(--white); border-color: var(--magenta-line); box-shadow: 0 2px 8px rgba(122, 15, 85, 0.06); }
-.preview-panel { min-height: 295px; padding: var(--s5) 0 var(--s4); }
+.preview-panel { display: grid; min-height: 295px; padding: var(--s5) 0 var(--s4); }
+/* Both views reserve their natural height; switching cannot resize the hero artwork. */
+.preview-view { grid-area: 1 / 1; min-width: 0; }
+.preview-view[aria-hidden="true"] { visibility: hidden; pointer-events: none; }
 .preview-panel h2 { font-size: 1.2rem; line-height: 1.2; margin: 0 0 var(--s2); letter-spacing: -0.025em; }
 .preview-description { font-size: 0.82rem; color: var(--muted); margin-bottom: var(--s4); }
 .preview-panel h3 { font-family: var(--font-body); font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: var(--s4) 0 var(--s2); }
@@ -249,6 +252,9 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .flow-text-right .flow-head-inner { display: flex; flex-direction: column; align-items: flex-end; }
 .flow-head h2 { font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 var(--s4); }
 .flow-head .intro { color: var(--ink-2); font-size: 1.1rem; margin: 0; }
+/* Compact copy area; the full-size transparent stem continues into the next row. */
+.plan-intro { --plan-flower-ratio: calc(1086 / 1448); min-height: calc(100vw * 941 / 1672 * 0.78 + 48px); overflow: visible; }
+.plan-intro::before { inset: 24px 0 auto; z-index: 1; height: calc(100vw * var(--plan-flower-ratio)); background-position: left top; pointer-events: none; }
 .band .flow-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: linear-gradient(to bottom, rgba(253, 240, 247, 0), var(--magenta-tint)); }
 .band { background: var(--magenta-tint); }
 
@@ -310,6 +316,9 @@ legend { padding: 0; margin-bottom: var(--s2); }
   .flow-head { min-height: calc(100vw * 941 / 1672 + 48px); padding-block: 24px; }
   .flow-head::before { background-size: auto calc(100% - 48px); opacity: 0.32; }
   .flow-text-right .flow-head-inner { align-items: flex-start; }
+  .plan-intro { min-height: 0; padding-block: 12px; }
+  .plan-intro .flow-head-inner { padding-block: var(--s6); }
+  .plan-intro::before { top: 8px; height: max(calc(100vw * var(--plan-flower-ratio)), calc((100% + 8px) * 1672 / 941 * var(--plan-flower-ratio))); background-size: auto 100%; }
   .phone-pair { padding-right: 0; }
   .phone-pair .phone-back { display: none; }
   .facts { grid-template-columns: 1fr; }
