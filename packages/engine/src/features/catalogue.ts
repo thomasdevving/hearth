@@ -20,6 +20,8 @@ export const FEATURE_CATALOGUE: FeatureDef[] = [
   { id: "rest_duration", domain: "sleep", dir: "±", win: "day" },
   { id: "rest_midpoint", domain: "sleep", dir: "±", win: "day" },
   { id: "rest_regularity", domain: "sleep", dir: "+", win: "roll7" },
+  { id: "hrv", domain: "body", dir: "-", win: "day" },
+  { id: "resting_hr", domain: "body", dir: "+", win: "day" },
   { id: "home_stay", domain: "mobility", dir: "+", win: "day" },
   { id: "location_entropy", domain: "mobility", dir: "-", win: "day" },
   { id: "places_visited", domain: "mobility", dir: "-", win: "day" },
@@ -31,7 +33,7 @@ export const FEATURE_CATALOGUE: FeatureDef[] = [
   { id: "communication_time", domain: "phone", dir: "-", win: "day" },
 ];
 
-export const DOMAINS: Domain[] = ["activity", "rhythm", "sleep", "mobility", "phone"];
+export const DOMAINS: Domain[] = ["activity", "rhythm", "sleep", "body", "mobility", "phone"];
 
 /** Features always present in FeatureDay.values (everything except the place_visits template). */
 export const BASE_FEATURE_IDS: string[] = FEATURE_CATALOGUE.filter((f) => f.id !== "place_visits").map((f) => f.id);

@@ -24,6 +24,8 @@ const FEATURE_LABEL: Record<string, string> = {
   rest_duration: "Rest length",
   rest_midpoint: "Rest time (midpoint)",
   rest_regularity: "Regular rest times",
+  hrv: "Heart rate variability",
+  resting_hr: "Resting heart rate",
   home_stay: "Time at home",
   location_entropy: "Variety of places",
   places_visited: "Places visited",
@@ -79,6 +81,8 @@ export function formatValue(feature: FeatureId, v: number | null | undefined): s
   if (f === "steps") return Math.round(v).toLocaleString("en-GB");
   if (f === "rest_duration") return `${v.toFixed(1)} h`;
   if (f === "walking_speed") return `${v.toFixed(2)} m/s`;
+  if (f === "hrv") return `${Math.round(v)} ms`;
+  if (f === "resting_hr") return `${Math.round(v)} bpm`;
   if (Number.isInteger(v)) return String(v);
   return v.toFixed(2);
 }

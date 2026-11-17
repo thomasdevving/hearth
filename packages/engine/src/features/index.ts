@@ -4,6 +4,7 @@ import { activityFeatures } from "./activity";
 import { placeVisitsFeatureId } from "./catalogue";
 import { findHome, learnPlaces, mobilityFeatures, placeVisits } from "./mobility";
 import { phoneFeatures } from "./phone";
+import { heartFeatures } from "./heart";
 import { rhythmFeatures } from "./rhythm";
 import { sleepFeatures } from "./sleep";
 
@@ -43,6 +44,7 @@ export function computeFeatures(raws: DayRaw[], date: string, cfg: Config, ctx?:
     rest_duration: sleep.rest_duration,
     rest_midpoint: sleep.rest_midpoint,
     rest_regularity: sleep.rest_regularity,
+    ...heartFeatures(raw),
     ...mobilityFeatures(byDate, date, places, home, cfg),
     ...phoneFeatures(raw, cfg),
   };

@@ -123,6 +123,8 @@ export function contributorPhrase(feature: FeatureId, z: number, opts: { days?: 
       break;
     }
     case "rest_regularity": base = up ? "less regular rest times" : "more regular rest times"; break;
+    case "hrv": base = up ? "higher heart rate variability than usual" : "lower heart rate variability than usual"; break;
+    case "resting_hr": base = up ? "a higher resting heart rate than usual" : "a lower resting heart rate than usual"; break;
     case "home_stay": base = up ? "home more than usual" : "home less than usual"; break;
     case "location_entropy": base = up ? "more variety in where you spend time" : "less variety in where you spend time"; break;
     case "places_visited": base = up ? "more places visited than usual" : "fewer places visited than usual"; break;
@@ -138,6 +140,8 @@ export function contributorPhrase(feature: FeatureId, z: number, opts: { days?: 
     case "communication_time": base = up ? "more time in messaging apps" : "less time in messaging apps"; break;
     default: base = "a change from your usual pattern";
   }
+  // docs/03 §4: "rest" unless the night was measured as sleep by a watch.
+  if (opts.restSource === "healthkit" && catalogueId(feature).startsWith("rest_")) base = base.replace(/\brest\b/, "sleep");
   if (opts.days && opts.days >= 2) base += ` (${opts.days} days)`;
   return base;
 }
@@ -152,6 +156,7 @@ export function buildContributors(
   places: Place[],
   refMedian: (feature: FeatureId) => number | null,
   values: Record<FeatureId, number | null>,
+  restSource: "healthkit" | "steps" | null = null,
 ): Contributor[] {
   const rows: { feature: FeatureId; r: number; w: number }[] = [];
   for (const feature of Object.keys(r)) {
@@ -176,6 +181,6 @@ export function buildContributors(
     }
     const placeId = feature.includes(":") ? feature.slice(feature.indexOf(":") + 1) : null;
     const placeLabel = placeId ? (places.find((p) => p.id === placeId)?.label ?? null) : null;
-    return { feature, r: rv, phrase: contributorPhrase(feature, z[feature] as number, { days, deltaMinutes, placeLabel }) };
+    return { feature, r: rv, phrase: contributorPhrase(feature, z[feature] as number, { days, deltaMinutes, placeLabel, restSource }) };
   });
 }

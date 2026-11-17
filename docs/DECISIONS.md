@@ -472,3 +472,31 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - "Signals we could add next" (HRV, resting heart rate, daylight, loneliness) are described
   as not implemented.
 
+## Heart rate variability and resting heart rate; Sam's watch (2026-11-17)
+
+- New domain `body` (shown as "Heart") with `hrv` (dir `-`) and `resting_hr` (dir `+`), both
+  `day` features from a new optional `DayRaw.heart`. Optional so stored data and the iOS
+  bridge stay valid without it. Floors: 3 ms and 1 bpm. Valid ranges 5–300 ms and 30–130 bpm.
+- `ill` masks `body` as well (illness raises resting heart rate and lowers HRV). Holiday and
+  travel do not; alcohol and jet lag affect it, but the spec masks only what a label clearly
+  explains.
+- Personal rules may use `hrv` and `resting_hr` (G schema and prompt), only when the person
+  names their heart rate.
+- Sam wears a watch at night: sleep intervals, overnight HRV (48 ms, ×e^(0.15·N)) and resting
+  heart rate (58 ± 1.6 bpm). During the decline HRV falls up to 18 % and resting heart rate
+  rises up to 3.5 bpm. These sizes are assumptions in the direction of the literature, not
+  estimates. No exam-week effect on the heart: a first run with one (HRV −5 %, +1 bpm) moved
+  the first change into the exam week for more seeds, and the persona's exam week is meant as
+  a mild stressor that should not alarm. A separate random stream keeps steps and places
+  identical to before.
+- With a watch, rest features use `healthkit` sleep, so contributor phrases now say "sleep"
+  (docs/03 §4 allowed this; the phrase function now receives `restSource`). On the 1 night in
+  25 without the watch, rest falls back to steps and usually has too few same-source
+  reference days to count.
+- Acceptance point "rest and gym among the contributors" (docs/08 §2.3) now looks at the first
+  3 days of the change instead of only the first day. Contributors are the top 3 of one day,
+  and with more signals the order shifts by a day. Measured both ways: 10/20 seeds on the
+  first day only (same with or without the watch), 16/20 over 3 days.
+- Seed 1's first change moves from day 110 to day 109 (reasons: later sleep time, higher
+  resting heart rate; the gym follows on day 110). The demo video was re-timed to day 109.
+

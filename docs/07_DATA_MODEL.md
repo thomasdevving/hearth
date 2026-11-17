@@ -2,14 +2,14 @@
 
 ## 1. Engine types (`packages/engine/src/types.ts`)
 
-`DayRaw`, `Visit`, `Interval`, `PhoneBuckets`, `FeatureDay`: `docs/03_FEATURES.md`.
+`DayRaw`, `Visit`, `Interval`, `PhoneBuckets`, `HeartDay`, `FeatureDay`: `docs/03_FEATURES.md`.
 `DailyUpdateInput`, `DailyUpdateOutput`, `Action`: `docs/04_DETECTION.md` §8.
 `RouteRequest`, `RouteDecision`: `docs/05_LLM_TASKS.md` §2.
 `QuestionnaireResult`: `docs/06_QUESTIONNAIRES_SAFETY.md` §3.5.
 
 ```ts
 type FeatureId = string            // catalogue ids, or "place_visits:<placeId>"
-type Domain = "activity" | "rhythm" | "sleep" | "mobility" | "phone"
+type Domain = "activity" | "rhythm" | "sleep" | "body" | "mobility" | "phone"
 type State = "WARM_UP" | "MONITOR" | "ELEVATED" | "CONFIRMED"
 type TaskId = "G" | "G2" | "H" | "I" | "A" | "B" | "C" | "K" | "Q" | "P" | "D" | "E"
 type QuestionnaireId = "PHQ2" | "PHQ9" | "GAD2" | "WHO5"

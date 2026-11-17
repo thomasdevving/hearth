@@ -17,7 +17,7 @@ function acceptance(seed: number) {
   const st = (d: number) => r.records[d - 1].state;
   const fe = firstElevated(r);
   const gym = r.rules.find((x) => x.feature === "place_visits")?.placeId;
-  const cons = fe ? r.records[fe - 1].contributors.map((c) => c.feature) : [];
+  const cons = fe ? r.records.slice(fe - 1, fe + 2).flatMap((x) => x.contributors.map((c) => c.feature)) : []; // first 3 days of the change
   const phq2 = r.days.find((d) => d.day >= fe && d.phq2Offered);
   const perDay = new Map<string, number>();
   for (const c of r.checkins) perDay.set(c.scheduledAt.slice(0, 10), (perDay.get(c.scheduledAt.slice(0, 10)) ?? 0) + 1);

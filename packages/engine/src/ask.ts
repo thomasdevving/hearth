@@ -6,12 +6,12 @@ import { addDays, dateOfTimestamp, weekdayOf } from "./time";
 export type AskIntent = "trend" | "compare" | "why_asked" | "unsupported" | "crisis";
 export type AskFeature =
   | "none" | "steps" | "active_hours" | "walking_speed" | "rhythm_stability" | "rest_duration" | "rest_midpoint"
-  | "rest_regularity" | "home_stay" | "places_visited" | "routine_regularity" | "mood_low" | "enjoyment" | "energy" | "index";
+  | "rest_regularity" | "hrv" | "resting_hr" | "home_stay" | "places_visited" | "routine_regularity" | "mood_low" | "enjoyment" | "energy" | "index";
 export type AskPeriod = "none" | "today" | "this_week" | "last_week" | "last_4_weeks";
 
 const LABEL: Record<string, string> = {
   steps: "steps per day", active_hours: "active hours per day", walking_speed: "walking pace", rhythm_stability: "steadiness of your daily rhythm",
-  rest_duration: "rest length", rest_midpoint: "middle of your rest", rest_regularity: "spread of your rest times", home_stay: "time at home",
+  rest_duration: "rest length", rest_midpoint: "middle of your rest", rest_regularity: "spread of your rest times", hrv: "heart rate variability", resting_hr: "resting heart rate", home_stay: "time at home",
   places_visited: "places visited per day", routine_regularity: "time spent in your usual places", mood_low: "feeling down (1 to 7)",
   enjoyment: "enjoyment (1 to 7)", energy: "energy (1 to 7)", index: "change index",
 };
@@ -35,6 +35,10 @@ export function formatFact(feature: string, v: number | null): string | null {
       return `${v.toFixed(2)} m/s`;
     case "rest_regularity":
       return `${Math.round(v)} minutes`;
+    case "hrv":
+      return `${Math.round(v)} ms`;
+    case "resting_hr":
+      return `${Math.round(v)} beats per minute`;
     default:
       return v.toFixed(1);
   }

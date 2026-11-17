@@ -111,7 +111,13 @@ export function Science() {
           title="Sleep and rest"
           found={<>Across 21 long-term studies, people with insomnia had about twice the odds of developing depression later (pooled odds ratio 2.1).</>}
           cites={["baglioni"]}
-          inHearth={<>Rest length, rest midpoint (how late) and how regular it is. Without a sleep tracker, rest is the longest still period of the phone at night, so it is called "rest", not "sleep".</>}
+          inHearth={<>Sleep length, its midpoint (how late) and how regular it is, from a watch when you wear one. Without a watch, Hearth uses the longest still period of the phone at night and calls it "rest", not "sleep".</>}
+        />
+        <Signal
+          title="Heart"
+          found={<>Across studies, people with depression had lower heart rate variability, and lower with more severe symptoms. In 510 people with recurrent depression followed for two years with a Fitbit, changes in resting heart rate by day and night went with more severe symptoms.</>}
+          cites={["kemp", "siddi"]}
+          inHearth={<>Overnight heart rate variability (lower is the concern) and resting heart rate (higher is the concern), from a watch. Illness moves both, so marking yourself ill sets them aside.</>}
         />
         <Signal
           title="Places and movement"
@@ -161,7 +167,7 @@ r is capped at 3`}</F>
       over the signals in group k
 D   = mean of G_k over the groups present
       (at least ${c.minDomains} groups)`}</F>
-      <p>Signals inside one group move together, so they are averaged and four changing movement signals count as one change, not four.</p>
+      <p>The groups are activity, rhythm, sleep, heart, places and phone. Signals inside one group move together, so they are averaged and four changing movement signals count as one change, not four.</p>
 
       <h3>4. Watch the trend, not one day</h3>
       <F>{`S_d = λ·D_d + (1 − λ)·S_(d−1)    λ = ${c.ewmaLambda}
@@ -256,14 +262,14 @@ absolutist = 19 words such as always,
         <table>
           <thead><tr><th>Question</th><th>Result</th></tr></thead>
           <tbody>
-            <tr><td>Days from the start of a decline to "Changed"</td><td>median 7 (range 0–8) over 50 simulated people; none missed</td></tr>
-            <tr><td>Same, for a slower decline</td><td>median 12 (7–16); none missed</td></tr>
-            <tr><td>False alarms on stable data (150 days, 50 people)</td><td>2.59 "Changed" days per 100 days; 33 of 50 had none, one had 33</td></tr>
-            <tr><td>Holiday week, "Changed" days (20 people)</td><td>0 when confirmed, 101 when not</td></tr>
+            <tr><td>Days from the start of a decline to "Changed"</td><td>median 7 (range 3–8) over 50 simulated people; none missed</td></tr>
+            <tr><td>Same, for a slower decline</td><td>median 12 (6–16); none missed</td></tr>
+            <tr><td>False alarms on stable data (150 days, 50 people)</td><td>1.03 "Changed" days per 100 days; 39 of 50 had none, the highest had 12 (2.59 before sleep and heart data from a watch were added)</td></tr>
+            <tr><td>Holiday week, "Changed" days (20 people)</td><td>0 when confirmed, 92 when not</td></tr>
             <tr><td>Effect of the person's own plan</td><td>median 7 days with it, 8 without</td></tr>
             <tr><td>Requests leaving the browser with the cloud off</td><td>0, and 0 containing your text</td></tr>
             <tr><td>Crisis sentences opening the support screen (keywords)</td><td>20 of 20, 0 of 20 neutral ones; the list was extended after a first run found 13 of 20, so this is not an unbiased estimate</td></tr>
-            <tr><td>Full demo script holding on every seed</td><td>10 of 20 (target was 18): detection is reliable, but which signals rank top varies</td></tr>
+            <tr><td>Full demo script holding on every seed</td><td>16 of 20 (target was 18), counting the person's own signs over the first 3 days of the change; 10 of 20 if only the first day counts</td></tr>
             <tr><td>Accuracy of the on-device model reading a plan</td><td>not measured yet with Gemini Nano; the test set and scorer are ready</td></tr>
           </tbody>
         </table>
@@ -278,20 +284,8 @@ absolutist = 19 words such as always,
       </ul>
 
       <h2>Signals we could add next</h2>
-      <p className="muted">Each has research behind it and can be read on an iPhone or Apple Watch. None is in Hearth yet.</p>
+      <p className="muted">Each has research behind it. Neither is in Hearth yet.</p>
       <div className="stack">
-        <Signal
-          title="Heart rate variability"
-          found={<>Across studies, people with depression had lower heart rate variability, and lower with more severe symptoms.</>}
-          cites={["kemp"]}
-          inHearth={<>Would be a new "body" group from the watch's overnight HRV, compared with your own nights.</>}
-        />
-        <Signal
-          title="Resting heart rate"
-          found={<>In 510 people with recurrent depression followed for two years with a Fitbit, changes in resting heart rate by day and night went with more severe symptoms.</>}
-          cites={["siddi"]}
-          inHearth={<>Same group, from resting heart rate at night.</>}
-        />
         <Signal
           title="Daylight"
           found={<>In over 400,000 UK Biobank participants, more time in outdoor light went with fewer depressive symptoms; in 86,772 wearing light sensors, more light at night went with higher risk and more daylight with lower risk.</>}

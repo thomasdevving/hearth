@@ -3,7 +3,7 @@ import { defaultConfig as cfg } from "../src/config";
 import { buildEligibility, comparisonValues, referenceSet, referenceStats, robustZ } from "../src/baseline";
 import { maskedDomains } from "../src/context";
 import { controlLimit, updateControl } from "../src/control";
-import { riskFromZ, scoreFromZ } from "../src/index-score";
+import { contributorPhrase, riskFromZ, scoreFromZ } from "../src/index-score";
 import { selfAudit } from "../src/audit";
 import { dailyUpdate, initialState } from "../src/state";
 import { addDays, dayTypeOf } from "../src/time";
@@ -109,6 +109,18 @@ describe("index (docs/04 §4)", () => {
     expect(four.domainScores.mobility).toBe(2);
     expect(four.D).toBe(one.D);
     expect(one.D).toBe(1); // mean of mobility 2 and activity 0
+  });
+  it("body: lower HRV and higher resting heart rate count, the opposite does not", () => {
+    const s = scoreFromZ({ hrv: -2, resting_hr: 1, steps: 0 }, [], cfg);
+    expect(s.r.hrv).toBe(2);
+    expect(s.r.resting_hr).toBe(1);
+    expect(s.domainScores.body).toBe(1.5);
+    const calm = scoreFromZ({ hrv: 2, resting_hr: -1, steps: 0 }, [], cfg);
+    expect(calm.domainScores.body).toBe(0);
+  });
+  it("an illness label masks the body group too", () => {
+    expect(maskedDomains("2026-07-05", [label("ill", "2026-07-01", "2026-07-07")], cfg)).toContain("body");
+    expect(maskedDomains("2026-07-05", [label("holiday", "2026-07-01", "2026-07-07")], cfg)).not.toContain("body");
   });
   it("personal rules weigh double and can override the direction", () => {
     const rules: PlanRule[] = [{ id: "r1", feature: "rest_midpoint", direction: "later", placeId: null, quote: "", active: true }];
@@ -231,7 +243,7 @@ describe("dailyUpdate (docs/04 §7–8)", () => {
     expect(maskedDomains("2026-07-14", [long], cfg)).toEqual(["mobility", "phone"]);
     expect(maskedDomains("2026-07-15", [long], cfg)).toEqual([]);
     expect(maskedDomains("2026-07-05", [{ ...long, confirmed: false }], cfg)).toEqual([]);
-    expect(maskedDomains("2026-07-05", [label("ill", "2026-07-01", "2026-07-07")], cfg)).toEqual(["activity", "rhythm", "sleep", "mobility"]);
+    expect(maskedDomains("2026-07-05", [label("ill", "2026-07-01", "2026-07-07")], cfg)).toEqual(["activity", "rhythm", "sleep", "body", "mobility"]);
   });
 
   it("persistence: rolling features alone cannot satisfy §7.3", () => {
@@ -381,5 +393,14 @@ describe("self-audit (docs/04 §9)", () => {
     const r = selfAudit([...old, ...recent, ...ignored, ...fixed], cfg);
     expect(r).toMatchObject({ nTriggered: 9, nRandom: 9, status: "unclear" });
     expect(selfAudit(recent, cfg)).toEqual(selfAudit(recent, cfg));
+  });
+});
+
+describe("contributor wording (docs/03 §4)", () => {
+  it("says sleep only when a watch measured it", () => {
+    expect(contributorPhrase("rest_midpoint", 2, { restSource: "steps" })).toBe("later rest time");
+    expect(contributorPhrase("rest_midpoint", 2, { restSource: "healthkit" })).toBe("later sleep time");
+    expect(contributorPhrase("rest_regularity", 2, { restSource: "healthkit" })).toBe("less regular sleep times");
+    expect(contributorPhrase("resting_hr", 2, { restSource: "healthkit" })).toBe("a higher resting heart rate than usual");
   });
 });

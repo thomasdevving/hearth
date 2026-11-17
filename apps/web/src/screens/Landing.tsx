@@ -189,7 +189,7 @@ export function Landing() {
           <div className="flow-head-inner reveal">
             <p className="eyebrow">How it works</p>
             <h2 id="how-title">Research-based signals, sharpened by the signs you know.</h2>
-            <p className="intro">Hearth watches signals that research links to harder periods: rest, activity, daily rhythm and the places you go. The early signs you know from experience make it sharper, and what helps you is shown back when it matters.</p>
+            <p className="intro">Hearth watches signals that research links to harder periods: sleep, activity, daily rhythm, heart rate and the places you go. The early signs you know from experience make it sharper, and what helps you is shown back when it matters.</p>
           </div>
         </div>
 
@@ -218,7 +218,7 @@ export function Landing() {
               </div>
             }
           >
-            <p>Steps, rest times, daily rhythm, walking pace and the places you go are compared only with your own usual days, never with anyone else. These signals run for everyone; the signs you named weigh more.</p>
+            <p>Steps, sleep times, daily rhythm, walking pace, heart rate variability, resting heart rate and the places you go are compared only with your own usual days, never with anyone else. These signals run for everyone; the signs you named weigh more.</p>
             <p className="feature-note">The first two weeks it simply learns: “Learning your pattern”.</p>
           </Feature>
 

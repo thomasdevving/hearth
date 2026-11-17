@@ -6,7 +6,7 @@ export const CONTEXT_TABLE: Record<string, { kind: ContextKind; masks: Domain[] 
   holiday: { kind: "explains_sensors", masks: ["mobility", "phone"] },
   travel: { kind: "explains_sensors", masks: ["mobility", "phone"] },
   visitors: { kind: "explains_sensors", masks: ["mobility"] },
-  ill: { kind: "explains_sensors", masks: ["activity", "mobility", "rhythm", "sleep"] },
+  ill: { kind: "explains_sensors", masks: ["activity", "mobility", "rhythm", "sleep", "body"] },
   moving: { kind: "explains_sensors", masks: ["mobility"] },
   exams: { kind: "stressor", masks: [] },
   new_job: { kind: "stressor", masks: [] },
@@ -38,7 +38,7 @@ export function maskedDomains(date: string, contexts: ContextLabel[], cfg: Confi
     if (!contextActive(ctx, date, cfg)) continue;
     for (const d of CONTEXT_TABLE[ctx.type].masks) out.add(d);
   }
-  return (["activity", "rhythm", "sleep", "mobility", "phone"] as Domain[]).filter((d) => out.has(d));
+  return (["activity", "rhythm", "sleep", "body", "mobility", "phone"] as Domain[]).filter((d) => out.has(d));
 }
 
 export function stressorActive(date: string, contexts: ContextLabel[], cfg: Config): boolean {

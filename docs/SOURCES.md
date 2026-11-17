@@ -72,12 +72,14 @@ opened and confirmed before they are quoted in the submission.
 - **Insomnia.** Baglioni C, et al. Insomnia as a predictor of depression. *J Affect Disord*
   2011;135:10–19. 21 studies; pooled OR 2.10 (fixed effects), 2.60 (random effects).
 
-### Candidate signals, not implemented (Science screen, "Signals we could add next")
+### Heart (domain `body`, added 2026-11-17)
 
 - **Heart rate variability.** Kemp AH, et al. *Biol Psychiatry* 2010;67:1067–1074.
   https://pubmed.ncbi.nlm.nih.gov/20138254/ Lower HRV in depression, lower with severity.
 - **Resting heart rate.** Siddi S, et al. *Psychol Med* 2023;53(8):3249–3260,
   doi:10.1017/S0033291723001034. RADAR-MDD, 510 people with recurrent MDD, 2 years, Fitbit.
+### Candidate signals, not implemented (Science screen, "Signals we could add next")
+
 - **Daylight.** Burns AC, et al. *J Affect Disord* 2021;295:347–352,
   doi:10.1016/j.jad.2021.08.056 (over 400,000 UK Biobank, self-reported outdoor light);
   Burns AC, et al. *Nat Ment Health* 2023, doi:10.1038/s44220-023-00135-8 (86,772 with light

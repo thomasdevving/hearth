@@ -198,6 +198,7 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
       return v ? (referenceStats(v, 0)?.median ?? null) : null;
     },
     features.values,
+    features.restSource,
   );
 
   // 5. In-control parameters, then EWMA and CUSUM.

@@ -86,7 +86,7 @@ Routing is decided in one place, `packages/engine/src/routing.ts`.
 ## Evaluation
 
 Numbers and how they were produced: `docs/10_EVALUATION.md`. In short: the engine passes all
-tests; on 50 stable synthetic people it flags 2.6 days per 100; the persona's gradual change
+tests; on 50 stable synthetic people it flags 1.0 days per 100; the persona's gradual change
 is caught after a median of 7 days (slow version: 12); confirming a holiday removes all
 holiday alarms; with consent off nothing leaves the browser.
 

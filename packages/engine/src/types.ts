@@ -16,6 +16,11 @@ export interface PhoneBuckets {
   night: number | null;
   communication: number | null;
 }
+/** Watch data for the night ending on the date (docs/03 §1). */
+export interface HeartDay {
+  hrv: number | null; // ms, SDNN, mean of the samples taken during the night
+  restingHr: number | null; // bpm, the day's resting heart rate
+}
 export interface DayRaw {
   date: string; // "YYYY-MM-DD", local
   stepBins15: number[] | null; // 96 values
@@ -23,11 +28,12 @@ export interface DayRaw {
   sleep: Interval[] | null; // night ENDING on this date
   visits: Visit[] | null; // visits overlapping this date
   phone: PhoneBuckets | null; // P2
+  heart?: HeartDay | null; // needs a watch; absent in older data
 }
 
 // ---------- docs/07 §1 ----------
 export type FeatureId = string; // catalogue ids, or "place_visits:<placeId>"
-export type Domain = "activity" | "rhythm" | "sleep" | "mobility" | "phone";
+export type Domain = "activity" | "rhythm" | "sleep" | "body" | "mobility" | "phone";
 export type State = "WARM_UP" | "MONITOR" | "ELEVATED" | "CONFIRMED";
 export type TaskId = "G" | "G2" | "H" | "I" | "A" | "B" | "C" | "K" | "Q" | "P" | "D" | "E";
 export type QuestionnaireId = "PHQ2" | "PHQ9" | "GAD2" | "WHO5";

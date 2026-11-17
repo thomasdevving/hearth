@@ -49,6 +49,8 @@
     "rest_duration": 0.25,
     "rest_midpoint": 15,
     "rest_regularity": 10,
+    "hrv": 3,
+    "resting_hr": 1,
     "home_stay": 0.05,
     "location_entropy": 0.05,
     "places_visited": 0.5,

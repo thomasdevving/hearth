@@ -196,3 +196,18 @@ describe("phone (P2)", () => {
 });
 
 void START;
+
+describe("heart (watch)", () => {
+  it("HRV and resting heart rate come straight from the day's watch data", () => {
+    const f = computeFeatures([{ ...emptyDay("2026-07-01"), heart: { hrv: 47, restingHr: 59 } }], "2026-07-01", cfg);
+    expect(f.values.hrv).toBe(47);
+    expect(f.values.resting_hr).toBe(59);
+  });
+  it("no watch, missing values or impossible values give null", () => {
+    expect(computeFeatures([emptyDay("2026-07-01")], "2026-07-01", cfg).values.hrv).toBeNull();
+    const f = computeFeatures([{ ...emptyDay("2026-07-01"), heart: { hrv: 0, restingHr: null } }], "2026-07-01", cfg);
+    expect(f.values.hrv).toBeNull();
+    expect(f.values.resting_hr).toBeNull();
+    expect(computeFeatures([{ ...emptyDay("2026-07-01"), heart: { hrv: 40, restingHr: 250 } }], "2026-07-01", cfg).values.resting_hr).toBeNull();
+  });
+});

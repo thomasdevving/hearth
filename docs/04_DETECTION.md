@@ -65,7 +65,7 @@ r_j is capped at 3.
 ```
 
 ### 4.2 Domain scores
-Domains: `activity`, `rhythm`, `sleep`, `mobility`, `phone`.
+Domains: `activity`, `rhythm`, `sleep`, `body`, `mobility`, `phone`.
 ```
 G_k = Σ_{j∈k} a_j · r_j / Σ_{j∈k} a_j          over usable, unmasked features in domain k
 a_j = personalWeight (2) if j belongs to a confirmed personal rule, else 1
@@ -112,7 +112,7 @@ A confirmed context label (from task H or chosen by hand) has a type, a start an
 |---|---|---|
 | `holiday`, `travel` | explains sensors | Mask domains `mobility` and `phone`. |
 | `visitors` | explains sensors | Mask `mobility`. |
-| `ill` | explains sensors | Mask `activity`, `mobility`, `rhythm`, `sleep`. Check-ins continue. |
+| `ill` | explains sensors | Mask `activity`, `mobility`, `rhythm`, `sleep`, `body`. Check-ins continue. |
 | `moving` | explains sensors | Mask `mobility` for the period, then clear `places` and restart the mobility reference. |
 | `exams`, `new_job`, `loss`, `other_stress` | **stressor** | **No masking.** Shown as an annotation; raises the random check-in probability to `stressCheckinProb` (0.5). |
 

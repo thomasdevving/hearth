@@ -271,6 +271,40 @@ function visitsOf(date: string, plan: DayPlan): Visit[] {
   return out;
 }
 
+/**
+ * Sam wears a watch at night (docs/08 §2.1): asleep from shortly after going to bed until
+ * shortly before getting up, sometimes with a brief awakening. About 1 night in 25 the watch
+ * is off (charging), and that night has no sleep or heart data.
+ */
+function sleepOf(date: string, plan: DayPlan, prevBed: number, rand: () => number): DayRaw["sleep"] {
+  const prev = addDays(date, -1);
+  const start = prevBed + 8 + 17 * rand(); // minutes after midnight of the previous date
+  const end = plan.wake + 1440 - 3 - 10 * rand();
+  if (end - start < 120) return null;
+  if (rand() < 0.5) {
+    const at = start + (end - start) * (0.3 + 0.4 * rand());
+    const gap = 5 + 15 * rand();
+    return [
+      { start: personaTimestamp(prev, start), end: personaTimestamp(prev, at) },
+      { start: personaTimestamp(prev, at + gap), end: personaTimestamp(prev, end) },
+    ];
+  }
+  return [{ start: personaTimestamp(prev, start), end: personaTimestamp(prev, end) }];
+}
+
+/**
+ * Overnight heart rate variability (SDNN) and resting heart rate. During the change HRV falls
+ * by up to 18 % and resting heart rate rises by up to 3.5 bpm (docs/08 §2.2); exam week adds a
+ * little stress. Effect sizes are assumptions in the direction of Kemp 2010 and Siddi 2023.
+ */
+function heartOf(i: number, s: ScenarioShape, rand: () => number): NonNullable<DayRaw["heart"]> {
+  const g = () => gaussian(rand);
+  const f = declineFactor(i, s);
+  const hrv = 48 * Math.exp(0.15 * g()) * (1 - 0.18 * f);
+  const restingHr = 58 + 1.6 * g() + 3.5 * f;
+  return { hrv: Math.round(hrv), restingHr: Math.round(restingHr) };
+}
+
 function clampInt(x: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, Math.round(x)));
 }
@@ -281,13 +315,25 @@ export function simulatePersona(seed: number, scenario: Scenario = "default"): R
   const rand = mulberry32(seed * 7919 + 17);
   const moodRand = mulberry32(seed * 104729 + 3);
   const g = () => gaussian(moodRand);
+  const bodyRand = mulberry32(seed * 15485863 + 29); // its own stream: steps and places do not change
   const raws: DayRaw[] = [];
   const script: ScriptEvent[] = [];
   let prevBed = 1395;
   for (let i = 1; i <= s.days; i++) {
     const date = addDays(PERSONA_START, i - 1);
     const plan = planDay(i, date, s, rand);
-    raws.push({ date, stepBins15: stepBins(plan, prevBed, rand), walkingSpeed: Math.round(plan.speed * 1000) / 1000, sleep: null, visits: visitsOf(date, plan), phone: null });
+    const watchWorn = bodyRand() >= 0.04;
+    const sleep = sleepOf(date, plan, prevBed, bodyRand);
+    const heart = heartOf(i, s, bodyRand);
+    raws.push({
+      date,
+      stepBins15: stepBins(plan, prevBed, rand),
+      walkingSpeed: Math.round(plan.speed * 1000) / 1000,
+      sleep: watchWorn ? sleep : null,
+      visits: visitsOf(date, plan),
+      phone: null,
+      heart: watchWorn ? heart : null,
+    });
     prevBed = plan.bed;
 
     // What Sam answers if asked today.

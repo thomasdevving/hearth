@@ -10,7 +10,8 @@ import { getEngineState } from "../app/runtime";
 import { Ask } from "./Ask";
 
 // Validated categorical palette (dataviz skill, light surface), fixed order per domain.
-export const DOMAIN_COLOR: Record<Domain, string> = { activity: "#2a78d6", rhythm: "#eb6834", sleep: "#1baf7a", mobility: "#eda100", phone: "#e87ba4" };
+export const DOMAIN_COLOR: Record<Domain, string> = { activity: "#2a78d6", rhythm: "#eb6834", sleep: "#1baf7a", mobility: "#eda100", phone: "#e87ba4", body: "#6250d6" };
+const DOMAIN_LABEL: Record<Domain, string> = { activity: "Activity", rhythm: "Rhythm", sleep: "Sleep", body: "Heart", mobility: "Places", phone: "Phone" };
 const INK = "#0b0b0b";
 const INK2 = "#52514e";
 const GRID = "#e6e5e1";
@@ -118,7 +119,7 @@ function indexChart(all: DayRecord[], contexts: ContextLabel[], qs: Questionnair
 function domainChart(all: DayRecord[], contexts: ContextLabel[]) {
   const first = all.findIndex((r) => r.UCL !== null);
   const records = first > 0 ? all.slice(first) : all;
-  const domains: Domain[] = ["activity", "rhythm", "sleep", "mobility", "phone"];
+  const domains: Domain[] = ["activity", "rhythm", "sleep", "body", "mobility", "phone"];
   const used = domains.filter((d) => records.some((r) => r.domainScores[d] !== undefined));
   const data: uPlot.AlignedData = [records.map((r) => sec(r.date)), ...used.map((d) => records.map((r) => r.domainScores[d] ?? null))];
   const opts: Omit<uPlot.Options, "width"> = {
@@ -126,7 +127,7 @@ function domainChart(all: DayRecord[], contexts: ContextLabel[]) {
     legend: { show: true, live: false },
     scales: { x: { time: true }, y: { range: [0, 3] } },
     axes: axes("change"),
-    series: [{ label: "Date" }, ...used.map((d) => ({ label: d[0].toUpperCase() + d.slice(1), stroke: DOMAIN_COLOR[d], width: 2, value: (_u: uPlot, v: number | null) => (v == null ? "–" : v.toFixed(2)) }))],
+    series: [{ label: "Date" }, ...used.map((d) => ({ label: DOMAIN_LABEL[d], stroke: DOMAIN_COLOR[d], width: 2, value: (_u: uPlot, v: number | null) => (v == null ? "–" : v.toFixed(2)) }))],
     plugins: [contextPlugin(contexts, [])],
   };
   return { opts, data };

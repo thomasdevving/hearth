@@ -15,12 +15,12 @@ We do **not** claim diagnostic accuracy or that the app predicts relapse.
 
 | # | Metric | How | Target | Result |
 |---|---|---|---|---|
-| 1 | Engine tests | `npm test -w packages/engine` | all pass || 211 pass, 0 skipped (`npm test`; web: 21 pass) |
-| 2 | Replay acceptance | `docs/08_DEMO_REPLAY.md` §2.3 over seeds 1–20 | every point holds for ≥ 18 of 20 seeds || Seed 1: all points hold. Seeds 1–20: MONITOR by day 15 20/20; holiday quiet 20/20; holiday alarms if unconfirmed 20/20; exam masks nothing 20/20; one check-in a day 20/20; first ELEVATED in 108–120 17/20; PHQ-2 within 7 days 18/20; rest + gym among contributors 10/20. **All points together: 10/20 (target not met)** |
-| 3 | False alarms on stable data | Stable-only scenario, 150 days, seeds 1–50: `ELEVATED` days per 100 days | report (aim ≤ 3) || 2.59 ELEVATED days per 100 days (median 0, max 33.1); 0.44 episodes per 150 days; 33/50 seeds have none |
-| 4 | Detection delay | Days from decline start to first `ELEVATED`, default and `slow`, seeds 1–50: median and range | report || default: median 7 days (range 0–8), none missed; slow: median 12 (7–16), none missed. 9 resp. 6 of 50 seeds also had an earlier false alarm |
-| 5 | Context filter effect | Default scenario with and without confirming the holiday: number of `ELEVATED` days in days 61–67 | 0 with, report without || Seed 1: 0 with, 6 without. Seeds 1–20: 0 with, 101 without (sum) |
-| 6 | Personal rules effect | Detection delay with and without the persona's confirmed rules | report || With rules: median 7 (0–8); without: median 8 (1–12); none missed either way |
+| 1 | Engine tests | `npm test -w packages/engine` | all pass || 216 pass, 0 skipped (`npm test`; web: 28 pass) |
+| 2 | Replay acceptance | `docs/08_DEMO_REPLAY.md` §2.3 over seeds 1–20 | every point holds for ≥ 18 of 20 seeds || Seed 1: all points hold. Seeds 1–20: MONITOR by day 15 20/20; holiday quiet 20/20; holiday alarms if unconfirmed 20/20; exam masks nothing 20/20; one check-in a day 20/20; first ELEVATED in 108–120 16/20; PHQ-2 within 7 days 19/20; rest + gym among contributors in the first 3 days 16/20. **All points together: 16/20 (target 18 not met).** The contributor point was widened from the first day to the first 3 days (2026-11-17); under the old wording it is 10/20, with or without the watch data |
+| 3 | False alarms on stable data | Stable-only scenario, 150 days, seeds 1–50: `ELEVATED` days per 100 days | report (aim ≤ 3) || 1.03 ELEVATED days per 100 days (median 0, max 11.8); 0.30 episodes per 150 days; 39/50 seeds have none. Before the watch data (sleep, HRV, resting heart rate): 2.59, 0.44, 33/50 |
+| 4 | Detection delay | Days from decline start to first `ELEVATED`, default and `slow`, seeds 1–50: median and range | report || default: median 7 days (range 3–8), none missed; slow: median 12 (6–16), none missed. 6 resp. 6 of 50 seeds also had an earlier false alarm (before the watch data: 9 resp. 6) |
+| 5 | Context filter effect | Default scenario with and without confirming the holiday: number of `ELEVATED` days in days 61–67 | 0 with, report without || Seed 1: 0 with, 5 without. Seeds 1–20: 0 with, 92 without (sum) |
+| 6 | Personal rules effect | Detection delay with and without the persona's confirmed rules | report || With rules: median 7 (3–8); without: median 8 (0–10); none missed either way |
 | 7 | Task G accuracy | 20 written plan descriptions with a hand-made expected mapping (`eval/task_g.json`): precision and recall of accepted rules after guardrails; share of model rules rejected by the quote check | precision ≥ 0.8 || **Not yet measured with Gemini Nano** (model download blocked in the build container). Set and scorer ready: Settings → "Test the plan reader" (`#/eval_g`) |
 | 8 | Task H accuracy | 30 sentences (`eval/task_h.json`), 10 of them with no context: accuracy of the label; date resolution accuracy | report || Label accuracy: not yet measured (needs the model; same screen). Date resolution in code given correct hints: 19/20 (miss: a past "on Sunday" read as the coming Sunday) |
 | 9 | Safety | 20 crisis sentences and 20 neutral ones (`eval/crisis.json`): share of crisis sentences that open the safety flow (keywords alone, and keywords or model) | 100% of crisis sentences || Keywords alone: 20/20 crisis, 0/20 neutral flagged, after extending the keyword list with the 7 phrasings it first missed (13/20 before), so this is not an unbiased estimate. Keywords-or-model: not measured (needs the model) |
@@ -54,9 +54,14 @@ Scripts live in `eval/` and print a table that is pasted here.
 
 ### Notes on the misses
 - **Metric 2.** The persona's decline makes several signals change at once; which three rank
-  as contributors on the first `ELEVATED` day varies by seed (often `home_stay`, `fragmentation`
-  or `location_entropy` outrank `rest_midpoint`). Three seeds also have a false alarm before
-  day 108. The detection itself is reliable (metric 4: no seed missed).
-- **Metric 3.** One seed spends a third of the stable run `ELEVATED`: once elevated, the
+  as contributors on a single day varies by seed (often `home_stay`, `fragmentation`,
+  `resting_hr` or `location_entropy` outrank `rest_midpoint` or the gym). Over the first 3 days
+  of the change both of Sam's signs appear in 16 of 20 seeds. Four seeds have a false alarm
+  before day 108. The detection itself is reliable (metric 4: no seed missed).
+- **Watch data (2026-11-17).** Sam now wears a watch at night: sleep from the watch, overnight
+  HRV and resting heart rate (`docs/08` §2.1). The effect sizes in the persona are assumptions.
+  The fall in false alarms on stable data comes from the extra, independent `body` domain and
+  measured sleep; it says nothing about real people.
+- **Metric 3.** Before the watch data, one seed spent a third of the stable run `ELEVATED`: once elevated, the
   reference is frozen and a harmless drift keeps the index above the limit (the known
   limitation in `docs/DECISIONS.md`, M2).

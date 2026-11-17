@@ -17,6 +17,11 @@ interface DayRaw {
   sleep: Interval[] | null        // asleep intervals for the night ENDING on this date
   visits: Visit[] | null          // place visits overlapping this date
   phone: PhoneBuckets | null      // P2
+  heart?: HeartDay | null         // needs a watch; optional so older records stay valid
+}
+interface HeartDay {
+  hrv: number | null              // ms, SDNN, mean of the samples during the night ending on date
+  restingHr: number | null        // bpm, the day's resting heart rate
 }
 interface Interval { start: string; end: string }                 // ISO timestamps
 interface Visit    { arrive: string; depart: string; lat: number; lon: number }
@@ -36,6 +41,8 @@ interface PhoneBuckets {          // minutes, as the highest threshold reached t
 | `sleep` | HealthKit `sleepAnalysis`, asleep categories only | Usually needs an Apple Watch or a sleep app. Often absent; then the step-based rest window is used (§4). |
 | `visits` | `CLVisit` from `startMonitoringVisits()` | Forward only, no history. Needs "Always" location permission. |
 | `phone` | Screen Time API (`DeviceActivity` threshold events), P2 | See `docs/PLATFORM_NOTES.md` §4. |
+| `heart.hrv` | HealthKit `heartRateVariabilitySDNN`, mean of the samples inside the main sleep period (or 00:00–06:00 without sleep data) | Apple Watch only. Backfilled. |
+| `heart.restingHr` | HealthKit `restingHeartRate`, the day's value | Apple Watch only. Backfilled. |
 
 ## 2. Feature catalogue
 
@@ -53,6 +60,8 @@ interface PhoneBuckets {          // minutes, as the highest threshold reached t
 | `rest_duration` | sleep | ± | day | Hours of the main rest period (§4). |
 | `rest_midpoint` | sleep | ± | day | Midpoint of the main rest period, minutes after local midnight of `date` (can be negative). |
 | `rest_regularity` | sleep | + | roll7 | Standard deviation of `rest_midpoint` over the window, minutes. Needs ≥5 values. |
+| `hrv` | body | - | day | `heart.hrv` (§9). |
+| `resting_hr` | body | + | day | `heart.restingHr` (§9). |
 | `home_stay` | mobility | + | day | Share of the day's known time spent at the home place (§5). |
 | `location_entropy` | mobility | - | day | Normalised entropy of time over places (§5). |
 | `places_visited` | mobility | - | day | Number of distinct places visited. |
@@ -184,3 +193,15 @@ interface FeatureDay {
   restSource: "healthkit" | "steps" | null
 }
 ```
+
+## 9. Heart (watch)
+
+`hrv` is the overnight heart rate variability (SDNN, ms), valid between 5 and 300; `resting_hr`
+the resting heart rate (bpm), valid between 30 and 130. Outside those ranges, or without a
+watch, the feature is `null`. Both form the `body` domain, shown to the user as "Heart".
+
+Lower HRV goes with depression and more so with severity (Kemp 2010, meta-analysis); in
+people with recurrent depression, changes in resting heart rate went with symptom severity
+(Siddi 2023, RADAR-MDD). Both also move with illness, alcohol, training and travel, so an
+`ill` label masks the domain, and like every feature they are only compared with the user's
+own nights.

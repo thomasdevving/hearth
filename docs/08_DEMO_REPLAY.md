@@ -35,9 +35,17 @@ Works weekdays 09:00–17:30, gym Monday/Wednesday/Friday evening, sees friends 
 | Steps per day | 8 500 | 7 000 | 1 500 |
 | Places | home, work, gym (3×), shop (2×) | home, friends, park, shop | — |
 | Walking speed | 1.32 m/s | 1.30 m/s | 0.04 |
+| Heart rate variability (SDNN, overnight) | 48 ms | 48 ms | ×e^(0.15·N) |
+| Resting heart rate | 58 bpm | 58 bpm | 1.6 bpm |
 
 Step bins: zero during rest, low at home, bursts on commutes and at the gym. Visits are
 generated from the day's place sequence with fixed coordinates in one city.
+
+Sam wears a watch at night. Sleep runs from 8–25 minutes after going to bed until 3–13
+minutes before getting up, with a brief awakening (5–20 min) on half of the nights. On about
+1 night in 25 the watch is off: that night has no sleep or heart data, and rest falls back to
+the step-based estimate. Sleep and heart data use their own random stream, so steps and
+places are the same as without the watch.
 
 ### 2.2 Default scenario (150 days)
 
@@ -48,7 +56,7 @@ generated from the day's place sequence with fixed coordinates in one city.
 | 61–67 | Holiday | Other city, no work or gym, later rest, more steps. Scripted free text on day 61: "I'm in Spain this week, back on Sunday." |
 | 68–95 | Stable | Back to normal. |
 | 96–102 | Exam week | Slightly less rest, fewer steps. Free text: "Exam week, lots of stress." (stressor, no masking) |
-| 103–130 | Gradual decline | Linear over 28 days: rest midpoint +100 min, gym visits 3 → 0 per week, home stay +25 points, steps −35%, walking speed −0.08 m/s, Saturday friends visit dropped from day 115. Mood rises from 2 to 5; "Did you eat well today?" turns to "no". |
+| 103–130 | Gradual decline | Linear over 28 days: rest midpoint +100 min, gym visits 3 → 0 per week, home stay +25 points, steps −35%, walking speed −0.08 m/s, Saturday friends visit dropped from day 115, HRV −18 %, resting heart rate +3.5 bpm. Mood rises from 2 to 5; "Did you eat well today?" turns to "no". |
 | 131–150 | After | Scripted PHQ-2 = 4, PHQ-9 = 13 (item 9 = 0). Then partial recovery. |
 
 A second scenario, `slow`, has the same decline spread over 60 days (used by the
@@ -60,7 +68,8 @@ With seed 1 and default config:
 - **no** `ELEVATED` day during 61–67 once the holiday is confirmed; at least one if it is not;
 - the exam week masks nothing;
 - first `ELEVATED` day falls between day 108 and day 120;
-- contributors on that day include `rest_midpoint` and `place_visits:<gym>`;
+- `rest_midpoint` and `place_visits:<gym>` are among the contributors within the first 3
+  days of the change (from the first `ELEVATED` day);
 - PHQ-2 is offered within 7 days after the first `ELEVATED` day;
 - no day ever has more than one check-in.
 

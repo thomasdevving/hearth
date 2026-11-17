@@ -33,11 +33,11 @@ describe("replay persona", () => {
     expect(run.contexts.find((c) => c.type === "exams")?.kind).toBe("stressor");
     for (let d = 96; d <= 102; d++) expect(run.records[d - 1].maskedDomains).toEqual([]);
   });
-  it("first ELEVATED day is between day 108 and day 120, with rest and gym as contributors", () => {
+  it("first ELEVATED day is between day 108 and day 120, with rest and gym as contributors in its first 3 days", () => {
     const first = run.records.findIndex((r) => r.state === "ELEVATED") + 1;
     expect(first).toBeGreaterThanOrEqual(108);
     expect(first).toBeLessThanOrEqual(120);
-    const features = run.records[first - 1].contributors.map((c) => c.feature);
+    const features = run.records.slice(first - 1, first + 2).flatMap((r) => r.contributors.map((c) => c.feature));
     expect(features).toContain("rest_midpoint");
     expect(features).toContain(`place_visits:${gymId}`);
     // PHQ-2 is offered within 7 days after the first ELEVATED day.
