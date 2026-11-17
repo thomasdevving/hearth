@@ -177,6 +177,7 @@ Read: `docs/10_EVALUATION.md`.
 - [x] Interactive app preview in the hero, 15% smaller hero artwork, 2× section flowers, larger petal backdrops, open privacy rows, and a loose watercolour floral finale.
 - [x] Compact the plan introduction and let its longer flower stem continue into the next feature.
 - [x] Keep the hero layout and background stable when switching app preview views.
+- [x] Match every phone frame to iPhone 18 Pro proportions without stretching screenshots.
 - [x] README: how to run, what is simulated, what is real, privacy summary, limitations.
 
 ## M12 · Submission

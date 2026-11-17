@@ -411,3 +411,12 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   inactive view is hidden visually and from assistive technology. Switching between
   the plan and signals no longer changes the hero's size or the flower's framing;
   signal calculations still run only when requested.
+
+## iPhone mockup proportions
+
+- Phone bodies use the iPhone 18 Pro's 71.9:150 width-to-height ratio from
+  [Apple's specifications](https://www.apple.com/iphone-18-pro/specs/). At 290 px
+  wide, the frame is about 605 px high, replacing the previous 634 px frame.
+- Screenshots fit inside the screen with `object-fit: contain`, keeping their
+  original proportions and full content. The camera area stays above the app;
+  captions and decorative petals remain outside the sized phone body.
