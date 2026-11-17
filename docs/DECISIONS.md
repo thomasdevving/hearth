@@ -352,13 +352,13 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 
 ## Phone backdrops
 
-- Traced the upper petal of the existing Hearth logo into `logo-petal.svg`, retaining
-  its outline and magenta colour, then smoothed the trace into 11 continuous curves
-  at the owner's request. The vector stays sharp at larger display sizes.
-- Each shared `Phone` places one decorative petal beneath the frame, including both
-  phones in the paired preview. The generic radial glow is replaced by this logo cue.
-  Phone dimensions and captions stay unchanged; the petals do not intercept clicks
-  or appear in the accessibility tree.
+- The complete four-petal Hearth mark is traced into `hearth-logo-backdrop.svg`,
+  with smooth continuous curves and the original magenta colour. The vector stays
+  sharp at larger display sizes.
+- Each shared `Phone` places the full logo behind the frame, including both phones
+  in the paired preview. Its larger square shape replaces the single-petal accent.
+  Phone dimensions and captions stay unchanged; the marks do not intercept clicks
+  or appear in the accessibility tree. Narrow layouts limit their width to avoid clipping.
 
 ## Landing preview and privacy presentation
 
@@ -377,4 +377,5 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   dividers instead of rounded cards. Their wording and privacy guarantees stay intact.
 - The final demo invitation uses a dense bed of open watercolour blooms across the
   entire background. A plum overlay, white text and a white button keep it readable;
-  there is no white background or card behind the copy.
+  there is no white background or card behind the copy. The artwork uses loose wet
+  brush strokes, translucent washes, bleeding pigment and soft unfinished edges.

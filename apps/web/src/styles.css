@@ -263,7 +263,7 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .feature-shots { position: relative; display: flex; justify-content: center; }
 .phone { position: relative; margin: 0; width: min(290px, 72vw); }
 .phone-art { position: relative; isolation: isolate; }
-.phone-petal { position: absolute; z-index: -1; left: 50%; bottom: 16px; width: min(calc(100% + 112px), calc(100vw - 48px)); height: auto; transform: translateX(-50%); pointer-events: none; }
+.phone-logo { position: absolute; z-index: -1; left: 50%; top: 50%; width: min(calc(100% + 180px), calc(100vw - 48px)); height: auto; transform: translate(-50%, -50%); pointer-events: none; }
 .phone-body { position: relative; border-radius: 44px; padding: 10px; background: #1d1320; box-shadow: 0 30px 70px rgba(122, 15, 85, 0.25), 0 2px 0 rgba(255, 255, 255, 0.08) inset; }
 .phone-screen { position: relative; border-radius: 34px; overflow: hidden; background: var(--white); padding-top: 30px; }
 .phone-body img { display: block; width: 100%; height: auto; }
@@ -323,7 +323,8 @@ legend { padding: 0; margin-bottom: var(--s2); }
   .land-nav .land-cta { min-height: 44px; padding: 0 var(--s4); }
 }
 @media (min-width: 861px) and (max-width: 1100px) {
-  .phone-pair .phone-petal { width: calc(100% + 32px); }
+  .phone-logo { width: calc(100% + 112px); }
+  .phone-pair .phone-logo { width: calc(100% + 32px); }
 }
 @media (max-width: 520px) {
     .land-final::after { background: rgba(57, 7, 37, 0.68); }
