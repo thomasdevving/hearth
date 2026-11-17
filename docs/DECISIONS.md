@@ -327,3 +327,25 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   frame. There are no iOS screens because the iOS app is not built yet. Rows reveal on
   scroll, phones slide in and float gently, the flowers slowly breathe, numbers count up;
   everything is static for `prefers-reduced-motion`.
+
+## Landing flowers: vertical framing
+
+- Retained the original layout, Syne/Outfit typography, colours and side-entering
+  watercolour backgrounds. The earlier standalone flower/Inter redesign was reverted
+  at the owner's request and was never pushed.
+- Extended the original hero artwork downward to complete its lower petals, keeping
+  the intentional top and right crops. The extended 1369 × 1149 canvas is rendered at
+  the original 1672/941 display-width ratio; the larger canvas does not shrink the
+  flower. A transparent layer lets the lower petals overlap below the desktop hero.
+  On mobile the flower keeps its original display width and the copy moves down to
+  leave room for the extended petals. Text and links stay above the decoration.
+  The divider under the hero is removed so the petals flow into the next section.
+- Section backgrounds retain their original rendered scale. On desktop, extend section
+  height to fit the full width-sized image and its existing 1.06 scale animation, with
+  24 px of vertical space on either side. On mobile, extend each section to at least
+  its full original background height plus 48 px, retaining its original scale.
+  Artwork stays on its original side; flowers are not shrunk to fit shorter sections.
+- The completed hero uses lossless WebP with a transparent PNG fallback to preserve
+  paint texture and avoid an opaque rectangle covering the following section.
+- Swapped the how-it-works and privacy backgrounds, along with their copy alignment,
+  so each heading stays on the image's open side.

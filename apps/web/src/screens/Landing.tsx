@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { LogoMark, Wordmark } from "../ui/Logo";
 import flowerWebp from "../assets/hero-flower.webp";
-import flowerJpg from "../assets/hero-flower.jpg";
+import flowerPng from "../assets/hero-flower.png";
 import flowerLeft from "../assets/flower-left.webp";
 import flowerRight from "../assets/flower-right.webp";
 import shotPlan from "../assets/shots/plan.webp";
@@ -113,7 +113,7 @@ export function Landing() {
   return (
     <div className="landing" ref={root}>
 
-      <div className="hero-wrap" style={{ ["--flower" as string]: `image-set(url(${flowerWebp}) type("image/webp"), url(${flowerJpg}) type("image/jpeg"))` }}>
+      <div className="hero-wrap" style={{ ["--flower" as string]: `image-set(url(${flowerWebp}) type("image/webp"), url(${flowerPng}) type("image/png"))` }}>
       <nav className="land-nav" aria-label="Site">
         <Wordmark href="#/" />
         <span className="spacer" />
@@ -158,7 +158,7 @@ export function Landing() {
       </div>
 
       <section id="how" aria-labelledby="how-title">
-        <div className="flow-head flow-text-left" style={{ ["--bg" as string]: `url(${flowerRight})` }}>
+        <div className="flow-head flow-text-right" style={{ ["--bg" as string]: `url(${flowerLeft})` }}>
           <div className="flow-head-inner reveal">
             <p className="eyebrow">How it works</p>
             <h2 id="how-title">Your plan becomes the thing that watches over you.</h2>
@@ -224,7 +224,7 @@ export function Landing() {
       </section>
 
       <section id="privacy" className="band" aria-labelledby="privacy-title">
-        <div className="flow-head flow-text-right" style={{ ["--bg" as string]: `url(${flowerLeft})` }}>
+        <div className="flow-head flow-text-left" style={{ ["--bg" as string]: `url(${flowerRight})` }}>
           <div className="flow-head-inner reveal">
             <p className="eyebrow">Hybrid by design</p>
             <h2 id="privacy-title">The model that reads your words lives on your device.</h2>

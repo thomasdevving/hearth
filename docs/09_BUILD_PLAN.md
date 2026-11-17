@@ -172,6 +172,7 @@ Read: `docs/10_EVALUATION.md`.
       *(Done for metrics 1–6, 8 (code), 9 (keywords), 10. Metrics 7, 8 (labels), 11, 12 need Gemini Nano in Chrome: `#/eval_g`. 13 needs iOS.)*
 - [x] Copy review against `docs/01_PRODUCT.md` §7.
 - [x] Accessibility: text contrast, tap targets of at least 44 pt, screen-reader labels on controls.
+- [x] Landing flowers: preserve original sizing, side backgrounds and typography; complete the hero's lower petals, extend sections vertically, and swap the how/privacy artwork.
 - [x] README: how to run, what is simulated, what is real, privacy summary, limitations.
 
 ## M12 · Submission

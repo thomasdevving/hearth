@@ -182,12 +182,15 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .land-cta:hover { background: var(--magenta-deep); border-color: var(--magenta-deep); }
 .land-cta.ghost { background: var(--white); color: var(--magenta-deep); border-color: var(--magenta-line); }
 .land-cta.ghost:hover { background: var(--magenta-tint); }
-.hero { max-width: var(--land-max); margin: 0 auto; padding: var(--s7) var(--s5) var(--s7); display: grid; grid-template-columns: 1.45fr 1fr; gap: var(--s6); align-items: center; }
+.hero { position: relative; z-index: 1; max-width: var(--land-max); margin: 0 auto; padding: var(--s7) var(--s5) var(--s7); display: grid; grid-template-columns: 1.45fr 1fr; gap: var(--s6); align-items: center; }
 .hero h1 { font-size: clamp(2.2rem, 4.4vw, 3.5rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: var(--s5); }
 .hero h1 em { font-style: normal; color: var(--magenta); }
 .hero .lead { font-size: 1.2rem; color: var(--ink-2); max-width: 34em; margin-bottom: var(--s6); }
 .hero .ctas { display: flex; gap: var(--s3); flex-wrap: wrap; }
-.hero-wrap { position: relative; background-color: var(--white); background-image: var(--flower); background-repeat: no-repeat; background-position: right center; background-size: auto 100%; border-bottom: 1px solid var(--line); }
+/* The extended canvas keeps the original 1672/941 display width and lets the
+   transparent lower petals spill beyond the hero without changing flower scale. */
+.hero-wrap { --hero-extension: calc(1672 / 941 * 1149 / 1369); position: relative; z-index: 1; background: var(--white); }
+.hero-wrap::before { content: ""; position: absolute; inset: 0 0 auto; height: calc(100% * var(--hero-extension)); background: var(--flower) right top / auto 100% no-repeat; pointer-events: none; }
 .hero-wrap .hero { min-height: clamp(520px, 62vh, 700px); }
 .hero-side { position: relative; align-self: end; justify-self: end; width: 100%; max-width: 340px; }
 .hero-card { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(6px); border-radius: var(--radius); padding: var(--s4); box-shadow: 0 18px 50px rgba(122, 15, 85, 0.18); border: 1px solid var(--line); }
@@ -217,9 +220,11 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .land-footer { max-width: var(--land-max); margin: 0 auto; padding: var(--s6) var(--s5) var(--s7); color: var(--muted); font-size: 0.88rem; border-top: 1px solid var(--line); display: flex; gap: var(--s5); flex-wrap: wrap; justify-content: space-between; }
 
 /* section intros on the watercolour flowers */
-.flow-head { position: relative; overflow: hidden; min-height: clamp(380px, 44vw, 560px); display: grid; align-items: center; }
-.flow-head::before { content: ""; position: absolute; inset: 0; background: var(--bg) center / cover no-repeat; transform-origin: 50% 50%; }
-.flow-head-inner { position: relative; width: 100%; max-width: var(--land-max); margin: 0 auto; padding: var(--s7) var(--s5); }
+.flow-head { position: relative; overflow: hidden; min-height: calc(100vw * 941 / 1672 * 1.06 + 48px); display: grid; align-items: center; background: var(--white); }
+/* Keep the original desktop width/scale; extend the section to fit the full height,
+   including the original 1.06 breathing animation and 24 px above and below. */
+.flow-head::before { content: ""; position: absolute; inset: 0; background: var(--bg) center / 100% auto no-repeat; transform-origin: 50% 50%; }
+.flow-head-inner { position: relative; z-index: 2; width: 100%; max-width: var(--land-max); margin: 0 auto; padding: var(--s7) var(--s5); }
 .flow-head-inner > * { max-width: 32rem; }
 .flow-text-right .flow-head-inner { display: flex; flex-direction: column; align-items: flex-end; }
 .flow-head h2 { font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 var(--s4); }
@@ -254,8 +259,8 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .land-help { border: 2px solid var(--danger); border-radius: var(--radius); padding: var(--s4); margin-top: var(--s4); background: var(--white); }
 .land-help p { margin: 0; color: var(--ink) !important; }
 .land-help strong { color: var(--danger); }
-.land-final { position: relative; overflow: hidden; text-align: center; padding: var(--s7) var(--s5); }
-.land-final::before { content: ""; position: absolute; inset: 0; background: var(--bg) right center / cover no-repeat; opacity: 0.45; }
+.land-final { position: relative; overflow: hidden; text-align: center; padding: var(--s7) var(--s5); min-height: calc(100vw * 941 / 1672 * 1.06 + 48px); display: grid; align-items: center; }
+.land-final::before { content: ""; position: absolute; inset: 0; background: var(--bg) right center / 100% auto no-repeat; opacity: 0.45; }
 .land-final-inner { position: relative; max-width: 42rem; margin: 0 auto; padding: var(--s7) var(--s6); border-radius: 40px; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.75) 70%, rgba(255, 255, 255, 0)); }
 .land-final h2 { font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 var(--s4); }
 .land-final .intro { color: var(--ink-2); margin-bottom: var(--s5); }
@@ -279,16 +284,17 @@ legend { padding: 0; margin-bottom: var(--s2); }
   .feature { grid-template-columns: 1fr; gap: var(--s5); padding: var(--s4) 0; }
   .feature-right .feature-copy { order: 0; }
   .features { gap: var(--s5); }
-  .flow-head { min-height: 0; }
-  .flow-head::before { opacity: 0.32; }
+  .flow-head { min-height: calc(100vw * 941 / 1672 + 48px); padding-block: 24px; }
+  .flow-head::before { background-size: auto calc(100% - 48px); opacity: 0.32; }
   .flow-text-right .flow-head-inner { align-items: flex-start; }
   .phone-pair { padding-right: 0; }
   .phone-pair .phone-back { display: none; }
   .facts { grid-template-columns: 1fr; }
-  .land-final::before { opacity: 0.3; }
+  .land-final { min-height: calc(100vw * 941 / 1672 + 48px); padding-block: calc(var(--s7) + 24px); }
+  .land-final::before { background-size: auto calc(100% - 48px); opacity: 0.3; }
   .hero { grid-template-columns: 1fr; padding-top: var(--s5); gap: var(--s6); }
-  .hero-wrap { background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 210px, #fff 330px), var(--flower); background-size: 100% 100%, auto 340px; background-position: 0 0, right top; }
-  .hero-wrap .hero { min-height: 0; padding-top: 250px; }
+  .hero-wrap::before { height: calc(340px * var(--hero-extension)); }
+  .hero-wrap .hero { min-height: 0; padding-top: calc(274px + 340px * (var(--hero-extension) - 1)); }
   .hero-side { justify-self: stretch; max-width: none; }
     .routes, .facts { grid-template-columns: 1fr; }
     .land-nav a.navlink { display: none; }
