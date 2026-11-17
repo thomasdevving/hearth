@@ -1,5 +1,7 @@
 import type { MouseEvent } from "react";
 import { LogoMark, Wordmark } from "../ui/Logo";
+import flowerWebp from "../assets/hero-flower.webp";
+import flowerJpg from "../assets/hero-flower.jpg";
 
 /** In-page links scroll instead of changing the hash, which is the app's router. */
 const scrollTo = (id: string) => (e: MouseEvent) => {
@@ -11,6 +13,8 @@ const scrollTo = (id: string) => (e: MouseEvent) => {
 export function Landing() {
   return (
     <div className="landing">
+
+      <div className="hero-wrap" style={{ ["--flower" as string]: `image-set(url(${flowerWebp}) type("image/webp"), url(${flowerJpg}) type("image/jpeg"))` }}>
       <nav className="land-nav" aria-label="Site">
         <Wordmark href="#/" />
         <span className="spacer" />
@@ -24,7 +28,6 @@ export function Landing() {
           Try the demo
         </a>
       </nav>
-
       <header className="hero">
         <div>
           <p className="eyebrow">Your own early-warning plan</p>
@@ -44,24 +47,7 @@ export function Landing() {
             </a>
           </div>
         </div>
-        <div className="hero-art" aria-hidden="true">
-          <svg viewBox="0 0 400 400">
-            <defs>
-              <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#c2187e" stopOpacity="1" />
-                <stop offset="55%" stopColor="#e86fb2" stopOpacity="0.7" />
-                <stop offset="100%" stopColor="#fdf0f7" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <path d="M40 380V200a160 160 0 0 1 320 0v180" fill="#fdf0f7" />
-            <path d="M80 380V205a120 120 0 0 1 240 0v175" fill="none" stroke="#f3c6df" strokeWidth="2" />
-            <path d="M120 380V210a80 80 0 0 1 160 0v170" fill="none" stroke="#f3c6df" strokeWidth="2" />
-            <g className="pulse">
-              <circle cx="200" cy="245" r="125" fill="url(#glow)" />
-            </g>
-            <circle cx="200" cy="245" r="38" fill="#c2187e" />
-            <path d="M40 380V200a160 160 0 0 1 320 0v180" fill="none" stroke="#c2187e" strokeWidth="10" strokeLinecap="round" />
-          </svg>
+        <div className="hero-side" aria-hidden="true">
           <div className="hero-card">
             <div className="k">Today · a change from your usual pattern</div>
             <div className="v">Later evenings, fewer gym visits</div>
@@ -70,6 +56,7 @@ export function Landing() {
           </div>
         </div>
       </header>
+      </div>
 
       <section className="land-section" id="how" aria-labelledby="how-title">
         <p className="eyebrow">How it works</p>

@@ -107,7 +107,7 @@ function indexChart(all: DayRecord[], contexts: ContextLabel[], qs: Questionnair
     series: [
       { label: "Date", value: (_u, v) => (v == null ? "–" : new Date(v * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })) },
       { label: "Daily index", stroke: "#8b8a85", width: 1, points: { show: true, size: 4, fill: "#8b8a85" }, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
-      { label: "Smoothed", stroke: "#c2187e", width: 2.5, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
+      { label: "Smoothed", stroke: "#ca026a", width: 2.5, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
       { label: "Your usual range (limit)", stroke: INK, width: 1.5, dash: [6, 4], value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
     ],
     plugins: [contextPlugin(contexts, qs)],

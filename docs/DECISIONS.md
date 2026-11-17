@@ -314,3 +314,9 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - **Charts** start at the first day with a usual range (earlier days are scored against a
   reference still being built), legends show labels only, PHQ-9 labels no longer overlap the
   axis, and the smoothed line is magenta.
+- **Logo and hero image** come from the owner's artwork: the magenta pinwheel is the logo
+  (made transparent and cropped: `apps/web/src/assets/hearth-logo.png`, plus
+  `public/favicon.png` and `public/apple-touch-icon.png`), and the watercolour flower is the
+  landing hero background (`hero-flower.webp` with a JPEG fallback). The brand magenta is now
+  the logo's own colour, `#ca026a` (5.6:1 on white). On narrow screens the flower becomes a
+  band above the headline that fades into white.
