@@ -1,0 +1,295 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Hearth · jury demo (draft with webcam placeholders)</title>
+<style>
+  @font-face { font-family: "Syne"; src: url("../../node_modules/@fontsource-variable/syne/files/syne-latin-wght-normal.woff2") format("woff2"); font-weight: 400 800; }
+  @font-face { font-family: "Outfit"; src: url("../../node_modules/@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+  html, body { margin: 0; background: #fff; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// Jury demo, < 3 minutes. Webcam parts are placeholders; the voice-over is recorded separately
+// (video/demo/SCRIPT.md has the lines and timecodes). The live demo is a recording of the real
+// web app (video/demo/capture.cjs, frames.json).
+const W = 1920, H = 1080;
+const C = { mag: "#ca026a", deep: "#7a0f55", tint: "#fdf0f7", line: "#eee6ec", ink: "#1d1320", ink2: "#4a3f4c", muted: "#6e6470", grey: "#faf6f9", amber: "#b25d00", amberBg: "#fff4e5", green: "#1e5b37", greenBg: "#e9f5ee", blue: "#1d4a85", blueBg: "#eaf1fb" };
+const cv = document.getElementById("c");
+const g = cv.getContext("2d");
+const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+const font = (w, s, fam = "Outfit") => `${w} ${s}px ${fam}`;
+const ONE_LINER = "Hearth notices when your days drift from your usual pattern, and reminds you what helps, in your own words, on your own device.";
+const GITHUB = "github.com/thomasdevving/BuildHybridAI-2026";
+
+function text(str, x, y, f, color, align = "left") { g.font = f; g.fillStyle = color; g.textAlign = align; g.textBaseline = "alphabetic"; g.fillText(str, x, y); }
+function wrap(str, x, y, maxW, f, color, lh, align = "left") {
+  g.font = f; g.fillStyle = color; g.textAlign = align;
+  const words = str.split(" "); let line = ""; let yy = y; const lines = [];
+  for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line);
+  for (const l of lines) { g.fillText(l, x, yy); yy += lh; }
+  return yy - lh;
+}
+function rr(x, y, w, h, r, fill, stroke, lw = 2, dash) {
+  g.beginPath(); g.roundRect(x, y, w, h, r);
+  if (fill) { g.fillStyle = fill; g.fill(); }
+  if (stroke) { g.save(); if (dash) g.setLineDash(dash); g.strokeStyle = stroke; g.lineWidth = lw; g.stroke(); g.restore(); }
+}
+function fade(k, fn) { if (k <= 0) return; g.save(); g.globalAlpha = Math.min(1, k); fn(); g.restore(); }
+function bg(flower = 0.22, which = "R") {
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const img = which === "R" ? FLOWER : FLOWER_L; if (!img) return;
+  const fw = 1920, fh = fw * (img.height / img.width);
+  g.save(); g.globalAlpha = flower; g.drawImage(img, 0, (H - fh) / 2, fw, fh); g.restore();
+}
+function logo(x, y, s = 40, withWord = true) {
+  g.drawImage(LOGO, x, y - s * 0.8, s, s);
+  if (withWord) text("Hearth", x + s + 10, y, font(800, s * 0.8, "Syne"), C.mag);
+}
+function label(str, x, y, color = C.mag) { text(str.toUpperCase(), x, y, font(700, 22, "Syne"), color); }
+
+// ---------- webcam placeholder ----------
+function webcam(x, y, w, h, title, lines, small = false) {
+  rr(x, y, w, h, small ? 18 : 28, "#241a27");
+  rr(x + 10, y + 10, w - 20, h - 20, small ? 12 : 20, null, "rgba(255,255,255,.35)", 2, [12, 10]);
+  const cx = x + w / 2, cy = y + h / 2 - (small ? 18 : 70);
+  const s = small ? 0.55 : 1.2;
+  g.save(); g.translate(cx, cy); g.scale(s, s);
+  rr(-60, -38, 90, 76, 14, null, "rgba(255,255,255,.8)", 5);
+  g.beginPath(); g.moveTo(34, -12); g.lineTo(66, -30); g.lineTo(66, 30); g.lineTo(34, 12); g.closePath(); g.strokeStyle = "rgba(255,255,255,.8)"; g.lineWidth = 5; g.stroke();
+  g.restore();
+  text(title, cx, cy + (small ? 50 : 120), font(700, small ? 22 : 40, "Syne"), "#fff", "center");
+  if (!small) lines.forEach((l, i) => text(l, cx, cy + 180 + i * 42, font(400, 28), "rgba(255,255,255,.75)", "center"));
+  else if (lines[0]) text(lines[0], cx, cy + 80, font(400, 17), "rgba(255,255,255,.7)", "center");
+}
+function timecode(t) { const m = Math.floor(t / 60), s = Math.floor(t % 60); return `${m}:${String(s).padStart(2, "0")}`; }
+
+// ---------- timeline ----------
+// Live demo: ranges of the recording (seconds) with chapter captions; `hold` freezes a frame.
+const DEMO = [
+  { from: 0.3, to: 6.9, n: 1, title: "Sam writes the plan in their own words", sub: "Typed or spoken. It never leaves the device." },
+  { from: 6.9, to: 8.4, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
+  { hold: 8.4, dur: 4.2, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", catch: true },
+  { from: 8.4, to: 15.4, n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
+  { from: 15.5, to: 17.3, n: 3, title: "A starting point, word for word", sub: "The PHQ-9 exactly as validated. No model touches it." },
+  { from: 19.6, to: 24.0, n: 4, title: "Day 61: “I’m in Spain this week”", sub: "The time machine replays Sam’s simulated sensor data." },
+  { from: 24.0, to: 28.0, n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
+  { from: 28.0, to: 30.9, n: 5, title: "Day 109", sub: "Sam’s days have been drifting for six days." },
+  { from: 30.9, to: 37.6, n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
+  { from: 37.6, to: 51.2, speed: 1.6, n: 6, title: "A 20-second check-in", sub: "Gemini Nano writes the opening line; every number in it is checked." },
+  { from: 51.2, to: 58.4, n: 7, title: "Sam’s own plan opens", sub: "What Sam said helps, in Sam’s own words." },
+  { from: 58.4, to: 64.4, n: 8, title: "Nothing private left the device", sub: "The privacy ledger lists every model call and exactly what was sent." },
+];
+let demoLen = 0; for (const s of DEMO) { s.start = demoLen; s.len = s.hold !== undefined ? s.dur : (s.to - s.from) / (s.speed || 1); demoLen += s.len; }
+
+const T = {};
+let cur = 0;
+const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
+seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("arch", 20); seg("control", 15); seg("numbers", 15); seg("close", 12);
+const TOTAL = cur;
+
+// ---------- sections ----------
+function hook(t, k) {
+  bg(0.12, "L");
+  webcam(160, 90, 1600, 900, "WEBCAM  ·  0:00–0:22", ["Your opening: a personal moment, or someone you know,", "when the drift started long before anyone noticed.", "Replace this placeholder with your clip."]);
+  fade(ease((k - 0.15) / 0.1), () => { rr(60, 950, 560, 70, 18, "rgba(255,255,255,.95)"); logo(90, 997, 36); text("#BuildHybridAI 2026", 330, 995, font(500, 26), C.ink2); });
+}
+function problem(t, k) {
+  bg(0.18, "R");
+  label("Today", 160, 220, C.amber);
+  const lines = ["A relapse-prevention plan on paper.", "An appointment every few weeks.", "In between, the drift goes unnoticed."];
+  lines.forEach((l, i) => fade(ease((t - T.problem[0] - 0.3 - i * 1.2) / 0.6), () => text(l, 160, 330 + i * 90, font(700, 60, "Syne"), i === 2 ? C.amber : C.ink)));
+  fade(ease((t - T.problem[0] - 4.2) / 0.6), () => {
+    rr(160, 640, 980, 170, 26, C.grey, C.line, 2);
+    const n = Math.min(39, Math.floor(ease((t - T.problem[0] - 4.2) / 2.5) * 39));
+    text(String(n), 210, 760, font(800, 110, "Syne"), C.ink);
+    text("days since Sam’s days began to drift.", 380, 720, font(500, 34), C.ink2);
+    text("Nobody has noticed yet.", 380, 772, font(700, 34), C.amber);
+  });
+  text("Sam is a simulated person from Hearth’s replay engine.", 160, 900, font(400, 22), C.muted);
+}
+function oneliner(t, k) {
+  bg(0.3, "R");
+  fade(ease((t - T.oneliner[0]) / 0.8), () => { logo(160, 300, 64); });
+  fade(ease((t - T.oneliner[0] - 0.6) / 0.9), () => wrap(ONE_LINER, 160, 430, 1250, font(700, 62, "Syne"), C.ink, 80));
+}
+
+function phone(img, x, y, h) {
+  const w = h * (390 / 844) + 28;
+  rr(x, y, w, h + 28, 56, "#1d1320");
+  g.save(); g.beginPath(); g.roundRect(x + 14, y + 14, w - 28, h, 44); g.clip();
+  g.fillStyle = "#fff"; g.fillRect(x + 14, y + 14, w - 28, h);
+  if (img) g.drawImage(img, x + 14, y + 14, w - 28, h);
+  g.restore();
+  return w;
+}
+let FRAMES = null, frameImg = null, frameFile = "";
+async function frameAt(rec) {
+  let lo = 0, hi = FRAMES.length - 1;
+  while (lo < hi) { const m = (lo + hi + 1) >> 1; if (FRAMES[m].t <= rec) lo = m; else hi = m - 1; }
+  const f = FRAMES[lo].file;
+  if (f !== frameFile) { const im = new Image(); im.src = `frames/${f}`; await im.decode(); frameImg = im; frameFile = f; }
+  return frameImg;
+}
+async function demo(t) {
+  const local = t - T.demo[0];
+  let s = DEMO[DEMO.length - 1];
+  for (const x of DEMO) if (local >= x.start && local < x.start + x.len) { s = x; break; }
+  const rec = s.hold !== undefined ? s.hold : s.from + (local - s.start) * (s.speed || 1);
+  const img = await frameAt(rec);
+  bg(0.16, "L");
+  // phone
+  const ph = 960, pw = ph * (390 / 844) + 28;
+  phone(img, 1230, (H - ph - 28) / 2, ph);
+  // chapter
+  const firstOfChapter = DEMO.find((x) => x.n === s.n);
+  const kc = ease((local - firstOfChapter.start) / 0.6);
+  label(`Live demo  ·  ${s.n} / 8`, 140, 200);
+  fade(Math.max(kc, s === firstOfChapter ? kc : 1), () => {
+    const y = wrap(s.title, 140, 290, 960, font(700, 62, "Syne"), C.ink, 74);
+    wrap(s.sub, 140, y + 70, 900, font(400, 32), C.ink2, 44);
+  });
+  if (s.catch) {
+    const k = ease((local - s.start) / 0.5);
+    fade(k, () => {
+      rr(140, 560, 960, 230, 26, C.tint, C.mag, 3);
+      label("Caught and checked", 180, 615);
+      wrap("The model suggested a sign Sam never wrote: “I stop walking my dog”. Code checks every quote against Sam’s own text, so it was left out, and Hearth says so.", 180, 670, 880, font(500, 30), C.ink, 42);
+    });
+  }
+  // draft label + webcam picture-in-picture
+  rr(140, 92, 640, 48, 24, C.amberBg, "#f0c890", 2);
+  text("DRAFT: stand-in model. Re-record with Gemini Nano in Chrome", 162, 124, font(600, 20), C.amber);
+  webcam(140, 820, 360, 202, "WEBCAM (optional)", ["small, while you narrate"], true);
+}
+
+function box(x, y, w, h, title, body, tone = "plain", tag) {
+  const fill = tone === "device" ? C.greenBg : tone === "cloud" ? C.blueBg : tone === "engine" ? C.tint : "#fff";
+  const stroke = tone === "device" ? "#a8d5b9" : tone === "cloud" ? "#aecaee" : tone === "engine" ? "#f3c1dc" : C.line;
+  rr(x, y, w, h, 20, fill, stroke, 2);
+  text(title, x + 24, y + 46, font(700, 28, "Syne"), C.ink);
+  if (tag) { g.font = font(600, 17); const tw = g.measureText(tag).width + 24; rr(x + w - tw - 18, y + 20, tw, 32, 16, "#fff", stroke, 1.5); text(tag, x + w - tw / 2 - 18, y + 42, font(600, 17), C.ink2, "center"); }
+  wrap(body, x + 24, y + 88, w - 48, font(400, 23), C.ink2, 32);
+}
+function arch(t) {
+  bg(0.0);
+  const s = t - T.arch[0];
+  label("Architecture", 120, 110);
+  text("One SDK, two places to run: Firebase AI Logic hybrid inference", 120, 170, font(700, 44, "Syne"), C.ink);
+  fade(ease(s / 0.6), () => {
+    rr(100, 220, 1100, 800, 30, null, C.line, 2);
+    text("On your phone or in Chrome", 130, 265, font(700, 26), C.ink2);
+    box(130, 290, 1040, 150, "Hearth engine", "Every score, limit and trigger is plain TypeScript. Compared only with your own usual days. The LLM never computes a number.", "engine", "no LLM");
+    box(130, 460, 500, 300, "Gemini Nano", "Reads your plan and your notes, writes the check-in line, picks which of your own actions fit today. Your words go nowhere else.", "device", "on-device");
+    box(670, 460, 500, 300, "Guardrails in code", "JSON schema, every quote checked against your text, every number from the engine, no diagnostic words. If a check fails, a fixed text is used.", "plain");
+    box(130, 780, 1040, 210, "InferenceRouter + privacy ledger", "Each task has a privacy class. Your words, notes and places: on-device only, never a cloud fallback. Every call is logged with where it ran and the exact payload.", "plain");
+  });
+  fade(ease((s - 1.8) / 0.6), () => {
+    rr(1260, 220, 560, 800, 30, null, "#aecaee", 2, [10, 8]);
+    text("Cloud, only after you say yes", 1290, 265, font(700, 26), C.blue);
+    box(1290, 290, 500, 330, "Gemini 3.5 Flash", "Via Firebase AI Logic. A weekly reflection and a report for your GP, written from weekly numbers only. Never your words.", "cloud", "cloud");
+    box(1290, 640, 500, 350, "Firebase", "Anonymous Auth, Firestore for weekly numbers, Remote Config for the model and thresholds. Delete your cloud data with one tap.", "plain");
+    g.save(); g.strokeStyle = "#7aa6dd"; g.lineWidth = 3; g.setLineDash([10, 8]); g.beginPath(); g.moveTo(1170, 885); g.lineTo(1290, 455); g.stroke(); g.restore();
+    rr(1150, 640, 150, 44, 22, "#fff", "#aecaee", 2); text("consent", 1225, 670, font(600, 20), C.blue, "center");
+  });
+}
+function control(t) {
+  bg(0.14, "R");
+  const s = t - T.control[0];
+  label("Control, safety and privacy", 120, 140);
+  const cols = [
+    { title: "Sam stays in control", items: ["Untick any card the model made.", "A note only counts after Sam confirms it.", "The cloud is off until Sam says yes.", "Export or delete everything, any time."] },
+    { title: "Safe and private by design", items: ["Words, notes and places never leave the device.", "Every model call is in the privacy ledger.", "Questionnaires word for word; no model scores.", "The 988 support screen works offline."] },
+  ];
+  cols.forEach((c, ci) => fade(ease((s - ci * 1.2) / 0.6), () => {
+    const x = 120 + ci * 850;
+    text(c.title, x, 250, font(700, 48, "Syne"), C.ink);
+    c.items.forEach((it, i) => fade(ease((s - ci * 1.2 - 0.4 - i * 0.5) / 0.5), () => {
+      const y = 340 + i * 120;
+      g.beginPath(); g.arc(x + 16, y - 12, 16, 0, Math.PI * 2); g.fillStyle = C.tint; g.fill();
+      g.save(); g.strokeStyle = C.mag; g.lineWidth = 3.5; g.lineCap = "round"; g.beginPath(); g.moveTo(x + 8, y - 12); g.lineTo(x + 14, y - 6); g.lineTo(x + 25, y - 19); g.stroke(); g.restore();
+      wrap(it, x + 52, y, 700, font(500, 32), C.ink, 42);
+    }));
+  }));
+  fade(ease((s - 5) / 0.6), () => text("Hearth is a companion for noticing, not a diagnosis and not a crisis service.", 120, 940, font(400, 26), C.muted));
+}
+function numbers(t) {
+  bg(0.0);
+  const s = t - T.numbers[0];
+  label("The numbers", 120, 130);
+  const N = [
+    { n: "7 days", b: "median from the start of a drift to “Changed”", src: "50 simulated people, none missed" },
+    { n: "1.0", b: "false-alarm days per 100 ordinary days", src: "50 simulated people, 150 days each" },
+    { n: "0 vs 92", b: "holiday alarm days, confirmed vs. not", src: "20 simulated people" },
+    { n: "0", b: "requests leaving the browser with the cloud off", src: "network log of a full replay" },
+    { n: "$0", b: "per model call on the device", src: "no API cost for on-device inference" },
+    { n: "[__] %", b: "Gemini Nano: plan cards correct (precision)", src: "FILL IN: #/eval_g in Chrome", ph: true },
+  ];
+  N.forEach((c, i) => fade(ease((s - 0.3 - i * 0.6) / 0.6), () => {
+    const x = 120 + (i % 3) * 570, y = 190 + Math.floor(i / 3) * 360;
+    rr(x, y, 530, 320, 26, c.ph ? C.amberBg : "#fff", c.ph ? "#f0c890" : C.line, 2, c.ph ? [10, 8] : null);
+    text(c.n, x + 36, y + 110, font(800, 76, "Syne"), c.ph ? C.amber : C.mag);
+    wrap(c.b, x + 36, y + 175, 460, font(500, 30), C.ink, 40);
+    text(c.src, x + 36, y + 290, font(c.ph ? 700 : 400, 20), c.ph ? C.amber : C.muted);
+  }));
+  fade(ease((s - 4.5) / 0.6), () => text("Simulated people from Hearth’s replay engine: tests of the method, not clinical results.", 120, 1000, font(400, 24), C.muted));
+}
+function close(t) {
+  bg(0.35, "R");
+  const s = t - T.close[0];
+  fade(ease(s / 0.8), () => {
+    logo(140, 230, 72);
+    text("When your days drift,", 140, 340, font(800, 66, "Syne"), C.ink);
+    text("Hearth notices.", 140, 418, font(800, 66, "Syne"), C.mag);
+    const ty = 418;
+    wrap(ONE_LINER, 140, ty + 80, 1050, font(500, 32), C.ink, 46);
+  });
+  fade(ease((s - 1) / 0.8), () => {
+    text("Built with Firebase AI Logic  ·  Gemini Nano  ·  Gemini", 140, 700, font(700, 30), C.ink);
+    text("#BuildHybridAI 2026", 140, 748, font(500, 28), C.ink2);
+    text(GITHUB, 140, 820, font(600, 30), C.mag);
+    rr(1300, 160, 380, 440, 28, "#fff", C.line, 2);
+    g.drawImage(QR, 1330, 190, 320, 320);
+    text("Code on GitHub", 1490, 560, font(600, 24), C.ink2, "center");
+  });
+  webcam(1300, 660, 380, 214, "WEBCAM (optional)", ["your last line"], true);
+}
+
+// ---------- render ----------
+async function render(t) {
+  if (t < T.problem[0]) hook(t, t / T.hook[1]);
+  else if (t < T.oneliner[0]) problem(t);
+  else if (t < T.demo[0]) oneliner(t);
+  else if (t < T.arch[0]) await demo(t);
+  else if (t < T.control[0]) arch(t);
+  else if (t < T.numbers[0]) control(t);
+  else if (t < T.close[0]) numbers(t);
+  else close(t);
+  // cross-fade from white at each section start
+  for (const k of Object.keys(T)) {
+    const a = T[k][0]; if (a === 0) continue;
+    if (t >= a && t < a + 0.45) { g.save(); g.globalAlpha = 1 - ease((t - a) / 0.45); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.restore(); }
+  }
+  // timecode for editing (top right, small)
+  text(timecode(t), W - 30, 40, font(500, 18), "rgba(110,100,112,.55)", "right");
+}
+
+let LOGO, FLOWER, FLOWER_L, QR;
+(async () => {
+  const load = async (src) => { const im = new Image(); im.src = src; await im.decode(); return im; };
+  LOGO = await load("../../apps/web/src/assets/hearth-logo.png");
+  FLOWER = await load("../../apps/web/src/assets/flower-right.webp");
+  FLOWER_L = await load("../../apps/web/src/assets/flower-left.webp");
+  QR = await load("assets/qr-github.png");
+  FRAMES = (await (await fetch("frames.json")).json()).frames;
+  await document.fonts.load('800 40px "Syne"'); await document.fonts.load('700 40px "Syne"'); await document.fonts.load('400 30px "Outfit"'); await document.fonts.load('700 30px "Outfit"');
+  window.TOTAL = TOTAL; window.render = render; window.SECTIONS = T; window.ready = true;
+  await render(0);
+})();
+</script>
+</body>
+</html>
