@@ -81,9 +81,14 @@ export function Settings() {
           Download on-device model
         </button>
       )}
-      <button className="link" onClick={() => checkOnDevice()}>
-        Check again
-      </button>
+      <div className="row">
+        <button className="link" onClick={() => checkOnDevice()}>
+          Check again
+        </button>
+        <button className="link" onClick={() => navigate("eval_g")}>
+          Test the plan reader (task G) ›
+        </button>
+      </div>
 
       <h2>Check-ins</h2>
       <label className="toggle">

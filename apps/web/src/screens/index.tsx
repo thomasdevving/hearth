@@ -15,6 +15,7 @@ import { Audit } from "./Audit";
 import { Weekly } from "./Weekly";
 import { Share } from "./Share";
 import { Report } from "./Report";
+import { EvalG } from "./EvalG";
 
 export const SCREENS: Record<string, ComponentType<{ params: Record<string, string> }>> = {
   home: Home,
@@ -34,4 +35,5 @@ export const SCREENS: Record<string, ComponentType<{ params: Record<string, stri
   share: Share,
   settings: Settings,
   report: Report,
+  eval_g: EvalG,
 };

@@ -8,6 +8,7 @@ export interface RunOptions {
   sourceText?: string; // the user's text, for quote checks (S3 tasks)
   verify?: VerifyContext;
   variantInput?: (variant: "full" | "lite") => object; // task D: input depends on the variant
+  onRaw?: (raw: unknown, text: string, attempt: number) => void; // evaluation only: the unverified output
 }
 
 /** docs/02 §5: the only way feature code reaches a model (rule R5). */

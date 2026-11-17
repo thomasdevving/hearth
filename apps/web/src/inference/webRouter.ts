@@ -129,6 +129,7 @@ export class WebInferenceRouter implements InferenceRouter {
         text = "";
       }
       const raw = parseJsonLoose(text);
+      opts.onRaw?.(raw, text, attempt);
       const usedVariant = ranOn === "on_device" && def.hasLiteVariant ? "lite" : variant;
       const v = verifyTask(task, raw, { ...opts.verify, sourceText: opts.sourceText ?? opts.verify?.sourceText, facts: opts.verify?.facts ?? finalInput, variant: usedVariant });
       if (!v.ok) {

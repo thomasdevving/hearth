@@ -239,3 +239,17 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - **Not done here: deploying.** Creating the Firebase project, deploying the rules and
   publishing to Hosting need the owner's Google account (`docs/FIREBASE_SETUP.md`). The
   whole cloud flow was tested against the Auth and Firestore emulators instead.
+
+## M11 (early): task G evaluation harness
+
+- `eval/task_g.json` holds 20 invented plan descriptions with a hand-made expected mapping,
+  including a prompt-injection case, a plan with no measurable signs, a phone-only plan and
+  a terse one. Phone-domain signs are expected to become check-in questions only, because
+  `cfg.phone.enabled` is false.
+- The hidden screen `#/eval_g` (Settings → "Test the plan reader") runs them through the
+  real router (on-device only), scores accepted rules exactly on feature and direction
+  (place labels match leniently, "swimming" ~ "swimming pool"), and reports precision,
+  recall and the share of raw model rules rejected by the quote check, with every raw
+  output downloadable. The router gained an evaluation-only `onRaw` hook for this.
+- It could not be run with Gemini Nano in the build container: the model download host is
+  blocked by the network policy. It has to be run in a real Chrome.

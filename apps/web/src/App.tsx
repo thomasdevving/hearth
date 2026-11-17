@@ -35,7 +35,7 @@ export function App() {
       await ensureLoaded();
       const s = await getSettings();
       const r = parseHash();
-      if (!s.onboarded && !["onboarding", "plan_setup", "baseline_phq", "safety", "report"].includes(r.screen)) location.hash = "#/onboarding";
+      if (!s.onboarded && !["onboarding", "plan_setup", "baseline_phq", "safety", "report", "eval_g"].includes(r.screen)) location.hash = "#/onboarding";
       setReady(true);
     })();
     return () => window.removeEventListener("hashchange", onHash);
