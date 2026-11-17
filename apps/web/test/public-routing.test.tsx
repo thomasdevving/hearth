@@ -22,6 +22,13 @@ describe("public website routes", () => {
     expect(screen.queryByText(/Demo screen:/)).toBeNull();
   });
 
+  it("opens Science from the clean path /science (the link in the demo video)", () => {
+    history.replaceState(null, "", "/science");
+    render(<App />);
+    expect(screen.getByRole("heading", { name: "The science behind Hearth" })).toBeTruthy();
+    expect(demoMounted).not.toHaveBeenCalled();
+  });
+
   it("loads the demo only after entering a demo route", async () => {
     history.replaceState(null, "", "#/home");
     render(<App />);

@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/science", "destination": "/index.html" }]
+}
