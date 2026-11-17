@@ -320,3 +320,10 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   landing hero background (`hero-flower.webp` with a JPEG fallback). The brand magenta is now
   the logo's own colour, `#ca026a` (5.6:1 on white). On narrow screens the flower becomes a
   band above the headline that fades into white.
+- **Landing page sections** use the owner's two other watercolour flowers as section
+  backgrounds (text on the empty side of each image; faded on narrow screens). Every point is
+  shown with a real screen of the web app (`apps/web/src/assets/shots/*.webp`, captured from
+  the running app with the demo bar hidden and a stand-in on-device model) in a phone-shaped
+  frame. There are no iOS screens because the iOS app is not built yet. Rows reveal on
+  scroll, phones slide in and float gently, the flowers slowly breathe, numbers count up;
+  everything is static for `prefers-reduced-motion`.
