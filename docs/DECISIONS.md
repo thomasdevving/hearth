@@ -459,24 +459,11 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - Show evaluation numbers beside their explanations on mobile, keep the support
   telephone links at least 44 px tall, and reduce the finale's excess vertical space.
 
-## Flower-opening welcome
+## Immediate landing page
 
-- First visits play a silent four-second, locally served H.264 video: a closed
-  watercolour bud opens through continuous petal motion into the hero flower.
-  Generated with Veo 3.1 Image to Video using the prepared opening and final hero
-  reference frames in `video/flower-intro/`. The user approved the 90-credit run.
-- The first-frame poster is only a loading placeholder. The opening is a real
-  video, not crossfaded still images or deformation of a single flower image.
-- Fit the film's final frame to the existing hero background. Its authoring
-  reference was captured at 1920 × 1080 with an artwork height of 1002.12 px;
-  that ratio preserves the flower's sizing and right edge on different screens.
-  On mobile the ending adopts the hero's existing light opacity and vertical fade.
-- Keep the page in place but hidden and inert during playback. Once the video
-  ends, reveal the content over 600 ms. Remember completion in session storage
-  so returning from the app does not replay the welcome.
-- Reduced motion skips the video entirely. Skip intro and Escape reveal the page;
-  failed/blocked playback, a three-second load timeout and a ten-second safety
-  timeout also reveal it. Restore scroll, focus and interaction on completion.
+- Remove the flower-opening video introduction at the user's request. The landing
+  page is visible immediately, without a playback gate, reveal delay, scroll lock
+  or session-storage check. Remove its component, styles, media and dedicated tests.
 
 ## Science screen (`#/science`, tab "Science")
 
