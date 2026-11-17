@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { LogoMark, Wordmark } from "../ui/Logo";
 import { HeroPreview } from "./HeroPreview";
+import { FlowerIntro, shouldPlayFlowerIntro } from "./FlowerIntro";
+import flowerOpening from "../assets/flower-opening.mp4";
+import flowerBud from "../assets/flower-bud.webp";
 import flowerWebp from "../assets/hero-flower.webp";
 import flowerPng from "../assets/hero-flower.png";
 import flowerPlan from "../assets/flower-plan-long.webp";
@@ -114,9 +117,12 @@ function Feature({ n, title, children, side, shots }: { n: string; title: string
 /** The front door (#/). No data, no model calls, no network. */
 export function Landing() {
   const root = useRef<HTMLDivElement>(null);
+  const [intro, setIntro] = useState<"playing" | "revealing" | "ready">(() => shouldPlayFlowerIntro() ? "playing" : "ready");
+  const revealPage = useCallback(() => setIntro("revealing"), []);
   useReveal(root);
   return (
-    <div className="landing" ref={root}>
+    <div className="landing" ref={root} data-intro={intro}>
+      {intro === "playing" && <FlowerIntro source={flowerOpening} poster={flowerBud} landing={root} onComplete={revealPage} />}
 
       <div className="hero-wrap" style={{ ["--flower" as string]: `image-set(url(${flowerWebp}) type("image/webp"), url(${flowerPng}) type("image/png"))` }}>
       <nav className="land-nav" aria-label="Site">
