@@ -431,3 +431,16 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - Use three short paragraphs with sentence-case headings. Remove the numbers,
   uppercase labels and divider lines; retain the on-device-only promise for words,
   consent for cloud processing, and the preview and offline summary explanation.
+
+## Mobile hero and navigation
+
+- Below 861 px, remove the flower's reserved space above the hero copy. The copy
+  starts 24 px below the navigation; the interactive preview follows it with a
+  24 px gap. A large, light flower fades into white behind the text. Its size is
+  independent of the preview, so tab changes cannot change its framing.
+- Replace the mobile navigation's single demo button with a native disclosure
+  containing How it works, Privacy and Try the demo. It closes on link selection,
+  Escape or focus leaving it; Escape returns focus to the toggle. Desktop keeps
+  the existing navigation and flower framing.
+- Use the requested headline on all screen sizes: “When your days start to drift,
+  Hearth notices, and reminds you what helps.”

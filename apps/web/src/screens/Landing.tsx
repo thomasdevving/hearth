@@ -131,12 +131,39 @@ export function Landing() {
         <a className="land-cta" href="#/home">
           Try the demo
         </a>
+        <details
+          className="mobile-menu"
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.currentTarget.open = false;
+              event.currentTarget.querySelector("summary")?.focus();
+            }
+          }}
+          onClick={(event) => {
+            if (event.target instanceof Element && event.target.closest("a")) event.currentTarget.open = false;
+          }}
+        >
+          <summary>
+            Menu
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="m4 6 4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </summary>
+          <div className="mobile-menu-links">
+            <a href="#/" onClick={scrollTo("how")}>How it works</a>
+            <a href="#/" onClick={scrollTo("privacy")}>Privacy</a>
+            <a className="land-cta" href="#/home">Try the demo</a>
+          </div>
+        </details>
       </nav>
       <header className="hero">
         <div>
           <p className="eyebrow">Your own early-warning plan</p>
           <h1>
-            Notice the change <em>before</em> it becomes a slide.
+            When your days start to drift, <em>Hearth notices,</em> and reminds you what helps.
           </h1>
           <p className="lead">
             Hearth learns what your usual days look like. When they start to drift, it checks in and shows you the plan you wrote, in your own words. If the change continues, it
