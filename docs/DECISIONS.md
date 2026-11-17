@@ -352,13 +352,12 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 
 ## Phone backdrops
 
-- The complete four-petal Hearth mark is traced into `hearth-logo-backdrop.svg`,
-  with smooth continuous curves and the original magenta colour. The vector stays
-  sharp at larger display sizes.
-- Each shared `Phone` places the full logo behind the frame, including both phones
-  in the paired preview. Its larger square shape replaces the single-petal accent.
-  Phone dimensions and captions stay unchanged; the marks do not intercept clicks
-  or appear in the accessibility tree. Narrow layouts limit their width to avoid clipping.
+- Phone backdrops use the left and right petals of the Hearth mark, with smooth
+  continuous curves and the original magenta colour. Left-hand phones use the left
+  petal; right-hand phones use the right petal, including both phones in a pair.
+- The larger petals are up to 470 px wide, versus the earlier 402 px accent.
+  Phone dimensions and captions stay unchanged; the decoration does not intercept
+  clicks or appear in the accessibility tree. Narrow layouts cap the width to avoid clipping.
 
 ## Landing preview and privacy presentation
 

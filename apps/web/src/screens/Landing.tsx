@@ -6,7 +6,6 @@ import flowerPng from "../assets/hero-flower.png";
 import flowerPlan from "../assets/flower-plan-long.webp";
 import flowerRight from "../assets/flower-right.webp";
 import flowerGarden from "../assets/flower-garden.webp";
-import logoBackdrop from "../assets/hearth-logo-backdrop.svg";
 import shotPlan from "../assets/shots/plan.webp";
 import shotHome from "../assets/shots/home.webp";
 import shotTrends from "../assets/shots/trends.webp";
@@ -86,7 +85,7 @@ function Phone({ src, alt, label, className = "" }: { src: string; alt: string; 
   return (
     <figure className={`phone ${className}`}>
       <div className="phone-art">
-        <img className="phone-logo" src={logoBackdrop} alt="" aria-hidden="true" width={256} height={256} />
+        <span className="phone-petal" aria-hidden="true" />
         <div className="phone-body">
           <div className="phone-screen">
             <div className="phone-notch" aria-hidden="true" />
