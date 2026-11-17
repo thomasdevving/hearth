@@ -101,13 +101,13 @@ on-device model off makes S3 tasks use their fallbacks and still sends nothing.
 ## M6 · The product loop (web)
 Read: `docs/01_PRODUCT.md` §6, `docs/05_LLM_TASKS.md` §4, `docs/06_QUESTIONNAIRES_SAFETY.md`.
 
-- [ ] `onboarding`, `plan_setup` with task G cards (accept / reject, place picking from the
+- [x] `onboarding`, `plan_setup` with task G cards (accept / reject, place picking from the
       persona's places), fallback form.
-- [ ] `baseline_phq`, `questionnaire`, `result` with task C.
-- [ ] `checkin` with task A, momentary items, personal items, free text.
-- [ ] Task H → `context_confirm` → masking visible on `trends`.
-- [ ] `my_plan` shown on `ELEVATED` and `CONFIRMED`.
-- [ ] `safety` with all four entry points.
+- [x] `baseline_phq`, `questionnaire`, `result` with task C.
+- [x] `checkin` with task A, momentary items, personal items, free text.
+- [x] Task H → `context_confirm` → masking visible on `trends`.
+- [x] `my_plan` shown on `ELEVATED` and `CONFIRMED`.
+- [x] `safety` with all four entry points.
 
 Done when: a person can go through the whole default scenario by hand and each step in
 `docs/01_PRODUCT.md` §6.3 happens; the `safety` scenario opens the safety screen.

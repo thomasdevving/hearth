@@ -198,7 +198,7 @@ export async function stepDay(hooks: DayHooks & { onNote?: (item: InboxItem) => 
   const data = replayData(meta.scenario, meta.seed);
   const state = await getEngineState();
   if (!state || state.lastProcessedDate !== meta.today) {
-    if ((await openInbox()).some((i) => i.type === "note")) return "paused";
+    if ((await openInbox()).some((i) => i.type === "note" || (i.type === "context_confirm" && i.date === meta.today))) return "paused";
     await processDay(meta.today, hooks);
     return "ok";
   }
@@ -224,7 +224,8 @@ export async function stepDay(hooks: DayHooks & { onNote?: (item: InboxItem) => 
 export async function resumeAfterNote(hooks: DayHooks = {}): Promise<void> {
   const meta = await ensureLoaded();
   const state = await getEngineState();
-  if (state && state.lastProcessedDate !== meta.today && !(await openInbox()).some((i) => i.type === "note")) {
+  const waiting = (await openInbox()).some((i) => i.type === "note" || (i.type === "context_confirm" && i.date === meta.today));
+  if (state && state.lastProcessedDate !== meta.today && !waiting) {
     await processDay(meta.today, hooks);
   }
 }

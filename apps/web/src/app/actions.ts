@@ -98,11 +98,15 @@ function emptyLabel(date: string): ContextLabel {
 export async function confirmContextLabel(label: ContextLabel, inboxId?: string): Promise<void> {
   const kind = CONTEXT_TABLE[label.type]?.kind ?? label.kind;
   await db.contexts.put({ ...label, kind, confirmed: true });
-  if (inboxId) await closeInbox(inboxId, "done");
+  if (inboxId) {
+    await closeInbox(inboxId, "done");
+    await resumeAfterNote(); // a day waiting for this confirmation is processed now
+  }
   emitChange();
 }
 export async function rejectContext(inboxId: string): Promise<void> {
   await closeInbox(inboxId, "dismissed");
+  await resumeAfterNote();
   emitChange();
 }
 

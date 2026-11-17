@@ -2,7 +2,7 @@
 import { autoAnswer, autoOnboard, onSafety } from "../app/actions";
 import { BLOCKING, currentReplay, getMeta, openInbox, stepDay, loadPersona } from "../app/runtime";
 import { getSettings, db } from "../store/db";
-import { emitChange } from "../app/events";
+import { emitChange, navigate } from "../app/events";
 import type { InboxItem } from "../store/db";
 import type { Scenario } from "@baseline/engine";
 
@@ -81,6 +81,14 @@ class TimeMachine {
       }
       const r = await stepDay(this.autoAnswer ? { onNote: async (item) => (await autoAnswer(item), true) } : {});
       if (this.autoAnswer) await this.drain();
+      else {
+        // my_plan opens by itself when a change starts (docs/01 §4).
+        const meta = await getMeta();
+        if ((await openInbox()).some((i) => i.type === "show_plan" && i.date === meta?.today)) {
+          this.pause("Your signals changed: your plan is shown.");
+          navigate("my_plan");
+        }
+      }
       this.emit();
       return r;
     } finally {
@@ -120,7 +128,11 @@ class TimeMachine {
       const data = await currentReplay();
       if (!data) return;
       await autoOnboard();
-      await this.drain();
+      const firstElevated0 = async () => (await db.day_records.toArray()).some((r) => r.state === "ELEVATED");
+      if (await this.drain(async (item) => target === "phq9" && item.type === "questionnaire" && (await firstElevated0()))) {
+        this.message = "A questionnaire is offered.";
+        return;
+      }
       const holidayDay = data.phases.find((p) => p.name === "Holiday")?.fromDay ?? 61;
       const firstElevated = async () => (await db.day_records.toArray()).some((r) => r.state === "ELEVATED");
       const elevatedBefore = await firstElevated();
@@ -142,6 +154,7 @@ class TimeMachine {
         if (target === "first_change" && !elevatedBefore && (await firstElevated())) stop = true;
         if (stop) {
           this.message = "First change: the index crossed your usual range.";
+          navigate("my_plan");
           break;
         }
         const halted = await this.drain(async (item) => target === "phq9" && item.type === "questionnaire" && (await firstElevated()));

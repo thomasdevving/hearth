@@ -186,3 +186,30 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   in a browser that has the model.
 - **Tests use the SDK's browser build** (Vitest alias) with a fake `LanguageModel`, because
   the Node build has no on-device path.
+
+## M6
+
+- **Task G input** is the two answers joined with a newline; quotes are checked against
+  that joined text. A crisis phrase in the plan text opens `safety` first.
+- **Place picking** on the web lists the persona's own places (not the holiday ones); the
+  chosen place is named with `pickPlace`. A place rule without a picked place is not saved.
+- **Fallback form for task G** offers a fixed list of measurable signs (rest later, at home
+  more, fewer places, gym or work visits down, …) plus free lines for check-in questions
+  and actions. In the replay it also offers "Use Sam's confirmed cards".
+- **Task A runs only for triggered check-ins** with reasons; random and fixed check-ins use
+  their fixed sentences without a model (docs/05 task A). After answering, the user is told
+  whether the check-in was random or triggered (never before, docs/04 §7.1).
+- **Task H without a model** opens the one-tap picker (`context_confirm` with no type) for
+  any free text; "Nothing like that" closes it.
+- **A day waits for its confirmation.** When the day's note leads to a context question,
+  that day's data is processed only after the user answers it, so a confirmed holiday also
+  masks its first day (same order as the headless runner).
+- **`my_plan` opens by itself** on the first day of an `ELEVATED`/`CONFIRMED` episode when
+  stepping by hand (Play pauses there), and after "Jump to… first change".
+- **Context expiry**: "Yes, one more week" adds a new label for the next 7 days.
+- **Safety screen** reads only bundled data (`crisis_lines.json`) and local tables; Back is
+  enabled after 3 s. The trusted contact and the user's own safety plan are edited from
+  `settings` / the safety screen and stay local.
+- **Questionnaires show "Use scripted answer"** (time machine) next to the verbatim items;
+  the model never writes on those pages (R1).
+- **React 19** for the web app (one copy in the workspace).
