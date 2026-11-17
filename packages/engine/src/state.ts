@@ -84,9 +84,15 @@ export function momentarySignal(checkins: CheckinRecord[], date: string, cfg: Co
   return high.length >= 2;
 }
 
+/**
+ * PHQ-2 cooldown (docs/04 §7.3). A PHQ-9 covers the PHQ-2 items, so a recent PHQ-9 also
+ * starts the cooldown (docs/DECISIONS.md, M4).
+ */
 export function phq2CooldownOver(questionnaires: QuestionnaireRecord[], date: string, cfg: Config): boolean {
-  const last = latestOf(questionnaires, "PHQ2", date);
-  return !last || daysBetween(dateOfTimestamp(last.takenAt), date) >= cfg.phq2CooldownDays;
+  const last2 = latestOf(questionnaires, "PHQ2", date);
+  const last9 = latestOf(questionnaires, "PHQ9", date);
+  const ok = (q: QuestionnaireRecord | null) => !q || daysBetween(dateOfTimestamp(q.takenAt), date) >= cfg.phq2CooldownDays;
+  return ok(last2) && ok(last9);
 }
 
 interface RefProvider {

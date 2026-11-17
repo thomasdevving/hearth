@@ -138,3 +138,27 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   Across seeds 1–20 all points hold together for about half the seeds; the misses are
   which three features rank as contributors and three early false alarms. This is reported
   in M11 (docs/10 metric 2), not tuned away.
+
+## M4
+
+- **Routing by screen id** uses the URL hash (`#/checkin?id=…`), so a screen can be linked and
+  the browser's back button works. Hosting needs no rewrites for it.
+- **Inbox.** The engine's actions become items in an app-side `inbox` table (check-in,
+  questionnaire, context confirmation, expired context, plan, note, upload preview).
+  `home` lists the open ones. Items of a previous day are closed when the next day starts;
+  an unanswered check-in stays `answeredAt: null` (ignored).
+- **Time machine semantics.** "Today" is the last processed day. `+1 day` starts the next
+  day: a scripted note for that day is offered first, then the day's data is processed and
+  the actions appear. Loading a persona leaves day 1 unprocessed until onboarding finishes
+  (or `+1 day` is pressed).
+- **Play** pauses whenever a check-in, questionnaire, context confirmation or note is open.
+  A switch "Answer with Sam's script" lets Play and `+1 day` answer them automatically; with it,
+  Play runs from day 1 to day 150 without stopping. **Jump to…** always answers with the
+  script and stops at: the holiday note (holiday), the first `ELEVATED` day (first change),
+  or the first questionnaire offered after it (PHQ-9).
+- **PHQ-2 cooldown includes a PHQ-9.** A PHQ-9 contains both PHQ-2 items, so no PHQ-2 is
+  offered within `phq2CooldownDays` of a PHQ-9, and a positive PHQ-2 does not lead to a
+  second PHQ-9 in that week (engine `phq2CooldownOver`, app `submitQuestionnaire`).
+- **Charts** use uPlot with the validated categorical palette (one fixed colour per domain),
+  a legend on every multi-series chart and a table view, because three of the five colours
+  are below 3:1 contrast on the surface.

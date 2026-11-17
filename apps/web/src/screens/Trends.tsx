@@ -1,0 +1,208 @@
+import { useMemo, useState } from "react";
+import type uPlot from "uplot";
+import type { ContextLabel, DayRecord, Domain, QuestionnaireRecord } from "@baseline/engine";
+import { db } from "../store/db";
+import { useData } from "../ui/hooks";
+import { Screen } from "../ui/kit";
+import { UChart } from "../ui/UChart";
+import { CONTEXT_LABEL, featureLabel, formatValue, prettyDate, ruleFeature } from "../app/labels";
+import { getEngineState } from "../app/runtime";
+
+// Validated categorical palette (dataviz skill, light surface), fixed order per domain.
+export const DOMAIN_COLOR: Record<Domain, string> = { activity: "#2a78d6", rhythm: "#eb6834", sleep: "#1baf7a", mobility: "#eda100", phone: "#e87ba4" };
+const INK = "#0b0b0b";
+const INK2 = "#52514e";
+const GRID = "#e6e5e1";
+
+const sec = (date: string) => Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10)) / 1000;
+
+function axes(yLabel: string): uPlot.Axis[] {
+  return [
+    { stroke: INK2, grid: { stroke: GRID, width: 1 }, ticks: { stroke: GRID }, values: (_u, vals) => vals.map((v) => new Date(v * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })) },
+    { stroke: INK2, grid: { stroke: GRID, width: 1 }, ticks: { stroke: GRID }, label: yLabel, size: 44 },
+  ];
+}
+
+/** Context periods shaded behind the series; stressors as an outline only (they mask nothing). */
+function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPlot.Plugin {
+  return {
+    hooks: {
+      drawAxes: [
+        (u) => {
+          const ctx = u.ctx;
+          const { top, height } = u.bbox;
+          for (const c of contexts) {
+            if (!c.confirmed) continue;
+            const x0 = u.valToPos(sec(c.start) - 43200, "x", true);
+            const x1 = u.valToPos(sec(c.end) + 43200, "x", true);
+            ctx.save();
+            if (c.kind === "explains_sensors") {
+              ctx.fillStyle = "rgba(82,81,78,0.12)";
+              ctx.fillRect(x0, top, x1 - x0, height);
+            } else {
+              ctx.strokeStyle = "rgba(82,81,78,0.5)";
+              ctx.setLineDash([4, 4]);
+              ctx.strokeRect(x0, top + 1, x1 - x0, height - 2);
+            }
+            ctx.fillStyle = INK2;
+            ctx.font = `${11 * devicePixelRatio}px system-ui, sans-serif`;
+            ctx.fillText(CONTEXT_LABEL[c.type] ?? c.type, x0 + 4, top + 14 * devicePixelRatio);
+            ctx.restore();
+          }
+        },
+      ],
+      draw: [
+        (u) => {
+          const ctx = u.ctx;
+          const { top, height } = u.bbox;
+          let lastLabel = -Infinity;
+          for (const q of qs) {
+            if (q.instrument !== "PHQ9") continue;
+            const x = u.valToPos(sec(q.takenAt.slice(0, 10)), "x", true);
+            ctx.save();
+            ctx.strokeStyle = INK;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 3]);
+            ctx.beginPath();
+            ctx.moveTo(x, top);
+            ctx.lineTo(x, top + height);
+            ctx.stroke();
+            ctx.fillStyle = INK;
+            ctx.font = `${10 * devicePixelRatio}px system-ui, sans-serif`;
+            if (x - lastLabel > 48 * devicePixelRatio) {
+              ctx.fillText(`PHQ-9 ${q.result.total}`, x + 3, top + height - 6 * devicePixelRatio);
+              lastLabel = x;
+            }
+            ctx.restore();
+          }
+        },
+      ],
+    },
+  };
+}
+
+function indexChart(records: DayRecord[], contexts: ContextLabel[], qs: QuestionnaireRecord[]) {
+  const xs = records.map((r) => sec(r.date));
+  const data: uPlot.AlignedData = [
+    xs,
+    records.map((r) => r.D),
+    records.map((r) => (r.UCL === null ? null : r.S)),
+    records.map((r) => r.UCL),
+  ];
+  const opts: Omit<uPlot.Options, "width"> = {
+    height: 220,
+    cursor: { drag: { x: false, y: false } },
+    legend: { show: true },
+    scales: { x: { time: true }, y: { range: (_u, _min, max) => [0, Math.max(1, (max ?? 1) * 1.1)] } },
+    axes: axes("index"),
+    series: [
+      { label: "Date", value: (_u, v) => (v == null ? "–" : new Date(v * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })) },
+      { label: "Daily index", stroke: "#8b8a85", width: 1, points: { show: true, size: 4, fill: "#8b8a85" }, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
+      { label: "Smoothed", stroke: "#2a78d6", width: 2, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
+      { label: "Your usual range (limit)", stroke: INK, width: 1.5, dash: [6, 4], value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
+    ],
+    plugins: [contextPlugin(contexts, qs)],
+  };
+  return { opts, data };
+}
+
+function domainChart(records: DayRecord[], contexts: ContextLabel[]) {
+  const domains: Domain[] = ["activity", "rhythm", "sleep", "mobility", "phone"];
+  const used = domains.filter((d) => records.some((r) => r.domainScores[d] !== undefined));
+  const data: uPlot.AlignedData = [records.map((r) => sec(r.date)), ...used.map((d) => records.map((r) => r.domainScores[d] ?? null))];
+  const opts: Omit<uPlot.Options, "width"> = {
+    height: 180,
+    legend: { show: true },
+    scales: { x: { time: true }, y: { range: [0, 3] } },
+    axes: axes("change"),
+    series: [{ label: "Date" }, ...used.map((d) => ({ label: d[0].toUpperCase() + d.slice(1), stroke: DOMAIN_COLOR[d], width: 2, value: (_u: uPlot, v: number | null) => (v == null ? "–" : v.toFixed(2)) }))],
+    plugins: [contextPlugin(contexts, [])],
+  };
+  return { opts, data };
+}
+
+export function Trends() {
+  const d = useData(async () => {
+    const [records, contexts, qs, rules, state] = await Promise.all([db.day_records.orderBy("date").toArray(), db.contexts.toArray(), db.questionnaires.orderBy("takenAt").toArray(), db.plan_rules.toArray(), getEngineState()]);
+    return { records, contexts, qs, rules, state };
+  });
+  const [table, setTable] = useState(false);
+  const charts = useMemo(() => (d ? { index: indexChart(d.records, d.contexts, d.qs), domains: domainChart(d.records, d.contexts) } : null), [d]);
+  if (!d || !charts) return <Screen title="Trends">Loading…</Screen>;
+  const { records, qs, rules, state } = d;
+  if (records.length === 0) return <Screen title="Trends"><p className="muted">No days yet. Use “+1 day” below to let time pass.</p></Screen>;
+  const phq9 = qs.filter((q) => q.instrument === "PHQ9");
+  return (
+    <Screen title="Trends">
+      <p className="muted">
+        How far your days are from your own usual pattern. Above the dashed line for a few days means “a change from your usual pattern”. Shaded periods are set aside
+        because of something you confirmed; a dotted outline is a stressful period that is still counted.
+      </p>
+      <h2>Change index</h2>
+      <UChart opts={charts.index.opts} data={charts.index.data} ariaLabel="Daily change index with the smoothed line and your usual limit" />
+      <h2>By domain</h2>
+      <UChart opts={charts.domains.opts} data={charts.domains.data} ariaLabel="Change per domain" />
+      <h2>Questionnaires</h2>
+      {qs.length === 0 ? (
+        <p className="muted">None yet.</p>
+      ) : (
+        <ul className="plain-list">
+          {qs.map((q) => (
+            <li key={q.id}>
+              {prettyDate(q.takenAt.slice(0, 10))}: {q.instrument === "PHQ2" ? "PHQ-2" : "PHQ-9"} {q.result.total}
+              {q.result.flagged ? " (a clear change)" : ""}
+            </li>
+          ))}
+        </ul>
+      )}
+      {phq9.length > 0 && <p className="muted">Your own usual PHQ-9 score is the reference for a change, not a general cut-off alone.</p>}
+      <h2>Your signals</h2>
+      <ul className="signals">
+        {rules.map((r) => {
+          const f = ruleFeature(r);
+          const vals = records.slice(-56).map((x) => x.features.values[f] ?? null);
+          return (
+            <li key={r.id}>
+              <div>
+                <strong>{featureLabel(f, state?.places)}</strong>
+                <small>last 8 weeks</small>
+              </div>
+              <span className="value">{formatValue(f, vals[vals.length - 1])}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <button className="secondary" onClick={() => setTable(!table)} aria-expanded={table}>
+        {table ? "Hide table" : "Show as table"}
+      </button>
+      {table && (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Index</th>
+                <th>Smoothed</th>
+                <th>Limit</th>
+                <th>State</th>
+                <th>Set aside</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...records].reverse().map((r) => (
+                <tr key={r.date}>
+                  <td>{r.date}</td>
+                  <td>{r.D?.toFixed(2) ?? "–"}</td>
+                  <td>{r.UCL === null ? "–" : r.S.toFixed(2)}</td>
+                  <td>{r.UCL?.toFixed(2) ?? "–"}</td>
+                  <td>{r.state}</td>
+                  <td>{r.maskedDomains.join(", ") || "–"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Screen>
+  );
+}

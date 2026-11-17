@@ -76,10 +76,10 @@ default scenario day by day with scripted answers and asserts every point of
 ## M4 · Web shell, store, time machine
 Read: `docs/01_PRODUCT.md`, `docs/07_DATA_MODEL.md` §2, `docs/08_DEMO_REPLAY.md` §3.
 
-- [ ] Vite + React app, routing by screen id, simple responsive layout (phone-width column).
-- [ ] Dexie store with all collections.
-- [ ] Time machine bar: load persona, `+1 day`, `Play`, `Jump to…`, network switch.
-- [ ] `home` and `trends` render from `day_records` (index with UCL line, domain
+- [x] Vite + React app, routing by screen id, simple responsive layout (phone-width column).
+- [x] Dexie store with all collections.
+- [x] Time machine bar: load persona, `+1 day`, `Play`, `Jump to…`, network switch.
+- [x] `home` and `trends` render from `day_records` (index with UCL line, domain
       contributions, context periods shaded, questionnaire markers).
 
 Done when: pressing `Play` from day 1 reaches day 150 with charts updating and no errors,

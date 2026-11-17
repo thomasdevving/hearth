@@ -177,3 +177,12 @@ describe("pickPlace", () => {
     expect(s.places).toHaveLength(1);
   });
 });
+
+describe("PHQ-2 cooldown", () => {
+  it("also starts after a PHQ-9", async () => {
+    const { phq2CooldownOver } = await import("../src/index");
+    const q9 = rec("PHQ9", phq9(6), "2026-11-10");
+    expect(phq2CooldownOver([q9], "2026-11-14", cfg)).toBe(false);
+    expect(phq2CooldownOver([q9], "2026-11-17", cfg)).toBe(true);
+  });
+});
