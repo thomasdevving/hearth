@@ -73,3 +73,14 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - **False alarms.** With the default limits (L 2.5, h 4) the synthetic stable persona has
   about one `ELEVATED` episode per 150 days. This is a property of the configured limits,
   to be reported in M11.
+
+## M0 (completed)
+
+- **Platform facts** were read from the published `firebase` npm package (types and source),
+  because the docs host is unreachable from the build container. See `docs/PLATFORM_NOTES.md` §6.
+- **No Firebase project yet.** The app runs without one: Firebase is initialised only when
+  `VITE_FIREBASE_PROJECT_ID` is set. Without it, on-device inference still works through
+  Chrome's `LanguageModel` (the Firebase SDK's hybrid mode needs an app object, so the
+  router talks to the Prompt API through the same request shape; see M5), and every cloud
+  path routes to its fallback as if consent were missing.
+- **Web tests** use Vitest with jsdom and `fake-indexeddb`.

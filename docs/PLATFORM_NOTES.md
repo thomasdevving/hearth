@@ -23,15 +23,15 @@ the adapter layer.
 | App Check is required; debug tokens are accepted in submissions | reported, 2026-11-16 | Devpost page via search |
 | Hybrid inference is an experimental feature on all platforms | reported | Firebase docs via search |
 | **iOS:** Firebase Apple SDK 13.0.0 (7 Oct 2026) removed `GenerativeModelSession`, `SystemLanguageModel` and `HybridModel`. Gemini is now used through `ai.geminiLanguageModel(name:)` with Apple's Foundation Models framework | reported | Firebase Apple SDK release notes via search. **Older tutorials and the 12.x hybrid guide no longer compile.** |
-| iOS: how on-device and cloud are combined in SDK 13 (is there a built-in fallback, or does the app choose the model per call?) | **must check** | If there is no built-in mode, `InferenceRouter` picks the model itself from `RouteDecision`; the logical modes in `docs/05` still apply. |
-| iOS: structured output through `@Generable` / `@Guide` works with both the Apple model and `geminiLanguageModel` | **must check** | Reported for 12.x |
-| iOS: minimum OS version for Foundation Models with a third-party model | **must check** | Sources disagree (iOS 26 vs 27) |
-| iOS: image input to the on-device model | **must check** | Not needed: task G2 uses Vision text recognition on iOS |
-| Web: SDK import path, the inference mode enum and its four values | **must check** | Expected: `firebase/ai`, modes equivalent to prefer/only on-device and prefer/only in cloud |
-| Web: structured output (JSON schema, enums) on-device | reported | Listed as supported |
+| iOS: how on-device and cloud are combined in SDK 13 (is there a built-in fallback, or does the app choose the model per call?) | reported, 2026-11-17 | FirebaseAI CHANGELOG 13.0.0: `HybridModel` was removed, so there is **no built-in fallback**. Both models are used through Apple's `LanguageModelSession(model:)`: `SystemLanguageModel.default` on-device, `ai.geminiLanguageModel(name:)` in the cloud. The iOS `InferenceRouter` picks the model itself from `RouteDecision` (PREFER_* = try the first, catch, try the second). |
+| iOS: structured output through `@Generable` / `@Guide` works with both the Apple model and `geminiLanguageModel` | reported, 2026-11-17 | CHANGELOG 13.0.0: guided generation on `GeminiLanguageModel` is sent as `responseJsonSchema`, so `@Generable` types work with both. Still validate the JSON in the engine (R8). Confirm on device in M9. |
+| iOS: minimum OS version for Foundation Models with a third-party model | reported, 2026-11-17 | Firebase blog (June 2026) and the "Apple Foundation Models framework" get-started guide: the public `LanguageModel` protocol that third-party models plug into starts with **iOS 27 / Xcode 27**. Set the deployment target to iOS 27. |
+| iOS: image input to the on-device model | not needed | Task G2 uses Vision text recognition on iOS. (CHANGELOG 13.2.0 added a `vision` capability for Gemini; irrelevant here.) |
+| Web: SDK import path, the inference mode enum and its four values | verified, 2026-11-17 | `firebase@13.4.0` (`@firebase/ai@3.1.0`) type definitions: `import { getAI, getGenerativeModel, InferenceMode, InferenceSource } from "firebase/ai"`; `getGenerativeModel(ai, { mode, onDeviceParams, inCloudParams })`; `InferenceMode.PREFER_ON_DEVICE = "prefer_on_device"`, `ONLY_ON_DEVICE = "only_on_device"`, `ONLY_IN_CLOUD = "only_in_cloud"`, `PREFER_IN_CLOUD = "prefer_in_cloud"`. `ONLY_ON_DEVICE` throws when no model is available and never calls the cloud (checked in the SDK source, `callCloudOrDevice`). `PREFER_IN_CLOUD` falls back to on-device only on fetch/API-not-enabled errors. |
+| Web: structured output (JSON schema, enums) on-device | verified, 2026-11-17 | Two separate settings: on-device uses `onDeviceParams.promptOptions.responseConstraint` (a JSON Schema, passed to Chrome's `session.prompt`); cloud uses `inCloudParams.generationConfig.responseMimeType: "application/json"` + `responseJsonSchema`. The router sets both. **`systemInstruction` is not passed to the on-device model** by the SDK, so the router also sends the system prompt as `onDeviceParams.createOptions.initialPrompts` (role `system`). |
 | Web: on-device request limit about 9 000 tokens; single turn; text and images in | reported | From the concept document's reading of the docs |
-| Web: how to read which model answered a request | **must check** | Needed for the ledger. If unavailable, log from the mode: `ONLY_*` modes are certain; for `PREFER_*`, check on-device availability immediately before the call. |
-| Web: minimum Chrome version and any flags a judge must set | **must check** | Put the answer in the in-app banner and the README |
+| Web: how to read which model answered a request | verified, 2026-11-17 | `result.response.inferenceSource` is `"on_device"` or `"in_cloud"` (`InferenceSource`). The ledger uses it. |
+| Web: minimum Chrome version and any flags a judge must set | reported, 2026-11-17 | Firebase hybrid docs (via search): Chrome desktop **139+**. The SDK reads `globalThis.LanguageModel` (Chrome Prompt API); `initializeDeviceModel()` must run after a user gesture because it may start the model download. If `LanguageModel` is missing, enable `chrome://flags/#optimization-guide-on-device-model` ("Enabled BypassPerfRequirement") and `chrome://flags/#prompt-api-for-gemini-nano`, restart, and wait for the model download in `chrome://on-device-internals`. This text is in the in-app banner and the README. |
 | On-device calls do not appear in Firebase AI monitoring | reported | Reason the app keeps its own ledger |
 
 ## 3. iOS sensors
@@ -75,3 +75,16 @@ and forbids deriving that data another way.
 | Engine in TypeScript, run on iOS through JavaScriptCore | One implementation, testable without a Mac. |
 | Anonymous Auth | No account data to protect or leak. |
 | Sensor data in the web app is simulated | A browser has no access to it, and judges need weeks of history in minutes. |
+
+## 6. How M0 was checked (2026-11-17)
+
+- `firebase.google.com` is not reachable from the build container, so the web facts were
+  read from the published SDK itself (`firebase@13.4.0` on npm: `@firebase/ai/dist/ai-public.d.ts`
+  and `dist/esm/index.esm.js`), which is a primary source for the API surface.
+- iOS facts come from `firebase-ios-sdk/FirebaseAI/CHANGELOG.md` (raw GitHub) and search
+  results for the Firebase blog and docs. They stay `reported` until seen on a device (M8/M9).
+- Cloud model name: not fixed by the SDK. The web app reads it from `VITE_GEMINI_MODEL`
+  (default `gemini-3.5-flash`, the name used in the Firebase blog example) so it can be
+  changed without code changes.
+- Without a Firebase config the web app still runs: on-device calls (`ONLY_ON_DEVICE`) never
+  touch the network, and cloud-only features show as unavailable.

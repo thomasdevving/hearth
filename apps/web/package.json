@@ -1,0 +1,31 @@
+{
+  "name": "@baseline/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "fake-indexeddb": "^6.2.8",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "dexie": "^4.4.7",
+    "firebase": "^13.4.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "uplot": "^1.6.32"
+  }
+}

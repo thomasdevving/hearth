@@ -22,15 +22,17 @@ tests, the ledger or the safety flow.
 ## M0 · Platform check and scaffolding
 Read: `AGENTS.md`, `docs/02_ARCHITECTURE.md`, `docs/PLATFORM_NOTES.md`.
 
-- [ ] Open the current Firebase AI Logic hybrid documentation for **web** and **iOS**. Fill
+- [x] Open the current Firebase AI Logic hybrid documentation for **web** and **iOS**. Fill
       in every "must check" row of `docs/PLATFORM_NOTES.md` with what the docs say today
       (SDK versions, inference mode enum names, structured output, how to tell which model
       answered, minimum OS and browser versions).
 - [x] npm workspaces: root `package.json`, `packages/engine`, `apps/web`. TypeScript strict.
 - [x] Vitest runs in `packages/engine` with one passing placeholder test.
-- [ ] `npm run build` at the root builds the engine (ESM + `dist/engine.js` IIFE) and the web app.
+- [x] `npm run build` at the root builds the engine (ESM + `dist/engine.js` IIFE) and the web app.
 - [ ] Firebase project created; Anonymous Auth, Firestore, Remote Config, AI Logic, App
       Check and Hosting enabled. `apps/web/.env.example` lists the needed keys.
+      *(Keys, `firebase.json`, emulator config and `docs/FIREBASE_SETUP.md` are done. Creating
+      the project needs the owner's Google account and is left to them; see the setup doc.)*
 
 Done when: `npm test` and `npm run build` succeed from a clean clone.
 
