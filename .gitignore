@@ -10,3 +10,5 @@ xcuserdata/
 DerivedData/
 .DS_Store
 .firebaserc
+*-debug.log
+firebase-debug.log
