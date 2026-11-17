@@ -47,11 +47,11 @@ Done when: unit tests cover each function, including empty and single-element in
 ## M2 · Features and detection
 Read: `docs/03_FEATURES.md`, `docs/04_DETECTION.md`.
 
-- [ ] `features/*`: every feature in the catalogue, with the coverage rules.
-- [ ] `baseline.ts`, `index-score.ts`, `control.ts`, `context.ts`, `state.ts`.
-- [ ] `dailyUpdate` exactly as in `docs/04_DETECTION.md` §8.
-- [ ] `audit.ts`.
-- [ ] Golden fixtures: `packages/engine/test/fixtures/*.json`, each
+- [x] `features/*`: every feature in the catalogue, with the coverage rules.
+- [x] `baseline.ts`, `index-score.ts`, `control.ts`, `context.ts`, `state.ts`.
+- [x] `dailyUpdate` exactly as in `docs/04_DETECTION.md` §8.
+- [x] `audit.ts`.
+- [x] Golden fixtures: `packages/engine/test/fixtures/*.json`, each
       `{ fn, input, expectedOutput }`, generated from the passing engine and committed.
       They are the contract for the iOS bridge (and for a Swift port, if ever needed).
 

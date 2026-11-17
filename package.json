@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "workspaces": ["packages/*", "apps/web"],
   "scripts": {
-    "build": "npm run build -w packages/engine && npm run build -w apps/web --if-present",
+    "build": "npm run build --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
   }
