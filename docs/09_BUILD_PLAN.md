@@ -88,11 +88,11 @@ using scripted answers and template text only (no models yet).
 ## M5 · Inference router and ledger (web)
 Read: `docs/02_ARCHITECTURE.md` §5, `docs/05_LLM_TASKS.md` §2–3, §6.
 
-- [ ] `InferenceRouter` for web on the Firebase JS SDK with hybrid modes, structured
+- [x] `InferenceRouter` for web on the Firebase JS SDK with hybrid modes, structured
       output from `shared/schemas`, prompts from `shared/prompts`.
-- [ ] On-device availability detection and the "how to enable" banner.
-- [ ] Every call writes a `LedgerEntry`. `ledger` screen with the "left this device" filter.
-- [ ] Cloud consent toggle in `settings`; default off.
+- [x] On-device availability detection and the "how to enable" banner.
+- [x] Every call writes a `LedgerEntry`. `ledger` screen with the "left this device" filter.
+- [x] Cloud consent toggle in `settings`; default off.
 
 Done when: with consent off and the network tab open, running tasks G, H and A produces
 no request containing user text; the ledger shows them as `on_device`; turning the

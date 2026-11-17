@@ -10,5 +10,5 @@ export default defineConfig({
   },
   server: { fs: { allow: ["../.."] } },
   build: { outDir: "dist", sourcemap: true, chunkSizeWarningLimit: 1500 },
-  test: { environment: "jsdom", include: ["test/**/*.test.ts", "test/**/*.test.tsx"], setupFiles: ["test/setup.ts"], testTimeout: 120000 },
+  test: { environment: "jsdom", server: { deps: { inline: [/firebase/, /@firebase/] } }, alias: [{ find: /^@firebase\/ai$/, replacement: fileURLToPath(new URL("../../node_modules/@firebase/ai/dist/esm/index.esm.js", import.meta.url)) }], include: ["test/**/*.test.ts", "test/**/*.test.tsx"], setupFiles: ["test/setup.ts"], testTimeout: 120000 },
 });

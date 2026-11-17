@@ -78,11 +78,10 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 
 - **Platform facts** were read from the published `firebase` npm package (types and source),
   because the docs host is unreachable from the build container. See `docs/PLATFORM_NOTES.md` §6.
-- **No Firebase project yet.** The app runs without one: Firebase is initialised only when
-  `VITE_FIREBASE_PROJECT_ID` is set. Without it, on-device inference still works through
-  Chrome's `LanguageModel` (the Firebase SDK's hybrid mode needs an app object, so the
-  router talks to the Prompt API through the same request shape; see M5), and every cloud
-  path routes to its fallback as if consent were missing.
+- **No Firebase project yet.** The app runs without one. Without a config, a placeholder
+  Firebase app object is created so on-device inference still goes through Firebase AI
+  Logic (`ONLY_ON_DEVICE` never contacts a server), and every cloud path is treated as
+  unreachable, so routing falls back exactly as it would offline.
 - **Web tests** use Vitest with jsdom and `fake-indexeddb`.
 
 ## M3
@@ -162,3 +161,28 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - **Charts** use uPlot with the validated categorical palette (one fixed colour per domain),
   a legend on every multi-series chart and a table view, because three of the five colours
   are below 3:1 contrast on the surface.
+
+## M5
+
+- **One router call at a time.** Calls are queued so that the request bodies seen by the
+  fetch interceptor belong to exactly one ledger entry. `payloadSent` is the body the SDK
+  really sent, captured at `fetch`.
+- **Fetch guard.** While an `ONLY_ON_DEVICE` call runs, any request to a Gemini endpoint is
+  blocked and logged as `BLOCKED`. This caught a real case in tests (the SDK's Node build has
+  no on-device adapter and silently used the cloud path); see PLATFORM_NOTES §7.
+- **Network log.** Every cross-origin request the app makes is recorded (`network_log`) and
+  listed on the `ledger` screen, for docs/10 metric 10.
+- **"Can reach the cloud"** = the time machine's network switch is on, `navigator.onLine`,
+  and a Firebase project is configured. The router passes that as `online`.
+- **On-device schema.** The on-device `responseConstraint` keeps only `type`, `properties`,
+  `required`, `enum`, `items`, `additionalProperties`; the cloud gets the full schema. The
+  engine validates both (R8).
+- **Lite variant (task D).** The on-device system prompt says to write the lite variant, so
+  a `PREFER_IN_CLOUD` call that lands on the device produces it; the check uses the lite
+  limit whenever the answer came from the device.
+- **Ledger entries per attempt.** Each attempt (first try and retry) is its own entry with
+  `attempts` 1 or 2; a fallback without a model call is one entry with `attempts: 0`.
+- **Settings has an on-device switch** (`onDeviceEnabled`) so the fallbacks can be shown
+  in a browser that has the model.
+- **Tests use the SDK's browser build** (Vitest alias) with a fake `LanguageModel`, because
+  the Node build has no on-device path.

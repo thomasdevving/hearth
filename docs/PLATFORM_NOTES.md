@@ -88,3 +88,16 @@ and forbids deriving that data another way.
   changed without code changes.
 - Without a Firebase config the web app still runs: on-device calls (`ONLY_ON_DEVICE`) never
   touch the network, and cloud-only features show as unavailable.
+
+## 7. Privacy-relevant SDK behaviour (web, `@firebase/ai` 3.1.0, verified in source 2026-11-17)
+
+- `chromeAdapterFactory` creates the on-device adapter **only if `globalThis.LanguageModel`
+  exists**. Without it, `callCloudOrDevice` has no adapter and sends the request **to the
+  cloud even in `ONLY_ON_DEVICE` mode**. The router therefore (a) never calls the SDK in an
+  on-device mode unless its own `LanguageModel.availability()` check returned `available`,
+  and (b) blocks every request to the Gemini endpoints while an on-device-only call runs
+  (fetch guard in `apps/web/src/inference/netlog.ts`). R3 does not rely on the SDK.
+- `systemInstruction` and `generationConfig` reach only the cloud model. The on-device model
+  gets `onDeviceParams.createOptions` (including `initialPrompts`) and
+  `onDeviceParams.promptOptions.responseConstraint`.
+- `initializeDeviceModel()` may start a download and must follow a user gesture.

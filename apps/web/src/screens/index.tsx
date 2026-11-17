@@ -1,6 +1,8 @@
 import type { ComponentType } from "react";
 import { Home } from "./Home";
 import { Trends } from "./Trends";
+import { Ledger } from "./Ledger";
+import { Settings } from "./Settings";
 import { Screen } from "../ui/kit";
 
 function Placeholder({ title }: { title: string }) {
@@ -25,9 +27,9 @@ export const SCREENS: Record<string, ComponentType<{ params: Record<string, stri
   my_plan: ph("Your plan"),
   safety: ph("Support"),
   audit: ph("Is this working for you?"),
-  ledger: ph("Privacy ledger"),
+  ledger: Ledger,
   weekly: ph("Weekly reflection"),
   share: ph("Share with your clinician"),
-  settings: ph("Settings"),
+  settings: Settings,
   report: ph("Report"),
 };
