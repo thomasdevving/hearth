@@ -1,0 +1,271 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Hearth · with and without</title>
+<style>
+  @font-face { font-family: "Syne"; src: url("../node_modules/@fontsource-variable/syne/files/syne-latin-wght-normal.woff2") format("woff2"); font-weight: 400 800; }
+  @font-face { font-family: "Outfit"; src: url("../node_modules/@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+  html, body { margin: 0; background: #fff; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// "With vs without Hearth": Sam's real engine run (video/data.json), drawn frame by frame.
+const W = 1920, H = 1080;
+const C = { mag: "#ca026a", deep: "#7a0f55", tint: "#fdf0f7", line: "#eee6ec", ink: "#1d1320", ink2: "#4a3f4c", muted: "#6e6470", grey: "#faf6f9", amber: "#b25d00", green: "#2f7d4f" };
+const cv = document.getElementById("c");
+const g = cv.getContext("2d");
+let DATA, LOGO, FLOWER;
+
+// time (s) → day (float); holds are segments with equal days
+const SEG = [
+  [0, 3.5, 0, 0], [3.5, 10.5, 1, 60], [10.5, 14.5, 60, 68], [14.5, 17.5, 68, 102], [17.5, 24, 102, 110],
+  [24, 27.5, 110, 110], [27.5, 29.5, 110, 111.6], [29.5, 32, 111.6, 111.6], [32, 37, 111.6, 150], [37, 38.5, 150, 150],
+];
+const END_START = 38.5, TOTAL = 46;
+function dayAt(t) {
+  for (const [a, b, d0, d1] of SEG) if (t >= a && t < b) return d0 + (d1 - d0) * ((t - a) / (b - a));
+  return 150;
+}
+function timeOf(day) {
+  for (const [a, b, d0, d1] of SEG) if (d1 >= day && d1 > d0) return a + (b - a) * Math.max(0, (day - d0) / (d1 - d0));
+  return TOTAL;
+}
+const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+const font = (w, s, fam = "Outfit") => `${w} ${s}px ${fam}`;
+
+function text(str, x, y, f, color, align = "left") {
+  g.font = f; g.fillStyle = color; g.textAlign = align; g.textBaseline = "alphabetic"; g.fillText(str, x, y);
+}
+function wrap(str, x, y, maxW, f, color, lh) {
+  g.font = f; g.fillStyle = color; g.textAlign = "left";
+  const words = str.split(" "); let line = ""; let yy = y;
+  for (const w of words) {
+    const test = line ? line + " " + w : w;
+    if (g.measureText(test).width > maxW && line) { g.fillText(line, x, yy); line = w; yy += lh; } else line = test;
+  }
+  if (line) g.fillText(line, x, yy);
+  return yy;
+}
+function rr(x, y, w, h, r, fill, stroke, lw = 2) {
+  g.beginPath(); g.roundRect(x, y, w, h, r);
+  if (fill) { g.fillStyle = fill; g.fill(); }
+  if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw; g.stroke(); }
+}
+function prettyDate(d) {
+  const dt = new Date(d + "T12:00:00Z");
+  return dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+}
+function smooth(vals, k = 7) {
+  return vals.map((_, i) => { const w = vals.slice(Math.max(0, i - k + 1), i + 1).filter((v) => v != null); return w.length ? w.reduce((a, b) => a + b, 0) / w.length : null; });
+}
+
+// ---------- charts ----------
+function chartFrame(x, y, w, h, title, sub) {
+  text(title, x, y - 14, font(600, 22), C.ink);
+  if (sub) text(sub, x + w, y - 14, font(400, 17), C.muted, "right");
+  g.strokeStyle = C.line; g.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) { const yy = y + (h * i) / 3; g.beginPath(); g.moveTo(x, yy); g.lineTo(x + w, yy); g.stroke(); }
+}
+const X = (x, w, day) => x + ((day - 1) / 149) * w;
+function shade(x, y, w, h, day, from, to, fill, label, dashed) {
+  if (day < from) return;
+  const x0 = X(x, w, from - 0.5), x1 = X(x, w, Math.min(day, to) + 0.5);
+  g.save();
+  if (dashed) { g.setLineDash([6, 6]); g.strokeStyle = "rgba(110,100,112,.6)"; g.lineWidth = 1.5; g.strokeRect(x0, y + 2, x1 - x0, h - 4); }
+  else { g.fillStyle = fill; g.fillRect(x0, y, x1 - x0, h); }
+  g.restore();
+  text(label, x0 + 6, y + 18, font(500, 14), C.muted);
+}
+function series(x, y, w, h, vals, day, lo, hi, color, width = 3, dash) {
+  g.save(); g.beginPath(); let started = false;
+  if (dash) g.setLineDash(dash);
+  for (let i = 0; i < vals.length && i + 1 <= day; i++) {
+    const v = vals[i]; if (v == null) continue;
+    const px = X(x, w, i + 1), py = y + h - ((v - lo) / (hi - lo)) * h;
+    if (!started) { g.moveTo(px, py); started = true; } else g.lineTo(px, py);
+  }
+  g.strokeStyle = color; g.lineWidth = width; g.lineJoin = "round"; g.lineCap = "round"; g.stroke(); g.restore();
+}
+function driftMarker(x, y, h, w, day) {
+  const d0 = DATA.declineStart;
+  if (day < d0) return;
+  const px = X(x, w, d0);
+  g.save(); g.setLineDash([4, 6]); g.strokeStyle = C.amber; g.lineWidth = 2; g.beginPath(); g.moveTo(px, y); g.lineTo(px, y + h); g.stroke(); g.restore();
+}
+
+function feelingsChart(x, y, w, h, day, color) {
+  chartFrame(x, y, w, h, "How Sam feels", "feeling down, 1–7 (simulated)");
+  const vals = smooth(DATA.days.map((d) => d.mood));
+  driftMarker(x, y, h, w, day);
+  series(x, y, w, h, vals, day, 1, 7, color, 3.5);
+  text("1", x - 18, y + h, font(400, 14), C.muted, "right"); text("7", x - 18, y + 12, font(400, 14), C.muted, "right");
+}
+function bedtimeChart(x, y, w, h, day) {
+  chartFrame(x, y, w, h, "Sam's bedtime", "the data is there, but nobody looks");
+  const vals = smooth(DATA.days.map((d) => d.rest)); // minutes after midnight (midpoint of rest)
+  driftMarker(x, y, h, w, day);
+  series(x, y, w, h, vals, day, 150, 330, "#8b8a85", 3);
+}
+function indexChart(x, y, w, h, day) {
+  chartFrame(x, y, w, h, "Change from Sam's usual days", "computed on the device");
+  const firstLimit = DATA.days.findIndex((d) => d.UCL != null) + 1;
+  const ctx = DATA.contexts;
+  for (const c of ctx) {
+    const from = DATA.days.findIndex((d) => d.date === c.start) + 1, to = DATA.days.findIndex((d) => d.date === c.end) + 1;
+    if (c.kind === "explains_sensors") shade(x, y, w, h, day, from, to, "rgba(202,2,106,.10)", "holiday · set aside");
+    else shade(x, y, w, h, day, from, to, null, "exams · still counted", true);
+  }
+  driftMarker(x, y, h, w, day);
+  const hi = 1.6;
+  series(x, y, w, h, DATA.days.map((d, i) => (i + 1 >= firstLimit ? d.UCL : null)), day, 0, hi, C.ink, 2, [8, 6]);
+  series(x, y, w, h, DATA.days.map((d) => d.S), day, 0, hi, C.mag, 3.5);
+  if (day >= firstLimit) text("usual range", x + w - 4, y + h - ((DATA.days[Math.min(149, Math.floor(day) - 1)].UCL ?? 0.5) / hi) * h - 8, font(500, 14), C.ink2, "right");
+  if (day >= DATA.firstChange) {
+    const px = X(x, w, DATA.firstChange); const d = DATA.days[DATA.firstChange - 1];
+    const py = y + h - (d.S / hi) * h;
+    g.beginPath(); g.arc(px, py, 9, 0, Math.PI * 2); g.fillStyle = C.amber; g.fill(); g.lineWidth = 3; g.strokeStyle = "#fff"; g.stroke();
+  }
+}
+
+// ---------- events on the Hearth side ----------
+function hearthEvents(day) {
+  const E = [];
+  const add = (d, title, body, tone, delay = 0) => { const at = timeOf(d) + delay; if (T >= at) E.push({ d, at, title, body, tone }); };
+  add(1, "Sam's plan, in Sam's own words", `${DATA.rules} signs to watch · ${DATA.actions.length} things that help`, "plain");
+  const hol = DATA.contexts.find((c) => c.type === "holiday");
+  if (hol) add(DATA.days.findIndex((d) => d.date === hol.start) + 1, "“I'm in Spain this week, back on Sunday.”", `On holiday until ${prettyDate(hol.end)}? Yes. Places set aside: no alarm.`, "plain");
+  const ex = DATA.contexts.find((c) => c.type === "exams");
+  if (ex) add(DATA.days.findIndex((d) => d.date === ex.start) + 1, "Exam week noted", "Still counted: stressful weeks are when signals matter.", "plain");
+  add(DATA.firstChange, "A change from Sam's usual pattern", DATA.firstChangeReasons.join(" · "), "warm");
+  add(DATA.firstChange, "Sam's plan opens", `You said this helps: ${DATA.actions.join(" · ")}`, "accent", 1.4);
+  const q9 = DATA.questionnaires.find((q) => q.instrument === "PHQ9" && q.flagged);
+  if (q9) add(DATA.days.findIndex((d) => d.date === q9.date) + 1 + 0.6, `Short questionnaire: ${q9.total}`, `${q9.change} above Sam's own usual score. Suggests talking to a GP.`, "accent");
+  const back = DATA.questionnaires.find((q) => q.instrument === "PHQ9" && !q.flagged && q.date > (q9 ? q9.date : ""));
+  if (back) add(DATA.days.findIndex((d) => d.date === back.date) + 1, `Later questionnaire: ${back.total}`, "Back near Sam's usual score.", "plain");
+  return E.sort((a, b) => b.at - a.at);
+}
+function eventCard(x, y, w, ev, day, idx) {
+  const k = ease((T - ev.at) / 0.7);
+  const yy = y + (1 - k) * 30;
+  g.save(); g.globalAlpha = k * (idx === 0 ? 1 : idx === 1 ? 0.8 : 0.55);
+  const fill = ev.tone === "warm" ? "#fbf3e4" : ev.tone === "accent" ? C.tint : "#fff";
+  const stroke = ev.tone === "warm" ? "#e6cf9e" : ev.tone === "accent" ? C.mag : C.line;
+  rr(x, yy, w, 92, 16, fill, stroke, ev.tone === "accent" ? 2.5 : 1.5);
+  text(ev.title, x + 22, yy + 36, font(600, 22), C.ink);
+  g.save(); g.beginPath(); g.rect(x, yy, w - 16, 92); g.clip();
+  text(ev.body, x + 22, yy + 70, font(400, 19), C.ink2);
+  g.restore();
+  g.restore();
+}
+
+// ---------- panels ----------
+function panel(side, day, t) {
+  const x = side === "left" ? 60 : 980, y = 196, w = 880, h = 830;
+  const hearth = side === "right";
+  rr(x, y, w, h, 28, hearth ? "#fff" : C.grey, hearth ? C.mag : C.line, hearth ? 3 : 2);
+  if (hearth) {
+    g.drawImage(LOGO, x + 32, y + 30, 40, 40);
+    text("With Hearth", x + 84, y + 62, font(700, 34, "Syne"), C.mag);
+    // state badge
+    const d = DATA.days[Math.max(0, Math.min(149, Math.ceil(day) - 1))];
+    const st = day < 1 ? "WARM_UP" : d.state;
+    const label = st === "WARM_UP" ? "Learning your pattern" : st === "MONITOR" ? "Steady" : "Changed";
+    const col = st === "WARM_UP" ? C.muted : st === "MONITOR" ? C.green : C.amber;
+    g.font = font(600, 20); const tw = g.measureText(label).width;
+    rr(x + w - tw - 92, y + 30, tw + 60, 46, 23, "#fff", C.line, 1.5);
+    g.beginPath(); g.arc(x + w - tw - 66, y + 53, 8, 0, Math.PI * 2); g.fillStyle = col; g.fill();
+    text(label, x + w - 52, y + 60, font(600, 20), C.ink, "right");
+  } else {
+    text("Without Hearth", x + 32, y + 62, font(700, 34, "Syne"), C.ink2);
+  }
+  const cx = x + 56, cw = w - 96;
+  feelingsChart(cx, y + 140, cw, 150, day, hearth ? C.ink2 : C.ink2);
+  if (hearth) indexChart(cx, y + 360, cw, 170, day); else bedtimeChart(cx, y + 360, cw, 170, day);
+  if (day >= DATA.declineStart) text("Sam's days begin to drift", X(cx, cw, DATA.declineStart) - 8, y + 118, font(500, 15), C.amber, "right");
+
+  const ey = y + 570;
+  if (hearth) {
+    const n = DATA.days.filter((d) => d.day <= day && d.checkin && d.checkin !== "ignored").length;
+    text(`Check-ins so far: ${n} · about 20 seconds each`, cx, ey + 4, font(500, 18), C.muted);
+    const evs = hearthEvents(day).slice(0, 2);
+    evs.forEach((ev, i) => eventCard(cx, ey + 22 + i * 108, cw, ev, day, i));
+  } else {
+    text("No check-ins. No plan. Nothing asks.", cx, ey + 4, font(500, 18), C.muted);
+    if (day >= DATA.declineStart + 1) {
+      const n = Math.floor(day) - DATA.declineStart;
+      const k = ease((T - timeOf(DATA.declineStart + 1)) / 0.8);
+      g.save(); g.globalAlpha = k;
+      rr(cx, ey + 22, cw, 200, 16, "#fff", C.line, 1.5);
+      text(`${n}`, cx + 32, ey + 140, font(700, 96, "Syne"), C.ink2);
+      g.font = font(700, 96, "Syne"); const nw = g.measureText(`${n}`).width;
+      wrap(n === 1 ? "day since Sam's days began to drift." : "days since Sam's days began to drift.", cx + 52 + nw, ey + 96, cw - nw - 90, font(500, 24), C.ink2, 32);
+      text(day >= DATA.firstChange ? "Nobody has noticed yet." : "", cx + 52 + nw, ey + 172, font(600, 22), C.amber);
+      g.restore();
+    }
+  }
+}
+
+function header(day) {
+  g.drawImage(LOGO, 60, 46, 36, 36);
+  text("Hearth", 106, 76, font(800, 30, "Syne"), C.mag);
+  text("The same 150 days. Two versions.", W / 2, 80, font(700, 40, "Syne"), C.ink, "center");
+  if (day >= 1) {
+    const d = DATA.days[Math.min(149, Math.max(0, Math.ceil(day) - 1))];
+    text(`Day ${Math.ceil(day)} of 150 · ${prettyDate(d.date)} · ${d.phase}`, W / 2, 132, font(500, 26), C.ink2, "center");
+  } else text("Sam is a made-up person. Every number comes from Hearth's real engine.", W / 2, 132, font(500, 26), C.ink2, "center");
+  text("Simulated data", W - 60, 76, font(500, 18), C.muted, "right");
+}
+
+function endCard(t) {
+  const k = ease((t - END_START) / 1.2);
+  g.save(); g.globalAlpha = k;
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const fw = 1920, fh = fw * (FLOWER.height / FLOWER.width);
+  g.globalAlpha = k * 0.55; g.drawImage(FLOWER, 0, (H - fh) / 2, fw, fh);
+  g.globalAlpha = k;
+  const grd = g.createRadialGradient(W * 0.36, H / 2, 50, W * 0.36, H / 2, 900);
+  grd.addColorStop(0, "rgba(255,255,255,.95)"); grd.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grd; g.fillRect(0, 0, W, H);
+  const x = 150;
+  text(`Day ${DATA.firstChange}.`, x, 330, font(800, 120, "Syne"), C.mag);
+  wrap(`Hearth noticed ${DATA.firstChange - DATA.declineStart} days after Sam's days began to drift, and showed Sam's own plan.`, x, 440, 1050, font(700, 50, "Syne"), C.ink, 64);
+  text("Without Hearth, nothing asked.", x, 640, font(700, 50, "Syne"), C.ink2);
+  g.drawImage(LOGO, x, 760, 54, 54);
+  text("Hearth", x + 70, 802, font(800, 44, "Syne"), C.mag);
+  text("A simulated person and simulated data from Hearth's demo, run through the real engine. Hearth gives no diagnosis.", x, 900, font(400, 22), C.muted);
+  g.restore();
+}
+
+let T = 0;
+function render(t) {
+  T = t;
+  g.clearRect(0, 0, W, H);
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const day = dayAt(t);
+  header(day);
+  panel("left", day, t);
+  panel("right", day, t);
+  if (t < 3.5) {
+    // opening: panels fade in under a short title
+    const k = ease(t / 1.4);
+    g.save(); g.globalAlpha = 1 - k; g.fillStyle = "#fff"; g.fillRect(0, 160, W, H - 160); g.restore();
+  }
+  if (t >= END_START) endCard(t);
+}
+
+async function load() {
+  DATA = await (await fetch("./data.json")).json();
+  LOGO = new Image(); LOGO.src = "../apps/web/src/assets/hearth-logo.png"; await LOGO.decode();
+  FLOWER = new Image(); FLOWER.src = "../apps/web/src/assets/flower-right.webp"; await FLOWER.decode();
+  await document.fonts.load('700 40px "Syne"'); await document.fonts.load('400 20px "Outfit"'); await document.fonts.load('600 20px "Outfit"');
+  window.TOTAL = TOTAL; window.render = render; window.ready = true;
+  render(Number(new URLSearchParams(location.search).get("t") ?? 25));
+}
+load();
+</script>
+</body>
+</html>
