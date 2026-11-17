@@ -195,16 +195,6 @@ legend { padding: 0; margin-bottom: var(--s2); }
 
 /* ---------- landing page ---------- */
 .landing { --land-max: 1080px; color: var(--ink); background: var(--white); overflow-x: hidden; }
-.landing[data-intro="playing"] > :not(.flower-intro) { visibility: hidden; }
-.flower-intro { position: fixed; z-index: 1000; inset: 0; background: var(--white); overflow: hidden; outline: none; }
-.flower-intro-surface { position: absolute; inset: 0; overflow: hidden; }
-.flower-intro video { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; max-width: none; transform-origin: 0 0; pointer-events: none; }
-.flower-intro-skip { position: absolute; right: var(--s5); bottom: max(var(--s5), env(safe-area-inset-bottom)); min-height: 44px; background: var(--white); border-color: transparent; color: var(--magenta-deep); font-size: 0.85rem; }
-@media (prefers-reduced-motion: no-preference) {
-  .landing[data-intro="revealing"] :is(.land-nav, .hero),
-  .landing[data-intro="revealing"] > :is(section, footer) { animation: flower-page-reveal 600ms ease-out both; }
-  @keyframes flower-page-reveal { from { opacity: 0; } to { opacity: 1; } }
-}
 .land-nav { max-width: var(--land-max); margin: 0 auto; padding: var(--s5); display: flex; align-items: center; gap: var(--s5); position: relative; z-index: 2; }
 .land-nav .spacer { flex: 1; }
 .land-nav a.navlink { color: var(--ink-2); text-decoration: none; font-weight: 500; }
