@@ -444,3 +444,17 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   the existing navigation and flower framing.
 - Use the requested headline on all screen sizes: “When your days start to drift,
   Hearth notices, and reminds you what helps.”
+
+## Remaining mobile landing sections
+
+- At widths below 861 px, give section copy at least 32 px of space from each
+  screen edge. Remove the ledger and support sections' nested horizontal padding,
+  keep phones centred at their existing size and ratio, and use consistent spacing
+  between each explanation and its screenshot. Preserve the existing product copy.
+- Fade the plan and privacy flowers behind their introductions. The long plan stem
+  and the desktop flower composition keep their existing desktop geometry.
+- Keep both Today and Trends accessible in a native horizontal scroll region with
+  scroll snapping, a descriptive label, keyboard focus and a short swipe hint. The
+  desktop pair retains its original overlap. No duplicated phones or carousel library.
+- Show evaluation numbers beside their explanations on mobile, keep the support
+  telephone links at least 44 px tall, and reduce the finale's excess vertical space.

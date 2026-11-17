@@ -209,9 +209,12 @@ export function Landing() {
             title="It learns your usual days"
             side="right"
             shots={
-              <div className="phone-pair">
-                <Phone src={shotHome} alt="Today screen with the state, a check-in card and the user's own signals as small charts" label="Today" />
-                <Phone src={shotTrends} alt="Trends: the change index with the usual range, holiday shaded" label="Trends" className="phone-back" />
+              <div className="phone-gallery">
+                <div className="phone-pair" role="region" aria-label="Today and Trends app previews" tabIndex={0}>
+                  <Phone src={shotHome} alt="Today screen with the state, a check-in card and the user's own signals as small charts" label="Today" />
+                  <Phone src={shotTrends} alt="Trends: the change index with the usual range, holiday shaded" label="Trends" className="phone-back" />
+                </div>
+                <p className="phone-pair-hint">Swipe to see Today and Trends <span aria-hidden="true">↔</span></p>
               </div>
             }
           >

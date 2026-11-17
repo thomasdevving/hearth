@@ -180,6 +180,7 @@ Read: `docs/10_EVALUATION.md`.
 - [x] Match every phone frame to iPhone 18 Pro proportions without stretching screenshots.
 - [x] Integrate three concise privacy explanations into the floral introduction, with a regenerated transparent flower and no dividers or repeated labels.
 - [x] Put mobile hero copy first, with a fading flower, the live preview directly below, and a dropdown navigation menu; update the hero headline.
+- [x] Polish the remaining mobile landing sections: 32 px text gutters, fading flowers, readable facts and support links, and swipeable Today/Trends previews.
 - [x] README: how to run, what is simulated, what is real, privacy summary, limitations.
 
 ## M12 · Submission
