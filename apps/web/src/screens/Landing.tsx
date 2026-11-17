@@ -223,41 +223,45 @@ export function Landing() {
         </div>
       </section>
 
-      <section id="privacy" className="band" aria-labelledby="privacy-title">
-        <div className="flow-head flow-text-left" style={{ ["--bg" as string]: `url(${flowerRight})` }}>
-          <div className="flow-head-inner reveal">
-            <p className="eyebrow">Hybrid by design</p>
-            <h2 id="privacy-title">The model that reads your words lives on your device.</h2>
-            <p className="intro">One rule set decides where each task runs: how personal the data is, and whether you said yes to the cloud.</p>
+      <section id="privacy" aria-labelledby="privacy-title">
+        <div className="flow-head flow-text-left privacy-intro" style={{ ["--bg" as string]: `url(${flowerRight})` }}>
+          <div className="flow-head-inner">
+            <div className="privacy-copy">
+              <div className="reveal">
+                <p className="eyebrow">Hybrid by design</p>
+                <h2 id="privacy-title">The model that reads your words lives on your device.</h2>
+                <p className="intro">One rule set decides where each task runs: how personal the data is, and whether you said yes to the cloud.</p>
+              </div>
+              <ol className="routes">
+                <li className="route reveal" style={{ ["--d" as string]: "0ms" }}>
+                  <span className="route-number" aria-hidden="true">01</span>
+                  <div className="route-heading">
+                    <span className="where device">On this device only</span>
+                    <h3>Your words</h3>
+                  </div>
+                  <p>Your plan, notes, check-in text, speech and questions. Read by Gemini Nano in Chrome. Without it, a simple fallback is used; never the cloud.</p>
+                </li>
+                <li className="route reveal" style={{ ["--d" as string]: "120ms" }}>
+                  <span className="route-number" aria-hidden="true">02</span>
+                  <div className="route-heading">
+                    <span className="where consent">Device first</span>
+                    <h3>Single numbers</h3>
+                  </div>
+                  <p>A questionnaire total or the reason for a check-in. On-device when possible; the cloud only if you allowed it.</p>
+                </li>
+                <li className="route reveal" style={{ ["--d" as string]: "240ms" }}>
+                  <span className="route-number" aria-hidden="true">03</span>
+                  <div className="route-heading">
+                    <span className="where cloud">Cloud, with your consent</span>
+                    <h3>Weekly summaries</h3>
+                  </div>
+                  <p>Coarse weekly numbers, stored in your private cloud space after you've seen exactly what is sent. Gemini in the cloud writes a longer reflection; offline, a short one is written on the device.</p>
+                </li>
+              </ol>
+            </div>
           </div>
         </div>
         <div className="land-section" style={{ paddingTop: 0 }}>
-          <ol className="routes">
-            <li className="route reveal" style={{ ["--d" as string]: "0ms" }}>
-              <span className="route-number" aria-hidden="true">01</span>
-              <div className="route-heading">
-                <span className="where device">On this device only</span>
-                <h3>Your words</h3>
-              </div>
-              <p>Your plan, notes, check-in text, speech and questions. Read by Gemini Nano in Chrome. Without it, a simple fallback is used; never the cloud.</p>
-            </li>
-            <li className="route reveal" style={{ ["--d" as string]: "120ms" }}>
-              <span className="route-number" aria-hidden="true">02</span>
-              <div className="route-heading">
-                <span className="where consent">Device first</span>
-                <h3>Single numbers</h3>
-              </div>
-              <p>A questionnaire total or the reason for a check-in. On-device when possible; the cloud only if you allowed it.</p>
-            </li>
-            <li className="route reveal" style={{ ["--d" as string]: "240ms" }}>
-              <span className="route-number" aria-hidden="true">03</span>
-              <div className="route-heading">
-                <span className="where cloud">Cloud, with your consent</span>
-                <h3>Weekly summaries</h3>
-              </div>
-              <p>Coarse weekly numbers, stored in your private cloud space after you've seen exactly what is sent. Gemini in the cloud writes a longer reflection; offline, a short one is written on the device.</p>
-            </li>
-          </ol>
           <div className="features">
             <Feature
               n="06"

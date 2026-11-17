@@ -178,6 +178,7 @@ Read: `docs/10_EVALUATION.md`.
 - [x] Compact the plan introduction and let its longer flower stem continue into the next feature.
 - [x] Keep the hero layout and background stable when switching app preview views.
 - [x] Match every phone frame to iPhone 18 Pro proportions without stretching screenshots.
+- [x] Integrate the three privacy routes into the floral introduction, removing its top divider and background seam.
 - [x] README: how to run, what is simulated, what is real, privacy summary, limitations.
 
 ## M12 · Submission

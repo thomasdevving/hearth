@@ -420,3 +420,13 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - Screenshots fit inside the screen with `object-fit: contain`, keeping their
   original proportions and full content. The camera area stays above the app;
   captions and decorative petals remain outside the sized phone body.
+
+## Continuous privacy introduction
+
+- The privacy heading and its three numbered routing explanations share one white
+  floral section. The explanations sit beside the flower on desktop and remain
+  open rows on smaller screens, preserving the existing copy and typography.
+- Remove the tinted band's top divider and colour transition. Keep the original
+  flower scale and feather its paper edges into white so its canvas does not form
+  a visible horizontal cutoff. On smaller screens the artwork is lighter behind
+  the text to keep the explanations readable.
