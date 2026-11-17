@@ -152,15 +152,15 @@ Done when: in airplane mode, plan setup, a check-in and a PHQ-2 all work and the
 shows only on-device entries.
 
 ## M10 · P1 extras (in this order; stop when time runs out)
-1. [ ] Speech input on `plan_setup` and `checkin` (on-device speech recognition).
-2. [ ] Task K: matched own actions on `my_plan`.
-3. [ ] Task P: privacy gateway note, with preview and approval.
-4. [ ] Share link and `report` screen with task E.
-5. [ ] Task Q: ask your data.
-6. [ ] Task B: diary markers and their trend chart.
-7. [ ] Task I: spoken check-in pre-filling personal items.
-8. [ ] Task G2: scan a paper plan.
-9. [ ] `audit` screen.
+1. [x] Speech input on `plan_setup` and `checkin` (on-device speech recognition). *(web)*
+2. [x] Task K: matched own actions on `my_plan`.
+3. [x] Task P: privacy gateway note, with preview and approval.
+4. [x] Share link and `report` screen with task E.
+5. [x] Task Q: ask your data.
+6. [x] Task B: diary markers and their trend chart.
+7. [x] Task I: spoken check-in pre-filling personal items.
+8. [x] Task G2: scan a paper plan.
+9. [x] `audit` screen.
 10. [ ] iOS: `LocationCollector` (visits, places, home, place picking).
 11. [ ] iOS: write PHQ-9 and state of mind to HealthKit.
 12. [ ] P2 items from `docs/01_PRODUCT.md` §5.

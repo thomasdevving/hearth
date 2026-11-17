@@ -12,10 +12,15 @@ export interface TaskDef {
   priority: "P0" | "P1";
 }
 
-/** docs/05 §3. Q runs as two calls (classify, phrase); both are S2. */
+/**
+ * docs/05 §3. Q runs as two calls. The phrasing call sees only computed facts (S2). The
+ * classifying call reads the question as typed, which is raw free text, so it is S3 here
+ * (rule R3 wins over the table's S2; docs/DECISIONS.md, M10).
+ */
+export const Q_CLASSIFY_CLASS: DataClass = "S3";
 export const TASKS: Record<TaskId, TaskDef> = {
   G: { id: "G", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "G", prompt: "G", priority: "P0" },
-  G2: { id: "G2", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "G", prompt: "G", priority: "P1" },
+  G2: { id: "G2", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "G2", prompt: "G2", priority: "P1" },
   H: { id: "H", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "H", prompt: "H", priority: "P0" },
   I: { id: "I", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "I", prompt: "I", priority: "P1" },
   A: { id: "A", dataClass: "S2", prefersCloud: false, hasLiteVariant: false, schema: "A", prompt: "A", priority: "P0" },

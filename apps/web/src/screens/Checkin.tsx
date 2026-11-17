@@ -7,6 +7,7 @@ import { router } from "../inference";
 import { completeCheckin, skipCheckin } from "../app/actions";
 import { currentReplay, getMeta, openInbox } from "../app/runtime";
 import { INTRO_FIXED, INTRO_RANDOM, INTRO_TRIGGERED } from "../app/templates";
+import { MicButton } from "../ui/Speech";
 
 type Scale = { id: "mood_low" | "enjoyment" | "energy"; text: string; min: number; max: number; min_label: string; max_label: string };
 const items = MOMENTARY_ITEMS.items;
@@ -28,6 +29,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
   const [text, setText] = useState("");
   const [why, setWhy] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [prefill, setPrefill] = useState<"idle" | "working" | "done" | "none">("idle");
   const [done, setDone] = useState<string | null>(null);
   const [script, setScript] = useState<{ answers: Record<string, number | string>; personal: Record<string, PersonalAnswer>; freeText: string | null; expectedContext?: unknown } | null>(null);
 
@@ -122,6 +124,31 @@ export function Checkin({ params }: { params: Record<string, string> }) {
         <textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} />
         <small>Stays on this device.</small>
       </label>
+      <div className="row">
+        <MicButton onText={(t) => setText((x) => (x ? `${x} ${t}` : t))} label="Talk" />
+        {personal.length > 0 && text.trim().length > 0 && (
+          <button
+            className="secondary"
+            disabled={prefill === "working"}
+            onClick={async () => {
+              // Task I: only the personal items are read from the text; the three momentary
+              // items and questionnaires are always tapped (R1). Answers are shown and editable.
+              setPrefill("working");
+              const res = await router().run<{ answers: { item_id: string; answer: string }[] }>("I", { text, items: personal.map((p) => ({ item_id: p.id, question: p.question })) }, { sourceText: text, verify: { sourceText: text, itemIds: personal.map((p) => p.id) } });
+              if (res.ok) {
+                const next = { ...pAns };
+                for (const a of res.value.answers) if (a.answer === "yes" || a.answer === "partly" || a.answer === "no") next[a.item_id] = a.answer;
+                setPAns(next);
+                setPrefill("done");
+              } else setPrefill("none");
+            }}
+          >
+            Fill in my questions from what I said
+          </button>
+        )}
+      </div>
+      {prefill === "done" && <small>Your own questions were filled in from your words. Check them before saving.</small>}
+      {prefill === "none" && <small>That needs the on-device model. Please tap your answers.</small>}
       <div className="row">
         <button className="primary" disabled={!complete || busy} onClick={() => submit({ answers: { mood_low: vals.mood_low, enjoyment: vals.enjoyment, energy: vals.energy, company: who }, personal: pAns, freeText: text || null })}>
           {busy ? "Saving…" : "Save"}

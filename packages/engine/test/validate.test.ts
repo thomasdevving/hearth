@@ -37,7 +37,7 @@ describe("validate", () => {
     expect(validate("nope" as never, 1).valid).toBe(false);
   });
   it("has every schema in shared/schemas", () => {
-    expect(Object.keys(schemas).sort()).toEqual(["A", "B", "C", "D", "E", "G", "H", "I", "K", "P", "Q_classify", "Q_phrase"]);
+    expect(Object.keys(schemas).sort()).toEqual(["A", "B", "C", "D", "E", "G", "G2", "H", "I", "K", "P", "Q_classify", "Q_phrase"]);
   });
   it("parseJsonLoose", () => {
     expect(parseJsonLoose('{"a":1}')).toEqual({ a: 1 });

@@ -1,0 +1,5 @@
+{
+  "$id": "G2", "title": "Transcribe a photographed plan", "type": "object", "additionalProperties": false,
+  "properties": { "text": { "type": "string", "maxLength": 3000 } },
+  "required": ["text"]
+}

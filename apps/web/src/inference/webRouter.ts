@@ -1,6 +1,6 @@
 // The InferenceRouter for web (docs/02 §5) on the Firebase JS SDK's hybrid inference.
 import { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode, type AI } from "firebase/ai";
-import { mayReachCloud, parseJsonLoose, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@baseline/engine";
+import { mayReachCloud, parseJsonLoose, Q_CLASSIFY_CLASS, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@baseline/engine";
 import { cloudConfigured, firebaseApp, GEMINI_MODEL } from "../firebase";
 import { db, getSettings, newId } from "../store/db";
 import { nowStamp } from "../app/clock";
@@ -67,16 +67,18 @@ export class WebInferenceRouter implements InferenceRouter {
 
   private async runOne<T>(task: AnyTask, input: object, opts: RunOptions): Promise<TaskResult<T>> {
     const def = TASKS[(task === "Q_classify" || task === "Q_phrase" ? "Q" : task) as TaskId];
-    const promptId = task === "Q" ? "Q_classify" : task === "G2" ? "G" : task;
+    const promptId = task === "Q" ? "Q_classify" : task;
     const prompt = promptFor(promptId);
-    const schemaId = (task === "Q" ? "Q_classify" : task === "G2" ? "G" : task) as keyof typeof schemas;
+    const schemaId = (task === "Q" ? "Q_classify" : task) as keyof typeof schemas;
+    // The question in "ask your data" is raw free text: on-device only (R3).
+    const dataClass = task === "Q_classify" || task === "Q" ? Q_CLASSIFY_CLASS : def.dataClass;
     const settings = await getSettings();
     const state = settings.onDeviceEnabled ? await checkOnDevice() : "unavailable";
     const onDeviceAvailable = settings.onDeviceEnabled && state === "available";
     const online = settings.online && (typeof navigator === "undefined" || navigator.onLine !== false) && cloudConfigured;
-    const decision: RouteDecision = route({ dataClass: def.dataClass, cloudConsent: settings.cloudConsent, onDeviceAvailable, online, prefersCloud: def.prefersCloud, hasLiteVariant: def.hasLiteVariant });
+    const decision: RouteDecision = route({ dataClass, cloudConsent: settings.cloudConsent, onDeviceAvailable, online, prefersCloud: def.prefersCloud, hasLiteVariant: def.hasLiteVariant });
     const ledgerTask = (task === "Q_classify" || task === "Q_phrase" ? "Q" : task) as TaskId;
-    const base = { task: ledgerTask, promptVersion: `${promptId}@${prompt.version}`, dataClass: def.dataClass, decision };
+    const base = { task: ledgerTask, promptVersion: `${promptId}@${prompt.version}`, dataClass, decision };
 
     if (decision.run === "fallback") {
       const id = await this.ledger({ ...base, ranOn: "none", outcome: "fallback", attempts: 0, latencyMs: null, bytesSent: 0, payloadSent: null });
@@ -96,7 +98,7 @@ export class WebInferenceRouter implements InferenceRouter {
     const model = getGenerativeModel(this.aiInstance(), {
       mode: MODE[decision.mode],
       onDeviceParams: {
-        createOptions: { ...CREATE_OPTIONS, initialPrompts: [{ role: "system", content: [{ type: "text", value: prompt.text + liteNote }] }] },
+        createOptions: { ...CREATE_OPTIONS, ...(opts.image ? { expectedInputs: [...CREATE_OPTIONS.expectedInputs, { type: "image" as const }] } : {}), initialPrompts: [{ role: "system", content: [{ type: "text", value: prompt.text + liteNote }] }] },
         promptOptions: { responseConstraint: onDeviceSchema(schema) as object },
       },
       inCloudParams: {
@@ -111,7 +113,8 @@ export class WebInferenceRouter implements InferenceRouter {
     let lastId = "";
     for (let attempt = 1; attempt <= 2; attempt++) {
       const t0 = performance.now();
-      const res = await withCapture(String(task), blockAi, () => model.generateContent(message));
+      const request = opts.image ? [message, { type: "inlineData" as const, inlineData: { mimeType: opts.image.mimeType, data: opts.image.data } }] : message;
+      const res = await withCapture(String(task), blockAi, () => model.generateContent(request));
       const latencyMs = Math.round(performance.now() - t0);
       const sent = res.bodies.map((b) => b.body).join("\n");
       const ranOn: "on_device" | "cloud" = res.result?.response.inferenceSource === "on_device" ? "on_device" : res.bodies.length > 0 || res.result?.response.inferenceSource === "in_cloud" ? "cloud" : "on_device";

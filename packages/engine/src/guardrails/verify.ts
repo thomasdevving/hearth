@@ -149,8 +149,12 @@ function prose(text: string, facts: unknown): string | null {
 export function verifyTask(task: TaskId | "Q_classify" | "Q_phrase", raw: unknown, ctx: VerifyContext = {}): VerifyResult {
   const cfg = ctx.cfg ?? defaultConfig;
   switch (task) {
-    case "G":
     case "G2": {
+      if (!validate("G2", raw).valid) return { ok: false, reason: "schema" };
+      const t = (raw as { text: string }).text.trim();
+      return t ? { ok: true, value: { text: t } } : { ok: false, reason: "empty" };
+    }
+    case "G": {
       const plan = verifyPlan(raw, ctx.sourceText ?? "", cfg);
       if (!plan.valid) return { ok: false, reason: "schema" };
       return { ok: true, value: plan };

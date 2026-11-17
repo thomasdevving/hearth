@@ -8,6 +8,7 @@ export interface RunOptions {
   sourceText?: string; // the user's text, for quote checks (S3 tasks)
   verify?: VerifyContext;
   variantInput?: (variant: "full" | "lite") => object; // task D: input depends on the variant
+  image?: { mimeType: string; data: string }; // base64, task G2 only; never stored
   onRaw?: (raw: unknown, text: string, attempt: number) => void; // evaluation only: the unverified output
 }
 

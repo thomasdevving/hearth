@@ -9,6 +9,7 @@ import { confirmFirstUpload, saveReport } from "../cloud/sync";
 import { navigate } from "../app/events";
 import { promptFor } from "../inference/prompts";
 import { cloudConfigured } from "../firebase";
+import { WeekNote } from "./WeekNote";
 
 type Reflection = { reflection: string; open_question: string; ranOn: "on_device" | "cloud" | "template"; variant: "full" | "lite" | null };
 
@@ -86,6 +87,7 @@ export function Weekly({ params }: { params: Record<string, string> }) {
           {busy ? "Writing…" : "Write it again"}
         </button>
       )}
+      {latest && <WeekNote isoWeek={latest} existing={weeks[weeks.length - 1].note} />}
       <h2>Your weeks</h2>
       <div className="table-wrap">
         <table>

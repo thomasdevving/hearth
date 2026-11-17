@@ -6,6 +6,7 @@ import { navigate } from "../app/events";
 import { router } from "../inference";
 import { Card, ModelBadge, Screen } from "../ui/kit";
 import { DIRECTION_TEXT, featureLabel } from "../app/labels";
+import { MicButton } from "../ui/Speech";
 import { detectCrisis, verifyPlan, type VerifiedPlan, type PersonaPlace, type RuleDirection } from "@baseline/engine";
 
 type Status = { kind: "idle" } | { kind: "working" } | { kind: "cards"; plan: VerifiedPlan; ranOn: "on_device" | "cloud" | "template"; dropped: number } | { kind: "fallback"; reason: string };
@@ -206,10 +207,13 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
         <strong>How does a dip start for you?</strong>
         <textarea rows={4} value={warning} onChange={(e) => setWarning(e.target.value)} placeholder="For example: I go to bed later and stop going to the gym…" />
       </label>
+      <MicButton onText={(t) => setWarning((w) => (w ? `${w} ${t}` : t))} />
       <label className="stack">
         <strong>What helps when that happens?</strong>
         <textarea rows={3} value={helps} onChange={(e) => setHelps(e.target.value)} placeholder="For example: calling my sister…" />
       </label>
+      <MicButton onText={(t) => setHelps((h) => (h ? `${h} ${t}` : t))} />
+      <ScanPlan onText={(t) => setWarning((w) => (w ? `${w}\n${t}` : t))} />
       <div className="row">
         {scripted && (
           <button
@@ -242,6 +246,42 @@ function Decide({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
       <button aria-pressed={!value} className={!value ? "primary" : "secondary"} onClick={() => onChange(false)}>
         Not right
       </button>
+    </div>
+  );
+}
+
+/** Task G2: photograph a paper plan; the on-device model transcribes it for correction. The photo is not stored. */
+function ScanPlan({ onText }: { onText: (t: string) => void }) {
+  const [state, setState] = useState<"idle" | "reading" | "done" | "failed">("idle");
+  return (
+    <div className="stack" style={{ gap: 4 }}>
+      <label className="secondary" style={{ display: "inline-block" }}>
+        <span>Already have a written plan? Scan a photo of it: </span>
+        <input
+          type="file"
+          accept="image/jpeg,image/png"
+          aria-label="Photo of a paper plan"
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            e.target.value = "";
+            if (!f) return;
+            setState("reading");
+            const data = await new Promise<string>((res) => {
+              const r = new FileReader();
+              r.onload = () => res(String(r.result).split(",")[1] ?? "");
+              r.readAsDataURL(f);
+            });
+            const res = await router().run<{ text: string }>("G2", { instruction: "Transcribe the text in the image." }, { image: { mimeType: f.type || "image/jpeg", data } });
+            if (res.ok) {
+              onText(res.value.text);
+              setState("done");
+            } else setState("failed");
+          }}
+        />
+      </label>
+      {state === "reading" && <small>Reading the photo on this device…</small>}
+      {state === "done" && <small>Check the text above and correct it before making cards. The photo was not kept.</small>}
+      {state === "failed" && <small>The photo could not be read on this device. Please type the plan instead.</small>}
     </div>
   );
 }

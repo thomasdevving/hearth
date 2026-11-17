@@ -35,6 +35,7 @@ export function installNetworkLog(): void {
   const orig = window.fetch.bind(window);
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    if (/^(data|blob):/i.test(url)) return orig(input as RequestInfo, init); // local, never leaves the device
     const sameOrigin = (() => {
       try {
         return new URL(url, location.href).origin === location.origin;

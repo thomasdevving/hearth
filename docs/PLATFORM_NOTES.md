@@ -101,3 +101,8 @@ and forbids deriving that data another way.
   gets `onDeviceParams.createOptions` (including `initialPrompts`) and
   `onDeviceParams.promptOptions.responseConstraint`.
 - `initializeDeviceModel()` may start a download and must follow a user gesture.
+- Web speech (P1): Chrome's `SpeechRecognition` has `available({langs, processLocally: true})`,
+  `install(...)` and a `processLocally` flag for on-device recognition (reported; Chrome 139+).
+  Ordinary Web Speech recognition sends audio to a server, so the app uses speech only with
+  `processLocally`. In the headless Chromium used for testing, calling `available()`
+  **crashes the renderer**, so the app calls it only after the user taps the microphone.

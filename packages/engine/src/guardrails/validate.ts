@@ -5,6 +5,7 @@ import C from "../../../../shared/schemas/C.schema.json";
 import D from "../../../../shared/schemas/D.schema.json";
 import E from "../../../../shared/schemas/E.schema.json";
 import G from "../../../../shared/schemas/G.schema.json";
+import G2 from "../../../../shared/schemas/G2.schema.json";
 import H from "../../../../shared/schemas/H.schema.json";
 import I from "../../../../shared/schemas/I.schema.json";
 import K from "../../../../shared/schemas/K.schema.json";
@@ -12,10 +13,10 @@ import P from "../../../../shared/schemas/P.schema.json";
 import Q_classify from "../../../../shared/schemas/Q_classify.schema.json";
 import Q_phrase from "../../../../shared/schemas/Q_phrase.schema.json";
 
-export type SchemaId = "A" | "B" | "C" | "D" | "E" | "G" | "H" | "I" | "K" | "P" | "Q_classify" | "Q_phrase";
+export type SchemaId = "A" | "B" | "C" | "D" | "E" | "G" | "G2" | "H" | "I" | "K" | "P" | "Q_classify" | "Q_phrase";
 
 /** The JSON Schemas in shared/schemas, keyed by id. */
-export const schemas: Record<SchemaId, object> = { A, B, C, D, E, G, H, I, K, P, Q_classify, Q_phrase };
+export const schemas: Record<SchemaId, object> = { A, B, C, D, E, G, G2, H, I, K, P, Q_classify, Q_phrase };
 
 export interface ValidationResult {
   valid: boolean;

@@ -16,6 +16,12 @@ export function installFakeLanguageModel(availability: "available" | "unavailabl
     if (system.includes("changes someone's routine")) return { context: "holiday", start_hint: "this week", end_hint: "back on Sunday", confidence: "high", quote: "I'm in Spain this week" };
     if (system.includes("diary text")) return { negative_affect: 0, anhedonic_language: 0, social_withdrawal: 0, hopelessness: 0, sleep_complaint: false, themes: [], crisis: "none" };
     if (system.includes("explain a questionnaire result")) return { explanation: "Thanks for answering." };
+    if (system.includes("spoken check-in")) return { answers: [{ item_id: "i1", answer: "no", quote: "didn't eat much" }] };
+    if (system.includes("things this person has said help them")) return { action_ids: ["a2"] };
+    if (system.includes("short note summarising the texts")) return { themes: ["activity"], note: "A quieter week. I stayed in more than I wanted to." };
+    if (system.includes("classify a question")) return { intent: "compare", feature: "rest_midpoint", period: "last_week" };
+    if (system.includes("answer a question using only the facts")) return { answer: "Your rest was later last week than usual." };
+    if (system.includes("Transcribe the handwritten")) return { text: "Warning signs: bed later, skip gym. Helps: call my sister." };
     if (system.includes("weekly reflection")) return { reflection: "A steady week compared with the one before.", open_question: "What helped this week?" };
     return {};
   };

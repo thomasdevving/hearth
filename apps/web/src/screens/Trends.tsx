@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import type uPlot from "uplot";
-import type { ContextLabel, DayRecord, Domain, QuestionnaireRecord } from "@baseline/engine";
+import type { ContextLabel, DayRecord, DiaryMarkers, Domain, QuestionnaireRecord } from "@baseline/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
 import { Screen } from "../ui/kit";
 import { UChart } from "../ui/UChart";
 import { CONTEXT_LABEL, featureLabel, formatValue, prettyDate, ruleFeature } from "../app/labels";
 import { getEngineState } from "../app/runtime";
+import { Ask } from "./Ask";
 
 // Validated categorical palette (dataviz skill, light surface), fixed order per domain.
 export const DOMAIN_COLOR: Record<Domain, string> = { activity: "#2a78d6", rhythm: "#eb6834", sleep: "#1baf7a", mobility: "#eda100", phone: "#e87ba4" };
@@ -121,13 +122,28 @@ function domainChart(records: DayRecord[], contexts: ContextLabel[]) {
   return { opts, data };
 }
 
+function markerChart(diary: { date: string; markers: DiaryMarkers | null }[]) {
+  const keys = ["negative_affect", "anhedonic_language", "social_withdrawal", "hopelessness"] as const;
+  const names = ["Negative feeling", "Less enjoyment", "Pulling back", "Hopelessness"];
+  const colors = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"];
+  const data: uPlot.AlignedData = [diary.map((x) => sec(x.date)), ...keys.map((k) => diary.map((x) => x.markers?.[k] ?? null))];
+  const opts: Omit<uPlot.Options, "width"> = {
+    height: 160,
+    legend: { show: true },
+    scales: { x: { time: true }, y: { range: [0, 3] } },
+    axes: axes("0–3"),
+    series: [{ label: "Date" }, ...keys.map((_, i) => ({ label: names[i], stroke: colors[i], width: 2, points: { show: true, size: 6 } }))],
+  };
+  return { opts, data };
+}
+
 export function Trends() {
   const d = useData(async () => {
-    const [records, contexts, qs, rules, state] = await Promise.all([db.day_records.orderBy("date").toArray(), db.contexts.toArray(), db.questionnaires.orderBy("takenAt").toArray(), db.plan_rules.toArray(), getEngineState()]);
-    return { records, contexts, qs, rules, state };
+    const [records, contexts, qs, rules, state, diary] = await Promise.all([db.day_records.orderBy("date").toArray(), db.contexts.toArray(), db.questionnaires.orderBy("takenAt").toArray(), db.plan_rules.toArray(), getEngineState(), db.diary.orderBy("date").toArray()]);
+    return { records, contexts, qs, rules, state, diary: diary.filter((x) => x.markers) };
   });
   const [table, setTable] = useState(false);
-  const charts = useMemo(() => (d ? { index: indexChart(d.records, d.contexts, d.qs), domains: domainChart(d.records, d.contexts) } : null), [d]);
+  const charts = useMemo(() => (d ? { index: indexChart(d.records, d.contexts, d.qs), domains: domainChart(d.records, d.contexts), markers: markerChart(d.diary) } : null), [d]);
   if (!d || !charts) return <Screen title="Trends">Loading…</Screen>;
   const { records, qs, rules, state } = d;
   if (records.length === 0) return <Screen title="Trends"><p className="muted">No days yet. Use “+1 day” below to let time pass.</p></Screen>;
@@ -172,6 +188,14 @@ export function Trends() {
           );
         })}
       </ul>
+      {d.diary.length > 0 && (
+        <>
+          <h2>From your notes</h2>
+          <p className="muted">Read from your notes by the on-device model (0 = not there, 3 = strong). Shown only to you; never used to decide anything.</p>
+          <UChart opts={charts.markers.opts} data={charts.markers.data} ariaLabel="Language markers from your notes over time" />
+        </>
+      )}
+      <Ask />
       <button className="secondary" onClick={() => setTable(!table)} aria-expanded={table}>
         {table ? "Hide table" : "Show as table"}
       </button>

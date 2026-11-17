@@ -253,3 +253,27 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   output downloadable. The router gained an evaluation-only `onRaw` hook for this.
 - It could not be run with Gemini Nano in the build container: the model download host is
   blocked by the network policy. It has to be run in a real Chrome.
+
+## M10 (web)
+
+- **Speech input** uses only Chrome's on-device recognition (`processLocally`); audio is S3.
+  The availability check runs when the microphone is tapped, never on page load (it crashes
+  the tab in headless Chromium). Without on-device recognition the button explains and hides.
+- **Task K** runs on `my_plan` during a change when there are at least two actions; the
+  model returns ids only and the user's own text is shown above the full list.
+- **Task P** works on the latest finished week. The note is shown in an editable box, the
+  PII check runs again on the edited text, and an approved note marks the week for
+  re-upload. "Remove this note" takes it out again.
+- **Task Q.** The question is raw free text, so the classifying call is S3 (on-device only),
+  although docs/05 lists Q as S2: rule R3 wins. The phrasing call sees only the computed
+  facts (S2). Facts come from `askFacts` in the engine; without a phrasing model the answer
+  is a template from the same facts. The box is hidden when there is no on-device model.
+- **Task B chart** on `trends`: the four markers per note, labelled as never used to decide
+  anything (R6).
+- **Task I** prefills only the personal items from the check-in's free text (typed or
+  spoken); the answers are visible and editable before saving (R1).
+- **Task G2** sends the photo to the on-device model as image input with a transcription
+  prompt (`shared/prompts/G2.md`, schema `G2`) and appends the text to the plan box for
+  correction before task G runs. The photo is kept only in memory.
+- **Not built:** the iOS items (10, 11) and the P2 items (GAD-2, WHO-5, day length,
+  Screen Time). GAD-2 and WHO-5 need their official wording checked before adding JSON.
