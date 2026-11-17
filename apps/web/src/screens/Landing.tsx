@@ -4,7 +4,7 @@ import { HeroPreview } from "./HeroPreview";
 import flowerWebp from "../assets/hero-flower.webp";
 import flowerPng from "../assets/hero-flower.png";
 import flowerPlan from "../assets/flower-plan-long.webp";
-import flowerRight from "../assets/flower-right.webp";
+import flowerPrivacy from "../assets/flower-privacy.png";
 import flowerGarden from "../assets/flower-garden.webp";
 import shotPlan from "../assets/shots/plan.webp";
 import shotHome from "../assets/shots/home.webp";
@@ -224,40 +224,28 @@ export function Landing() {
       </section>
 
       <section id="privacy" aria-labelledby="privacy-title">
-        <div className="flow-head flow-text-left privacy-intro" style={{ ["--bg" as string]: `url(${flowerRight})` }}>
+        <div className="flow-head flow-text-left privacy-intro" style={{ ["--bg" as string]: `url(${flowerPrivacy})` }}>
           <div className="flow-head-inner">
             <div className="privacy-copy">
               <div className="reveal">
                 <p className="eyebrow">Hybrid by design</p>
                 <h2 id="privacy-title">The model that reads your words lives on your device.</h2>
-                <p className="intro">One rule set decides where each task runs: how personal the data is, and whether you said yes to the cloud.</p>
+                <p className="intro">Personal words stay here. You choose what reaches the cloud.</p>
               </div>
-              <ol className="routes">
+              <ul className="routes">
                 <li className="route reveal" style={{ ["--d" as string]: "0ms" }}>
-                  <span className="route-number" aria-hidden="true">01</span>
-                  <div className="route-heading">
-                    <span className="where device">On this device only</span>
-                    <h3>Your words</h3>
-                  </div>
-                  <p>Your plan, notes, check-in text, speech and questions. Read by Gemini Nano in Chrome. Without it, a simple fallback is used; never the cloud.</p>
+                  <h3>Your words stay on this device</h3>
+                  <p>Gemini Nano reads your plans, notes, check-ins, speech and questions in Chrome. If unavailable, a local fallback takes over. Your words never go to the cloud.</p>
                 </li>
                 <li className="route reveal" style={{ ["--d" as string]: "120ms" }}>
-                  <span className="route-number" aria-hidden="true">02</span>
-                  <div className="route-heading">
-                    <span className="where consent">Device first</span>
-                    <h3>Single numbers</h3>
-                  </div>
-                  <p>A questionnaire total or the reason for a check-in. On-device when possible; the cloud only if you allowed it.</p>
+                  <h3>Numbers use your device first</h3>
+                  <p>Questionnaire totals and check-in reasons are processed on your device when possible. Cloud processing needs your consent.</p>
                 </li>
                 <li className="route reveal" style={{ ["--d" as string]: "240ms" }}>
-                  <span className="route-number" aria-hidden="true">03</span>
-                  <div className="route-heading">
-                    <span className="where cloud">Cloud, with your consent</span>
-                    <h3>Weekly summaries</h3>
-                  </div>
-                  <p>Coarse weekly numbers, stored in your private cloud space after you've seen exactly what is sent. Gemini in the cloud writes a longer reflection; offline, a short one is written on the device.</p>
+                  <h3>Weekly summaries, with your consent</h3>
+                  <p>Preview the weekly numbers before they enter your private cloud space. Gemini writes a fuller reflection; offline, your device writes a short one.</p>
                 </li>
-              </ol>
+              </ul>
             </div>
           </div>
         </div>

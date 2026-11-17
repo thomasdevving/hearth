@@ -423,10 +423,11 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 
 ## Continuous privacy introduction
 
-- The privacy heading and its three numbered routing explanations share one white
-  floral section. The explanations sit beside the flower on desktop and remain
-  open rows on smaller screens, preserving the existing copy and typography.
-- Remove the tinted band's top divider and colour transition. Keep the original
-  flower scale and feather its paper edges into white so its canvas does not form
-  a visible horizontal cutoff. On smaller screens the artwork is lighter behind
-  the text to keep the explanations readable.
+- The privacy heading and its three routing explanations share one white floral
+  section, with the copy beside the flower on desktop and lighter artwork on mobile.
+- Regenerate the original right-hand lily with a genuinely transparent background,
+  preserving its shape, watercolour style, scale and side position. Remove the paper
+  rectangle and the CSS edge mask so there is no image background to form a seam.
+- Use three short paragraphs with sentence-case headings. Remove the numbers,
+  uppercase labels and divider lines; retain the on-device-only promise for words,
+  consent for cloud processing, and the preview and offline summary explanation.

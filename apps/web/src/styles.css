@@ -225,12 +225,9 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .land-section { max-width: var(--land-max); margin: 0 auto; padding: var(--s7) var(--s5); }
 .land-section h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; letter-spacing: -0.03em; margin: 0 0 var(--s5); max-width: 20em; line-height: 1.1; }
 .land-section .intro { color: var(--ink-2); font-size: 1.1rem; max-width: 40em; margin-bottom: var(--s6); }
-.routes { list-style: none; margin: var(--s6) 0 0; padding: 0; }
-.route { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--s2) var(--s4); align-items: start; padding: var(--s5) 0; border-top: 1px solid var(--magenta-line); }
-.route-number { color: var(--magenta); font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; padding-top: 2px; }
-.route .where { display: block; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--magenta-deep); margin-bottom: var(--s2); }
-.route h3 { margin: 0; font-size: 1.35rem; line-height: 1.15; letter-spacing: -0.025em; }
-.route p { grid-column: 2; margin: 0; color: var(--ink-2); }
+.routes { list-style: none; display: grid; gap: var(--s6); margin: var(--s7) 0 0; padding: 0; }
+.route h3 { margin: 0 0 var(--s2); font-family: var(--font-body); font-size: 1.05rem; font-weight: 600; line-height: 1.3; letter-spacing: 0; }
+.route p { margin: 0; color: var(--ink-2); }
 .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); margin-top: var(--s6); }
 .fact .n { font-family: var(--font-display); font-weight: 700; font-size: 2.6rem; color: var(--magenta); line-height: 1; }
 .fact p { color: var(--ink-2); margin-top: var(--s2); }
@@ -254,10 +251,10 @@ legend { padding: 0; margin-bottom: var(--s2); }
 /* Compact copy area; the full-size transparent stem continues into the next row. */
 .plan-intro { --plan-flower-ratio: calc(1086 / 1448); min-height: calc(100vw * 941 / 1672 * 0.78 + 48px); overflow: visible; }
 .plan-intro::before { inset: 24px 0 auto; z-index: 1; height: calc(100vw * var(--plan-flower-ratio)); background-position: left top; pointer-events: none; }
-/* One white canvas for the heading, routing details and flower. Keep the original
-   artwork scale; feather its paper edges instead of ending on a tinted band. */
+/* The regenerated flower has genuine transparency: there is no paper rectangle
+   or fade to meet the white section. Keep its original width and side position. */
 .privacy-intro { overflow: visible; }
-.privacy-intro::before { inset: auto 0; top: 50%; margin-top: calc((100vw * 941 / 1672 * 1.06 + 48px) / -2); height: calc(100vw * 941 / 1672 * 1.06 + 48px); mask-image: linear-gradient(to bottom, transparent, #000 48px, #000 calc(100% - 80px), transparent); pointer-events: none; }
+.privacy-intro::before { inset: auto 0; top: 50%; margin-top: calc((100vw * 941 / 1672 * 1.06 + 48px) / -2); height: calc(100vw * 941 / 1672 * 1.06 + 48px); pointer-events: none; }
 .privacy-copy { max-width: 32rem; }
 
 /* feature rows: words on one side, the real screen on the other */
