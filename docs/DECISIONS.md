@@ -465,6 +465,12 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   page is visible immediately, without a playback gate, reveal delay, scroll lock
   or session-storage check. Remove its component, styles, media and dedicated tests.
 
+## Science in landing navigation
+
+- The app's Science tab already links to `#/science`, but the landing page has its
+  own navigation. Add Science to both its desktop links and mobile dropdown so
+  visitors can reach the existing research page without starting the demo.
+
 ## Science screen (`#/science`, tab "Science")
 
 - A sixth tab, "Science", shows the research behind each signal, the engine's formulas

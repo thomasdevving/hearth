@@ -128,6 +128,9 @@ export function Landing() {
         <a className="navlink" href="#/" onClick={scrollTo("privacy")}>
           Privacy
         </a>
+        <a className="navlink" href="#/science">
+          Science
+        </a>
         <a className="land-cta" href="#/home">
           Try the demo
         </a>
@@ -155,6 +158,7 @@ export function Landing() {
           <div className="mobile-menu-links">
             <a href="#/" onClick={scrollTo("how")}>How it works</a>
             <a href="#/" onClick={scrollTo("privacy")}>Privacy</a>
+            <a href="#/science">Science</a>
             <a className="land-cta" href="#/home">Try the demo</a>
           </div>
         </details>
