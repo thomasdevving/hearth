@@ -6,13 +6,21 @@ import { Science } from "../src/screens/Science";
 afterEach(cleanup);
 
 describe("science screen", () => {
-  it("shows the formulas with the live config values", () => {
+  it("shows the formulas from the same default configuration as the engine", () => {
     const { container } = render(<Science />);
     expect(screen.getByRole("heading", { name: "The science behind Hearth" })).toBeTruthy();
     const formulas = [...container.querySelectorAll(".sci-formula")].map((e) => e.textContent).join("\n");
     expect(formulas).toContain(`λ = ${defaultConfig.ewmaLambda}`);
     expect(formulas).toContain(`L = ${defaultConfig.ewmaL}`);
     expect(formulas).toContain(`C_d > ${defaultConfig.cusumH}`);
+  });
+
+  it("uses public website navigation and a footer, with no demo controls", () => {
+    const { container } = render(<Science />);
+    expect(screen.getByRole("navigation", { name: "Site" })).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: "Science" }).every((link) => link.getAttribute("aria-current") === "page")).toBe(true);
+    expect(screen.getByRole("contentinfo")).toBeTruthy();
+    expect(container.querySelector(".app, .tabs, .timemachine, .demo-banner")).toBeNull();
   });
 
   it("every citation points at a listed source", () => {

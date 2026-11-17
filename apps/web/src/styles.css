@@ -220,6 +220,7 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .land-nav .spacer { flex: 1; }
 .land-nav a.navlink { color: var(--ink-2); text-decoration: none; font-weight: 500; }
 .land-nav a.navlink:hover { color: var(--magenta); }
+.land-nav a[aria-current="page"] { color: var(--magenta); font-weight: 600; }
 .mobile-menu { display: none; position: relative; }
 .mobile-menu summary { display: flex; align-items: center; gap: var(--s2); min-height: 44px; padding: var(--s2) var(--s4); border: 1px solid var(--magenta-line); border-radius: 999px; background: var(--white); color: var(--magenta-deep); font-weight: 500; cursor: pointer; list-style: none; }
 .mobile-menu summary::-webkit-details-marker { display: none; }
@@ -288,6 +289,29 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .land-final h2 { margin-left: auto; margin-right: auto; }
 .land-final .ctas { display: flex; gap: var(--s3); justify-content: center; flex-wrap: wrap; }
 .land-footer { max-width: var(--land-max); margin: 0 auto; padding: var(--s6) var(--s5) var(--s7); color: var(--muted); font-size: 0.88rem; border-top: 1px solid var(--line); display: flex; gap: var(--s5); flex-wrap: wrap; justify-content: space-between; }
+
+/* Science belongs to the public website, with an open, readable article layout. */
+.science-main { max-width: var(--land-max); margin: 0 auto; padding: var(--s7) var(--s6) 80px; }
+.science-header, .science-article { max-width: 50rem; margin-inline: auto; }
+.science-header { position: relative; isolation: isolate; padding: var(--s4) 0 var(--s6); }
+.science-header::before { content: ""; position: absolute; z-index: -1; top: -40px; right: -80px; width: min(420px, 65vw); height: 420px; background: url("./assets/flower-privacy.png") right top / auto 100% no-repeat; opacity: 0.13; mask-image: linear-gradient(to bottom, #000 25%, transparent 100%); pointer-events: none; }
+.science-header h1 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.04em; max-width: 16em; }
+.science-header .sci-lead { max-width: 42rem; margin: var(--s5) 0 0; font-size: 1.1rem; line-height: 1.65; }
+.science-page .sci-toc { gap: var(--s5); margin-top: var(--s5); padding-bottom: var(--s4); border-bottom: 1px solid var(--line); }
+.science-page .sci-toc a { min-height: 44px; padding: 0; border: 0; border-radius: 0; background: none; font-size: 0.95rem; }
+.science-page .sci-toc a:hover { text-decoration: underline; text-underline-offset: 5px; }
+.science-article h2 { font-size: clamp(1.5rem, 2.5vw, 1.9rem); line-height: 1.15; letter-spacing: -0.03em; margin: var(--s7) 0 var(--s4); scroll-margin-top: var(--s5); }
+.science-article h3 { font-size: 1.1rem; margin: var(--s6) 0 var(--s3); }
+.science-article p, .science-article li { line-height: 1.65; }
+.science-article > .stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4) 40px; }
+.science-page .sci-signal { min-width: 0; padding: var(--s5) 0; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; }
+.science-page .sci-signal > strong { font-family: var(--font-display); font-size: 1.3rem; }
+.science-page .sci-signal p { font-size: 1rem; }
+.science-page .sci-in span { padding: 0; background: none; border-radius: 0; }
+.science-page .sci-formula { max-width: 100%; font-size: 0.85rem; border-radius: 0; margin: var(--s4) 0 var(--s5); }
+.science-page .sci-more { padding: var(--s4) 0; border-width: 0 0 1px; border-radius: 0; }
+.science-page .sci-more summary { min-height: 44px; }
+.science-page .sci-refs { font-size: 0.88rem; }
 
 /* section intros on the watercolour flowers */
 .flow-head { position: relative; overflow: hidden; min-height: calc(100vw * 941 / 1672 * 1.06 + 48px); display: grid; align-items: center; background: var(--white); }
@@ -365,6 +389,9 @@ legend { padding: 0; margin-bottom: var(--s2); }
 }
 
 @media (max-width: 860px) {
+  .science-main { padding-top: var(--s5); }
+  .science-header .sci-lead { font-size: 1rem; }
+  .science-article > .stack { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .feature { grid-template-columns: minmax(0, 1fr); gap: var(--s5); padding: 0; }
   .feature-right .feature-copy { order: 0; }
   .features { gap: 64px; padding: var(--s6) var(--s5) var(--s7); }

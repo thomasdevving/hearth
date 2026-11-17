@@ -471,11 +471,21 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   own navigation. Add Science to both its desktop links and mobile dropdown so
   visitors can reach the existing research page without starting the demo.
 
-## Science screen (`#/science`, tab "Science")
+## Public Science page (`#/science`)
 
-- A sixth tab, "Science", shows the research behind each signal, the engine's formulas
-  with the live config values (read from `cfg`, not copied), the evaluation results from
+- Science is a public website page, with the landing page's shared navigation and
+  footer. It has no demo tabs, replay controls, on-device banner or onboarding gate.
+  Preserve its existing `#/science` address, citations and research content.
+- It shows the research behind each signal, the engine's formulas
+  with values read from the engine's `defaultConfig` (not copied), the evaluation results from
   `docs/10_EVALUATION.md` and the sources. Results are static text dated 2026-11-17.
+- The demo shell is loaded lazily, and only mounts its data loader after a visitor
+  enters a demo route. Reading the homepage or Science does not initialise a persona
+  or open the local demo database. Pending initialisation cannot redirect visitors
+  back into the demo after they leave its shell.
+- Shared site links return from Science to the homepage's How it works and Privacy
+  sections via `#/?section=…`. Science uses an open article layout, a subtle existing
+  flower in the heading and responsive reading widths.
 - The research findings use the studies' own terms ("depression", "insomnia"). R9 is about
   what the UI says about the user; the screen never applies these words to the user, and a
   test checks for that. The banned-word list stays in force for model output.

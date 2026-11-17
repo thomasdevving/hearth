@@ -16,7 +16,6 @@ import { Weekly } from "./Weekly";
 import { Share } from "./Share";
 import { Report } from "./Report";
 import { EvalG } from "./EvalG";
-import { Science } from "./Science";
 
 export const SCREENS: Record<string, ComponentType<{ params: Record<string, string> }>> = {
   home: Home,
@@ -37,5 +36,4 @@ export const SCREENS: Record<string, ComponentType<{ params: Record<string, stri
   settings: Settings,
   report: Report,
   eval_g: EvalG,
-  science: Science,
 };

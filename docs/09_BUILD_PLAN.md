@@ -183,6 +183,7 @@ Read: `docs/10_EVALUATION.md`.
 - [x] Polish the remaining mobile landing sections: 32 px text gutters, fading flowers, readable facts and support links, and swipeable Today/Trends previews.
 - [x] Remove the video introduction at the user's request; show the landing page immediately.
 - [x] Make Science accessible directly from desktop and mobile landing navigation.
+- [x] Separate Science into a public website page with shared site navigation/footer; load the demo and its controls only when entering the demo.
 - [x] README: how to run, what is simulated, what is real, privacy summary, limitations.
 
 ## M12 · Submission

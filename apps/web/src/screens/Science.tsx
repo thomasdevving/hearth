@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Screen } from "../ui/kit";
-import { cfg } from "../app/runtime";
+import { defaultConfig } from "@hearth/engine";
+import { SiteNav, SiteFooter } from "../ui/SiteLayout";
 
 /**
  * "The science behind Hearth": the research each signal rests on, the formulas the engine
@@ -69,9 +69,14 @@ function Signal({ title, found, cites, inHearth }: { title: string; found: React
 }
 
 export function Science() {
-  const c = cfg;
+  const c = defaultConfig;
   return (
-    <Screen title="The science behind Hearth">
+    <div className="landing science-page">
+      <SiteNav active="science" />
+      <main className="science-main" id="science-content">
+        <header className="science-header">
+          <p className="eyebrow">Research &amp; evidence</p>
+          <h1>The science behind Hearth</h1>
       <p className="sci-lead">
         Hearth compares you only with you. It learns what your usual days look like, notices when they drift, and then asks you,
         in a few taps, how you are. It gives no diagnosis. This page shows the research each part rests on, the exact formulas,
@@ -83,7 +88,8 @@ export function Science() {
         <a href="#/science" onClick={(e) => { e.preventDefault(); document.getElementById("sci-results")?.scrollIntoView({ behavior: "smooth" }); }}>Results</a>
         <a href="#/science" onClick={(e) => { e.preventDefault(); document.getElementById("sci-refs")?.scrollIntoView({ behavior: "smooth" }); }}>Sources</a>
       </nav>
-
+        </header>
+        <article className="science-article" aria-label="Research, methods and sources">
       <h2>Why it matters</h2>
       <p>
         About 332 million people live with depression worldwide<Cite ids={["who"]} />, and at least half of those who recover from a
@@ -308,6 +314,9 @@ absolutist = 19 words such as always,
           </li>
         ))}
       </ol>
-    </Screen>
+        </article>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }
