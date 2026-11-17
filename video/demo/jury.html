@@ -77,7 +77,6 @@ const DEMO = [
   { from: 6.9, to: 8.4, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
   { hold: 8.4, dur: 4.2, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", catch: true },
   { from: 8.4, to: 15.4, n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
-  { from: 15.5, to: 17.3, n: 3, title: "A starting point, word for word", sub: "The PHQ-9 exactly as validated. No model touches it." },
   { from: 19.6, to: 24.0, n: 4, title: "Day 61: “I’m in Spain this week”", sub: "The time machine replays Sam’s simulated sensor data." },
   { from: 24.0, to: 28.0, n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
   { from: 28.0, to: 30.9, n: 5, title: "Day 109", sub: "Sam’s days have been drifting for six days." },
@@ -91,7 +90,7 @@ let demoLen = 0; for (const s of DEMO) { s.start = demoLen; s.len = s.hold !== u
 const T = {};
 let cur = 0;
 const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("theory", 16); seg("arch", 18); seg("control", 14); seg("numbers", 14); seg("close", 12);
+seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("theory", 18); seg("arch", 18); seg("control", 14); seg("numbers", 14); seg("close", 12);
 const TOTAL = cur;
 
 // ---------- sections ----------
@@ -170,32 +169,73 @@ async function demo(t) {
 }
 
 function theory(t) {
-  bg(0.12, "L");
+  bg(0.0);
   const s = t - T.theory[0];
-  label("How it works: the theory, briefly", 120, 130);
-  text("Research-based signals, compared only with you", 120, 200, font(700, 50, "Syne"), C.ink);
-  const cols = [
-    { n: "1", title: "Signals research links to harder periods", body: "Sleep, activity, daily rhythm, heart rate and the places you go. Insomnia roughly doubles the odds of later depression; a flatter day\u2013night rhythm and lower heart rate variability go with it too.", tag: "Baglioni 2011 \u00b7 Lyall 2018 \u00b7 Kemp 2010" },
-    { n: "2", title: "Your own usual days are the baseline", body: "Each signal becomes a robust z-score against your last 56 ordinary days. Signals are averaged per group, then into one daily index.", formula: "z = (x \u2212 median) / (1.4826 \u00b7 MAD)", tag: "never compared with other people" },
-    { n: "3", title: "A drift, not one bad day", body: "EWMA and CUSUM from statistical process control catch a steady change. Your own early signs weigh double, and random check-ins test whether the alerts mean anything for you.", tag: "Birchwood 1989 \u00b7 micro-randomised trials" },
+  label("What counts as a drift, and what Hearth does then", 120, 120);
+  text("Not one bad day: a change that lasts", 120, 190, font(700, 52, "Syne"), C.ink);
+  // left: Sam's own index, days 84-116, against Sam's own usual range
+  const x0 = 120, y0 = 250, w = 900, h = 400, d0 = 84, d1 = 116;
+  const days = SAM.days.filter((d) => d.day >= d0 && d.day <= d1);
+  const X = (day) => x0 + 60 + ((day - d0) / (d1 - d0)) * (w - 330);
+  const Y = (v) => y0 + h - 40 - (Math.min(v, 1.3) / 1.3) * (h - 70);
+  const reveal = d0 + (d1 - d0) * ease((s - 0.3) / 6);
+  fade(ease(s / 0.5), () => {
+    rr(x0, y0, w, h, 24, "#fff", C.line, 2);
+    text("Sam\u2019s change index, compared with Sam\u2019s own usual days", x0 + 30, y0 + 44, font(600, 22), C.ink2);
+    // usual range
+    const ucl = days[0].UCL;
+    g.save(); g.setLineDash([10, 8]); g.strokeStyle = C.ink2; g.lineWidth = 2; g.beginPath(); g.moveTo(X(d0), Y(ucl)); g.lineTo(X(d1), Y(ucl)); g.stroke(); g.restore();
+    text("top of Sam\u2019s usual range", X(d0) + 6, Y(ucl) - 10, font(500, 18), C.ink2);
+    const vis = days.filter((d) => d.day <= reveal);
+    g.strokeStyle = "rgba(110,100,112,.55)"; g.lineWidth = 1.5; g.beginPath(); vis.forEach((d, k) => (k ? g.lineTo(X(d.day), Y(d.D)) : g.moveTo(X(d.day), Y(d.D)))); g.stroke();
+    vis.forEach((d) => { g.beginPath(); g.arc(X(d.day), Y(d.D), 3.5, 0, Math.PI * 2); g.fillStyle = "rgba(110,100,112,.8)"; g.fill(); });
+    g.strokeStyle = C.mag; g.lineWidth = 4; g.beginPath(); vis.forEach((d, k) => (k ? g.lineTo(X(d.day), Y(d.S)) : g.moveTo(X(d.day), Y(d.S)))); g.stroke();
+    text("one day", x0 + w - 250, y0 + h - 14, font(500, 17), C.muted);
+    g.beginPath(); g.arc(x0 + w - 270, y0 + h - 20, 4, 0, Math.PI * 2); g.fillStyle = "rgba(110,100,112,.8)"; g.fill();
+    g.fillStyle = C.mag; g.fillRect(x0 + w - 170, y0 + h - 22, 26, 4); text("trend", x0 + w - 136, y0 + h - 14, font(500, 17), C.muted);
+    if (reveal >= 107) fade(ease((reveal - 107) / 1.5), () => {
+      const px = X(107), py = Y(0.56);
+      g.beginPath(); g.arc(px, py, 9, 0, Math.PI * 2); g.strokeStyle = C.ink2; g.lineWidth = 2; g.stroke();
+      text("day 107: one bad day,", px - 18, py - 46, font(600, 19), C.ink2, "right");
+      text("trend stays inside: no alarm", px - 18, py - 22, font(600, 19), C.ink2, "right");
+    });
+    if (reveal >= 109) fade(ease((reveal - 109) / 1.5), () => {
+      const day = days.find((d) => d.day === 109), px = X(109), py = Y(day.S);
+      g.beginPath(); g.arc(px, py, 10, 0, Math.PI * 2); g.fillStyle = C.mag; g.fill();
+      text("day 109: the trend crosses", px + 18, py + 52, font(700, 19), C.mag);
+      text("\u2192 \u201cChanged\u201d", px + 18, py + 76, font(700, 19), C.mag);
+    });
+  });
+  // what moved
+  fade(ease((s - 4.5) / 0.6), () => {
+    text("What moved, against Sam\u2019s own usual days", x0, 712, font(600, 24), C.ink);
+    const chips = ["Sleep 1 h later", "Resting heart rate up", "Fewer gym visits", "More time at home"];
+    let cx = x0;
+    chips.forEach((c) => { g.font = font(600, 22); const cw = g.measureText(c).width + 40; rr(cx, 735, cw, 50, 25, C.tint, "#f3c1dc", 1.5); text(c, cx + 20, 768, font(600, 22), C.deep); cx += cw + 12; });
+    text("Several of Sam\u2019s signals, for several days. Three are signs Sam wrote down.", x0, 830, font(400, 22), C.ink2);
+  });
+  // right: how Hearth helps
+  const steps = [
+    ["Asks, briefly", "A 20-second check-in that says what changed."],
+    ["Opens Sam\u2019s own plan", "\u201cCall my sister\u201d \u00b7 \u201cA walk in the morning\u201d"],
+    ["Checks if it lasts", "Only then a short validated questionnaire, word for word."],
+    ["Support, if Sam wants", "A summary to share with a GP or therapist. 988 always one tap away."],
   ];
-  cols.forEach((c, i) => fade(ease((s - 0.4 - i * 1.1) / 0.6), () => {
-    const x = 120 + i * 570, y = 270;
-    rr(x, y, 530, 560, 28, "rgba(255,255,255,.94)", C.line, 2);
-    g.beginPath(); g.arc(x + 58, y + 64, 26, 0, Math.PI * 2); g.fillStyle = C.tint; g.fill();
-    text(c.n, x + 58, y + 76, font(800, 30, "Syne"), C.mag, "center");
-    let yy = wrap(c.title, x + 36, y + 150, 460, font(700, 32, "Syne"), C.ink, 40);
-    yy = wrap(c.body, x + 36, yy + 52, 460, font(400, 25), C.ink2, 35);
-    if (c.formula) { rr(x + 36, yy + 26, 458, 56, 12, C.grey, C.line, 1.5); text(c.formula, x + 56, yy + 63, "500 19px ui-monospace, Menlo, Consolas, monospace", C.ink); }
-    text(c.tag, x + 36, y + 528, font(500, 19), C.muted);
+  fade(ease((s - 6.5) / 0.6), () => text("Then Hearth helps", 1080, 300, font(700, 36, "Syne"), C.ink));
+  steps.forEach(([a, b], k) => fade(ease((s - 7 - k * 0.9) / 0.6), () => {
+    const y = 340 + k * 135;
+    g.beginPath(); g.arc(1102, y + 32, 22, 0, Math.PI * 2); g.fillStyle = C.mag; g.fill();
+    text(String(k + 1), 1102, y + 41, font(800, 24, "Syne"), "#fff", "center");
+    text(a, 1145, y + 40, font(700, 28), C.ink);
+    wrap(b, 1145, y + 78, 640, font(400, 23), C.ink2, 31);
   }));
-  fade(ease((s - 5) / 0.7), () => {
-    g.font = font(700, 30);
-    const label2 = "Read more: " + SCIENCE_URL;
-    const w = g.measureText(label2).width + 64;
-    rr(120, 880, w, 76, 38, C.mag);
-    text(label2, 152, 929, font(700, 30), "#fff");
-    text("Every formula, every source, and what did not work.", 120 + w + 30, 929, font(400, 26), C.ink2);
+  fade(ease((s - 11) / 0.7), () => {
+    g.font = font(700, 28);
+    const l2 = "Read more: " + SCIENCE_URL;
+    const bw = g.measureText(l2).width + 60;
+    rr(120, 900, bw, 70, 35, C.mag);
+    text(l2, 150, 945, font(700, 28), "#fff");
+    text("The signals, every formula and every source.", 120 + bw + 28, 945, font(400, 24), C.ink2);
   });
 }
 
@@ -312,7 +352,7 @@ async function render(t) {
   text(timecode(t), W - 30, 40, font(500, 18), "rgba(110,100,112,.55)", "right");
 }
 
-let LOGO, FLOWER, FLOWER_L, QR;
+let LOGO, FLOWER, FLOWER_L, QR, SAM;
 (async () => {
   const load = async (src) => { const im = new Image(); im.src = src; await im.decode(); return im; };
   LOGO = await load("../../apps/web/src/assets/hearth-logo.png");
@@ -320,6 +360,7 @@ let LOGO, FLOWER, FLOWER_L, QR;
   FLOWER_L = await load("../../apps/web/src/assets/flower-left.webp");
   QR = await load("assets/qr-website.png");
   FRAMES = (await (await fetch("frames.json")).json()).frames;
+  SAM = await (await fetch("../data.json")).json();
   await document.fonts.load('800 40px "Syne"'); await document.fonts.load('700 40px "Syne"'); await document.fonts.load('400 30px "Outfit"'); await document.fonts.load('700 30px "Outfit"');
   window.TOTAL = TOTAL; window.render = render; window.SECTIONS = T; window.ready = true;
   await render(0);
