@@ -349,3 +349,32 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   paint texture and avoid an opaque rectangle covering the following section.
 - Swapped the how-it-works and privacy backgrounds, along with their copy alignment,
   so each heading stays on the image's open side.
+
+## Phone backdrops
+
+- Traced the upper petal of the existing Hearth logo into `logo-petal.svg`, retaining
+  its outline and magenta colour, then smoothed the trace into 11 continuous curves
+  at the owner's request. The vector stays sharp at larger display sizes.
+- Each shared `Phone` places one decorative petal beneath the frame, including both
+  phones in the paired preview. The generic radial glow is replaced by this logo cue.
+  Phone dimensions and captions stay unchanged; the petals do not intercept clicks
+  or appear in the accessibility tree.
+
+## Landing preview and privacy presentation
+
+- Replaced the generic hero status card with an interactive plan/signals preview.
+  The plan uses the engine's verified Sam fixture; signal charts use seven days of
+  the seeded persona, `computeFeatures`, and the app's existing labels, value
+  formatting and `Sparkline`. Signals are computed only when their view is opened.
+  The preview is labelled as demo data and links into the real plan setup and app.
+- Reduced only the hero flower by 15%, retaining the top/right crops and the lower
+  petal overlap. Mobile copy spacing follows the smaller illustration.
+- Regenerated the two section flowers with finer watercolour texture, then applied
+  FSRCNN 2× super-resolution to deliver 3344 × 1882 WebP assets at quality 96.
+  Generation returned 1672 × 941; the final pixel dimensions come from the separate
+  super-resolution step. The original display size and side placement stay fixed.
+- Privacy explanations use open numbered rows, typographic headings and thin
+  dividers instead of rounded cards. Their wording and privacy guarantees stay intact.
+- The final demo invitation uses a dense bed of open watercolour blooms across the
+  entire background. A plum overlay, white text and a white button keep it readable;
+  there is no white background or card behind the copy.

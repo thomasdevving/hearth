@@ -173,6 +173,8 @@ Read: `docs/10_EVALUATION.md`.
 - [x] Copy review against `docs/01_PRODUCT.md` §7.
 - [x] Accessibility: text contrast, tap targets of at least 44 pt, screen-reader labels on controls.
 - [x] Landing flowers: preserve original sizing, side backgrounds and typography; complete the hero's lower petals, extend sections vertically, and swap the how/privacy artwork.
+- [x] Place a vector petal from the Hearth logo beneath every landing-page phone.
+- [x] Interactive app preview in the hero, 15% smaller hero artwork, 2× section flowers, smooth phone petals, and open privacy rows.
 - [x] README: how to run, what is simulated, what is real, privacy summary, limitations.
 
 ## M12 · Submission

@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { LogoMark, Wordmark } from "../ui/Logo";
+import { HeroPreview } from "./HeroPreview";
 import flowerWebp from "../assets/hero-flower.webp";
 import flowerPng from "../assets/hero-flower.png";
 import flowerLeft from "../assets/flower-left.webp";
 import flowerRight from "../assets/flower-right.webp";
+import flowerGarden from "../assets/flower-garden.webp";
+import logoPetal from "../assets/logo-petal.svg";
 import shotPlan from "../assets/shots/plan.webp";
 import shotHome from "../assets/shots/home.webp";
 import shotTrends from "../assets/shots/trends.webp";
@@ -82,10 +85,13 @@ function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
 function Phone({ src, alt, label, className = "" }: { src: string; alt: string; label: string; className?: string }) {
   return (
     <figure className={`phone ${className}`}>
-      <div className="phone-body">
-        <div className="phone-screen">
-          <div className="phone-notch" aria-hidden="true" />
-          <img src={src} alt={alt} loading="lazy" decoding="async" width={600} height={1298} />
+      <div className="phone-art">
+        <img className="phone-petal" src={logoPetal} alt="" aria-hidden="true" width={121} height={84} />
+        <div className="phone-body">
+          <div className="phone-screen">
+            <div className="phone-notch" aria-hidden="true" />
+            <img src={src} alt={alt} loading="lazy" decoding="async" width={600} height={1298} />
+          </div>
         </div>
       </div>
       <figcaption>{label}</figcaption>
@@ -146,13 +152,8 @@ export function Landing() {
             </a>
           </div>
         </div>
-        <div className="hero-side" aria-hidden="true">
-          <div className="hero-card">
-            <div className="k">Today · a change from your usual pattern</div>
-            <div className="v">Later evenings, fewer gym visits</div>
-            <div className="k">You said this helps</div>
-            <div>Call my sister · A walk in the morning</div>
-          </div>
+        <div className="hero-side">
+          <HeroPreview />
         </div>
       </header>
       </div>
@@ -232,23 +233,32 @@ export function Landing() {
           </div>
         </div>
         <div className="land-section" style={{ paddingTop: 0 }}>
-          <div className="routes">
-            <div className="route reveal" style={{ ["--d" as string]: "0ms" }}>
-              <span className="where device">On this device only</span>
-              <h3>Your words</h3>
+          <ol className="routes">
+            <li className="route reveal" style={{ ["--d" as string]: "0ms" }}>
+              <span className="route-number" aria-hidden="true">01</span>
+              <div className="route-heading">
+                <span className="where device">On this device only</span>
+                <h3>Your words</h3>
+              </div>
               <p>Your plan, notes, check-in text, speech and questions. Read by Gemini Nano in Chrome. Without it, a simple fallback is used; never the cloud.</p>
-            </div>
-            <div className="route reveal" style={{ ["--d" as string]: "120ms" }}>
-              <span className="where consent">Device first</span>
-              <h3>Single numbers</h3>
+            </li>
+            <li className="route reveal" style={{ ["--d" as string]: "120ms" }}>
+              <span className="route-number" aria-hidden="true">02</span>
+              <div className="route-heading">
+                <span className="where consent">Device first</span>
+                <h3>Single numbers</h3>
+              </div>
               <p>A questionnaire total or the reason for a check-in. On-device when possible; the cloud only if you allowed it.</p>
-            </div>
-            <div className="route reveal" style={{ ["--d" as string]: "240ms" }}>
-              <span className="where cloud">Cloud, with your consent</span>
-              <h3>Weekly summaries</h3>
+            </li>
+            <li className="route reveal" style={{ ["--d" as string]: "240ms" }}>
+              <span className="route-number" aria-hidden="true">03</span>
+              <div className="route-heading">
+                <span className="where cloud">Cloud, with your consent</span>
+                <h3>Weekly summaries</h3>
+              </div>
               <p>Coarse weekly numbers you have previewed. Gemini in the cloud writes a longer reflection; offline, a short one is written on the device.</p>
-            </div>
-          </div>
+            </li>
+          </ol>
           <div className="features">
             <Feature
               n="06"
@@ -301,7 +311,7 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="land-final" aria-labelledby="final-title" style={{ ["--bg" as string]: `url(${flowerRight})` }}>
+      <section className="land-final" aria-labelledby="final-title" style={{ ["--bg" as string]: `url(${flowerGarden})` }}>
         <div className="land-final-inner reveal">
           <h2 id="final-title">Follow Sam through 150 days in a few minutes.</h2>
           <p className="intro">The demo runs the real app on a made-up person. The sensor data is simulated; the models, check-ins, questionnaires and the privacy ledger are live.</p>
