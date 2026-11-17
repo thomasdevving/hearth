@@ -379,3 +379,24 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   entire background. A plum overlay, white text and a white button keep it readable;
   there is no white background or card behind the copy. The artwork uses loose wet
   brush strokes, translucent washes, bleeding pigment and soft unfinished edges.
+
+## Plan setup: personal signs plus research-based signs
+
+- The research-based signals (activity, rhythm, rest, mobility) always run, with or without a
+  plan. The plan only sets directions, names places, adds check-in questions and actions,
+  and weighs its signs double within their own domain.
+- **The first question** is now "When things start to slip, what do you, or the people close
+  to you, notice first?", because others often notice early signs first.
+- **Suggested signs.** Under the question, chips list early signs that research links to
+  harder periods: eight measurable ones (rest much longer or shorter, bedtime later,
+  irregular sleep, moving less, home more, fewer places, days losing their structure) and
+  three that become check-in questions (pulling back from people, dropping enjoyable things,
+  irregular meals). Ticked chips become cards directly, without a model, and the card says
+  "Suggested sign you ticked" instead of quoting the user. A feature the model already found
+  is not repeated. The no-model form uses the same list plus gym and work visits.
+- **"I don't know my signs yet"** saves no signs and continues; the note under it suggests
+  adding signs later, ideally with a GP or therapist.
+- **Landing page copy** was corrected to match the app: the plan opens and the check-in
+  comes first, the questionnaire only if the change continues; a confirmed holiday sets aside
+  location signals only; weekly summaries are stored in the user's private cloud space; the
+  holiday numbers are across 20 simulated people. "diagnosis" was removed from the footer.

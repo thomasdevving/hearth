@@ -140,8 +140,8 @@ export function Landing() {
             Notice the change <em>before</em> it becomes a slide.
           </h1>
           <p className="lead">
-            Hearth learns what your usual days look like. When they start to drift, it checks in, asks a short validated question, and shows you the plan you wrote in your own words.
-            Your words never leave your device.
+            Hearth learns what your usual days look like. When they start to drift, it checks in and shows you the plan you wrote, in your own words. If the change continues, it
+            offers a short validated questionnaire. What you write stays on your device.
           </p>
           <div className="ctas">
             <a className="land-cta" href="#/home">
@@ -162,20 +162,20 @@ export function Landing() {
         <div className="flow-head flow-text-right" style={{ ["--bg" as string]: `url(${flowerLeft})` }}>
           <div className="flow-head-inner reveal">
             <p className="eyebrow">How it works</p>
-            <h2 id="how-title">Your plan becomes the thing that watches over you.</h2>
-            <p className="intro">Many people who have been through a hard period already know their own first signs. Hearth turns that knowledge into something that notices on its own.</p>
+            <h2 id="how-title">Research-based signals, sharpened by the signs you know.</h2>
+            <p className="intro">Hearth watches signals that research links to harder periods: rest, activity, daily rhythm and the places you go. The early signs you know from experience make it sharper, and what helps you is shown back when it matters.</p>
           </div>
         </div>
 
         <div className="features">
           <Feature
             n="01"
-            title="Write your plan, in your own words"
+            title="Your plan: your own signs, plus the science"
             side="left"
             shots={<Phone src={shotPlan} alt="Plan setup: the user's words turned into cards with quotes and Keep or Not right buttons" label="Plan setup · cards from your words" />}
           >
-            <p>“I go to bed later, I skip the gym, calling my sister helps.” The model on your device turns this into signs to watch, questions for your check-ins and the things that help, each with the words it came from.</p>
-            <p className="feature-note">Anything you didn't actually write is removed in code. You keep or reject every card.</p>
+            <p>Write what you, or the people close to you, notice first: “I go to bed later, I skip the gym, calling my sister helps.” The model on your device turns it into signs to watch, questions for your check-ins and the things that help. You can also tick signs research links to harder periods, or skip this step if you don't know your signs yet.</p>
+            <p className="feature-note">Every card shows where it came from. Anything you didn't actually write is removed in code, and you keep or reject each card.</p>
           </Feature>
 
           <Feature
@@ -189,7 +189,7 @@ export function Landing() {
               </div>
             }
           >
-            <p>Steps, rest times, walking pace and the places you go are compared only with your own usual days, never with anyone else. The signs you named count double.</p>
+            <p>Steps, rest times, daily rhythm, walking pace and the places you go are compared only with your own usual days, never with anyone else. These signals run for everyone; the signs you named weigh more.</p>
             <p className="feature-note">The first two weeks it simply learns: “Learning your pattern”.</p>
           </Feature>
 
@@ -199,8 +199,8 @@ export function Landing() {
             side="left"
             shots={<Phone src={shotCheckin} alt="Check-in with a short opening line, three 1 to 7 scales and the user's own questions" label="Check-in · about 20 seconds" />}
           >
-            <p>When several signals drift for a few days, Hearth asks how you are: three quick taps and your own questions. The opening line names what changed, in plain words.</p>
-            <p className="feature-note">“Not today” and “Why am I being asked?” are always there.</p>
+            <p>When your days drift away from your usual range for a few days, Hearth opens your plan and asks how you are: three quick taps and your own questions. With the on-device model, the opening line names what changed, in plain words.</p>
+            <p className="feature-note">About one day in three there is also a random check-in. “Not today” and “Why am I being asked?” are always there.</p>
           </Feature>
 
           <Feature
@@ -209,17 +209,17 @@ export function Landing() {
             side="right"
             shots={<Phone src={shotHoliday} alt="Question: Are you on holiday until Sunday 23 August, with the dates and Yes or No" label="One tap to set days aside" />}
           >
-            <p>Write “I'm in Spain this week, back on Sunday” and Hearth asks once: on holiday until Sunday? Say yes, and those days are set aside instead of counting as a change.</p>
+            <p>Write “I'm in Spain this week, back on Sunday” and Hearth asks once: on holiday until Sunday? Say yes, and your location signals for those days are set aside, so a different city doesn't count as a change.</p>
             <p className="feature-note">Stressful weeks are noted but never set aside: that is exactly when your signals matter.</p>
           </Feature>
 
           <Feature
             n="05"
-            title="Your own plan, shown back"
+            title="Your own plan, then a validated question"
             side="left"
             shots={<Phone src={shotMyPlan} alt="Your plan: what changed, and the actions the user wrote, in their own words" label="Your plan" />}
           >
-            <p>If the change continues, a short validated questionnaire follows, exactly as published. Then your plan appears: what you said helps, in your words, with the ones that fit today on top.</p>
+            <p>As soon as a change starts, your plan opens: what you said helps, in your own words, with the ones that fit today on top. If the change continues, two short questions follow, and nine if needed, worded exactly as published and compared with your own earlier score.</p>
           </Feature>
         </div>
       </section>
@@ -256,7 +256,7 @@ export function Landing() {
                 <span className="where cloud">Cloud, with your consent</span>
                 <h3>Weekly summaries</h3>
               </div>
-              <p>Coarse weekly numbers you have previewed. Gemini in the cloud writes a longer reflection; offline, a short one is written on the device.</p>
+              <p>Coarse weekly numbers, stored in your private cloud space after you've seen exactly what is sent. Gemini in the cloud writes a longer reflection; offline, a short one is written on the device.</p>
             </li>
           </ol>
           <div className="features">
@@ -285,7 +285,7 @@ export function Landing() {
                     0<span className="vs"> vs </span>
                     <CountUp to={101} />
                   </div>
-                  <p>holiday alarm days with the holiday confirmed, and without.</p>
+                  <p>holiday alarm days with the holiday confirmed, and without, across 20 simulated people.</p>
                 </div>
               </div>
             </Feature>
@@ -327,7 +327,7 @@ export function Landing() {
         <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--magenta)" }}>
           <LogoMark size={20} /> Hearth
         </span>
-        <span>A wellbeing and self-insight tool. Not a medical device; it gives no diagnosis or treatment advice.</span>
+        <span>A wellbeing and self-insight tool. Not a medical device: it does not tell you what is wrong or how to treat it.</span>
         <span>Built with Firebase AI Logic hybrid inference · #BuildHybridAI 2026</span>
       </footer>
     </div>
