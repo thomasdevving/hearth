@@ -73,24 +73,28 @@ function timecode(t) { const m = Math.floor(t / 60), s = Math.floor(t % 60); ret
 // ---------- timeline ----------
 // Live demo: ranges of the recording (seconds) with chapter captions; `hold` freezes a frame.
 const DEMO = [
-  { from: 0.3, to: 6.9, n: 1, title: "Sam writes the plan in their own words", sub: "Typed or spoken. It never leaves the device." },
-  { from: 6.9, to: 8.4, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
-  { hold: 8.4, dur: 4.2, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", catch: true },
-  { from: 8.4, to: 15.4, n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
-  { from: 19.6, to: 24.0, n: 4, title: "Day 61: “I’m in Spain this week”", sub: "The time machine replays Sam’s simulated sensor data." },
-  { from: 24.0, to: 28.0, n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
-  { from: 28.0, to: 30.9, n: 5, title: "Day 109", sub: "Sam’s days have been drifting for six days." },
-  { from: 30.9, to: 37.6, n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
-  { from: 37.6, to: 51.2, speed: 2.2, n: 6, title: "A 20-second check-in", sub: "Gemini Nano writes the opening line; every number in it is checked." },
-  { from: 51.2, to: 58.4, speed: 1.4, n: 7, title: "Sam’s own plan opens", sub: "What Sam said helps, in Sam’s own words." },
-  { from: 58.4, to: 64.4, speed: 1.3, n: 8, title: "Nothing private left the device", sub: "The privacy ledger lists every model call and exactly what was sent." },
+  { from: 0.3, to: 7.0, n: 1, title: "Sam writes the plan in their own words", sub: "Typed or spoken. It never leaves the device." },
+  { from: 7.0, to: 8.5, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
+  { hold: 8.5, dur: 4.2, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", callout: "catch" },
+  { from: 8.5, to: 15.4, speed: 1.3, n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
+  { from: 19.7, to: 24.0, n: 4, title: "Day 61: \u201cI\u2019m in Spain this week\u201d", sub: "The time machine replays Sam\u2019s simulated sensor data." },
+  { from: 24.0, to: 28.1, n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
+  { from: 28.1, to: 31.2, speed: 1.5, n: 5, title: "Day 109", sub: "Sam\u2019s days have been drifting for six days." },
+  { from: 31.2, to: 37.9, n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
+  { from: 37.9, to: 46.1, speed: 2.2, n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
+  { from: 46.1, to: 51.7, n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
+  { from: 51.7, to: 55.9, n: 7, title: "Gemini Nano recognises one of Sam\u2019s signs", sub: "By meaning, on the device. Sam confirms it.", callout: "recall" },
+  { from: 55.9, to: 59.9, n: 7, title: "What helped last time", sub: "A note Sam saved after an earlier hard week, in Sam\u2019s own words." },
+  { from: 59.9, to: 64.1, n: 7, title: "Draft that text", sub: "Written on the device. Sam edits it and sends it, or not.", callout: "draft" },
+  { from: 64.1, to: 67.7, speed: 1.3, n: 8, title: "Sam\u2019s own plan opens", sub: "What Sam said helps, with what fits today on top." },
+  { from: 67.7, to: 71.2, n: 9, title: "Nothing private left the device", sub: "Every model call is in the privacy ledger, with exactly what was sent." },
 ];
 let demoLen = 0; for (const s of DEMO) { s.start = demoLen; s.len = s.hold !== undefined ? s.dur : (s.to - s.from) / (s.speed || 1); demoLen += s.len; }
 
 const T = {};
 let cur = 0;
 const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 15); seg("theory", 16); seg("arch", 15); seg("control", 12); seg("numbers", 13); seg("close", 11);
+seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 12); seg("theory", 14); seg("arch", 13); seg("control", 11); seg("numbers", 12); seg("close", 11);
 const TOTAL = cur;
 
 // ---------- sections ----------
@@ -149,17 +153,23 @@ async function demo(t) {
   // chapter
   const firstOfChapter = DEMO.find((x) => x.n === s.n);
   const kc = ease((local - firstOfChapter.start) / 0.6);
-  label(`Live demo  ·  ${s.n} / 8`, 140, 200);
+  label(`Live demo  ·  ${s.n} / 9`, 140, 200);
   fade(Math.max(kc, s === firstOfChapter ? kc : 1), () => {
     const y = wrap(s.title, 140, 290, 960, font(700, 62, "Syne"), C.ink, 74);
     wrap(s.sub, 140, y + 70, 900, font(400, 32), C.ink2, 44);
   });
-  if (s.catch) {
+  const CALLOUTS = {
+    catch: ["Caught and checked", "The model suggested a sign Sam never wrote: \u201cI stop walking my dog\u201d. Code checks every quote against Sam\u2019s own text, so it was left out, and Hearth says so."],
+    recall: ["Recalled by meaning, on the device", "\u201cAvoiding people again\u201d is matched to a sign Sam wrote months ago: \u201cstop replying to messages\u201d. Code checks the quote; Sam confirms."],
+    draft: ["Hearth never sends anything", "The text is drafted from Sam\u2019s own note, on the device. Sam edits it and opens it in Messages, or doesn\u2019t."],
+  };
+  if (s.callout) {
     const k = ease((local - s.start) / 0.5);
+    const [head, body] = CALLOUTS[s.callout];
     fade(k, () => {
       rr(140, 560, 960, 230, 26, C.tint, C.mag, 3);
-      label("Caught and checked", 180, 615);
-      wrap("The model suggested a sign Sam never wrote: “I stop walking my dog”. Code checks every quote against Sam’s own text, so it was left out, and Hearth says so.", 180, 670, 880, font(500, 30), C.ink, 42);
+      label(head, 180, 615);
+      wrap(body, 180, 670, 880, font(500, 30), C.ink, 42);
     });
   }
   // draft label + webcam picture-in-picture
@@ -299,7 +309,7 @@ function arch(t) {
     rr(100, 220, 1100, 800, 30, null, C.line, 2);
     text("On your phone or in Chrome", 130, 265, font(700, 26), C.ink2);
     box(130, 290, 1040, 150, "Hearth engine", "Every score, limit and trigger is plain TypeScript. Compared only with your own usual days. The LLM never computes a number.", "engine", "no LLM");
-    box(130, 460, 500, 300, "Gemini Nano", "Reads your plan and your notes, writes the check-in line, picks which of your own actions fit today. Your words go nowhere else.", "device", "on-device");
+    box(130, 460, 500, 300, "Gemini Nano", "Reads your plan and notes, recognises your own signs in what you write, drafts the check-in line and your texts. Your words go nowhere else.", "device", "on-device");
     box(670, 460, 500, 300, "Guardrails in code", "JSON schema, every quote checked against your text, every number from the engine, no diagnostic words. If a check fails, a fixed text is used.", "plain");
     box(130, 780, 1040, 210, "InferenceRouter + privacy ledger", "Each task has a privacy class. Your words, notes and places: on-device only, never a cloud fallback. Every call is logged with where it ran and the exact payload.", "plain");
   });

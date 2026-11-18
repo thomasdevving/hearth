@@ -127,36 +127,47 @@ const TOUCH = `
   await pause(1600);
   await tap("button:has-text('Why?')", { hold: 2800 });
 
-  // 4. The check-in.
+  // 4. The check-in, in Sam's own words.
   await tap('button[aria-label="Open check-in"]', { hold: 300 });
   mark("checkin");
-  await pause(2200);
+  await pause(1800);
   const scale = (label, v) => page.locator(`[role=radiogroup][aria-label="${label}"] button:has-text("${v}")`);
   const groups = await page.locator(".scale[role=radiogroup]").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")));
-  for (const [i, v] of [[0, 4], [1, 3], [2, 3]]) if (groups[i]) await tap(scale(groups[i], v), { hold: 250 });
-  await tap(page.locator(".chips[role=radiogroup]").first().locator("button", { hasText: "Alone" }), { hold: 250 });
+  for (const [i, v] of [[0, 5], [1, 3], [2, 3]]) if (groups[i]) await tap(scale(groups[i], v), { hold: 150 });
+  await tap(page.locator(".chips[role=radiogroup]").first().locator("button", { hasText: "Alone" }), { hold: 150 });
   const personal = page.locator(".chips[role=radiogroup]");
   const count = await personal.count();
-  for (let i = 1; i < count; i++) await tap(personal.nth(i).locator("button").nth(1), { hold: 250 });
-  await tap("button:has-text('Save')", { hold: 900 });
-  const back = page.locator("text=Back to today");
-  if (await back.count()) await pause(1200);
+  for (let i = 1; i < count; i++) await tap(personal.nth(i).locator("button").nth(2), { hold: 150 });
+  mark("checkin_text");
+  await tap(page.locator("textarea").first(), { hold: 200 });
+  await page.keyboard.type("Yeah, I've started avoiding people again. Haven't answered anyone in days.", { delay: 22 });
+  await pause(500);
+  await tap("button:has-text('Save')", { hold: 300 });
 
-  // 5. Sam's own plan.
+  // 5. What helped last time: recalled by meaning on the device, then a draft text.
+  await page.waitForSelector("text=That sounds like one of your signs", { timeout: 60000 });
+  await page.evaluate(() => scrollTo(0, 0));
+  mark("recall_ask");
+  await pause(3200);
+  await tap("text=Yes, that's it", { hold: 300 });
+  mark("recall_card");
+  await pause(3000);
+  await tap("text=Draft that text", { hold: 300 });
+  await page.waitForSelector("text=Open in Messages");
+  mark("draft");
+  await pause(3200);
+
+  // 6. Sam's own plan.
   await tap("nav.tabs a:has-text('Plan')", { hold: 300 });
   await page.evaluate(() => scrollTo(0, 0));
   mark("myplan");
-  await pause(3000);
-  await scrollBy(300, 1200);
-  await pause(1200);
+  await pause(2600);
 
-  // 6. The privacy ledger.
+  // 7. The privacy ledger.
   await tap("nav.tabs a:has-text('Privacy')", { hold: 300 });
   await page.evaluate(() => scrollTo(0, 0));
   mark("ledger");
-  await pause(3200);
-  await scrollBy(260, 1200);
-  await pause(1500);
+  await pause(3600);
   mark("end");
 
   await cdp.send("Page.stopScreencast");
