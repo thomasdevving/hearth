@@ -529,3 +529,26 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   request); the body still says "Now and then it may still ask when nothing is wrong, and
   that's fine", so the honesty requirement is kept.
 
+
+## M8 (iOS, 2026-11-18)
+
+- **Deployment target iOS 26.0 for now, not 27.** PLATFORM_NOTES §2 asks for iOS 27 / Xcode 27
+  (the `LanguageModel` protocol that `ai.geminiLanguageModel(name:)` plugs into). The build Mac
+  has Xcode 26.1 (iOS SDK 26.1) and the owner's iPhone runs iOS 26.4.1. The owner chose to start
+  with Xcode 26: everything that does not need the iOS 27 SDK is built now (engine bridge,
+  storage, collectors, screens, the on-device model through Apple's `SystemLanguageModel`),
+  and the target is raised to 27 when the cloud model is added.
+- **No Firebase Apple SDK yet.** It is only needed for the cloud model, which needs iOS 27, and
+  for consent-based sync, which needs `GoogleService-Info.plist` (not present). Like the web
+  build without a Firebase config, the iOS build is local-only: cloud consent is shown as not
+  available and every cloud route falls back.
+- **Project file.** `apps/ios/Hearth.xcodeproj` is written by hand with folder-synchronised
+  groups (Xcode 16+ format): every file under `Hearth/` and `HearthTests/` belongs to its target
+  without being listed. No project generator is needed.
+- **Bundled resources at build time** (`apps/ios/scripts/copy-resources.sh`): the engine bundle
+  `packages/engine/dist/engine.js` (rebuilt with npm when it is missing or older than the engine
+  source or `shared/`), `shared/` as a folder, and the Syne and Outfit fonts from
+  `node_modules/@fontsource-variable` (the same files as the web app; CoreText reads WOFF2
+  directly). The test target gets `packages/engine/test/fixtures/*.json`. Nothing is copied
+  into the repository twice.
+- **Bundle id** `com.thomasdevving.hearth`, signed with the owner's personal team.
