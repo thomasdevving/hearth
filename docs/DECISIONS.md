@@ -580,3 +580,37 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - **Debug demo data.** Debug builds launched with `-HearthDemo YES` fill 120 days of generated
   raws instead of HealthKit, to check the screens in the Simulator (which has no Health
   history). Not in release builds.
+
+## M9 (iOS, 2026-11-18)
+
+- **On-device structured output** uses `DynamicGenerationSchema` built from the task's JSON
+  Schema in `shared/schemas` (object, array with `maxItems`, string enums, integer ranges,
+  boolean) instead of one hand-written `@Generable` type per task (docs/05 §3 suggests those).
+  One converter keeps the schema files the single source; a test converts all 13. The model's
+  `GeneratedContent.jsonString` then goes through the engine's `parseJsonLoose` and
+  `verifyTask`, as on the web (R8).
+- **Router order per mode.** `ONLY_ON_DEVICE` → device; `PREFER_ON_DEVICE` → device, then
+  cloud; `PREFER_IN_CLOUD` → cloud, then device (lite); `ONLY_IN_CLOUD` → cloud. Two rounds
+  (one retry), every attempt a ledger entry. S3 removes the cloud from the plan in code as
+  well, whatever routing returned. Calls are serialised like the web router.
+- **Cloud not available in this build.** `CloudModel.isConfigured` is false (no Firebase SDK,
+  no plist), so `online` is false for routing: S2 tasks with consent would fall back like
+  offline, S1 tasks (D) fall back to `no_consent` because consent cannot be given. Weekly
+  aggregates are still built locally; nothing is uploaded. Cloud consent in onboarding and
+  settings is shown and disabled ("Not available in this build"), as on the web without a
+  Firebase config.
+- **Task A, C, D, G, H, B are wired; P1 tasks I, K, G2, P, Q and speech input are not yet**
+  on iOS. Their fallbacks are what the screens show (all actions on `my_plan`, tapping the
+  personal answers).
+- **Place rules** are named with "I'm here now" (one location fix) or a place Hearth has
+  already learned from visits, then `pickPlace` in the engine. A place rule without a place
+  is not saved (DECISIONS M6).
+- **Notifications.** One local notification per due check-in or questionnaire, at the first
+  minute outside 23:00–08:00. The text never says why the check-in came (docs/04 §7.1).
+- **Background refresh** (`BGAppRefreshTask`, earliest 04:00) runs the same daily loop.
+  With file protection `complete` it only gets data while the phone is unlocked; the update
+  on every app open covers the rest.
+- **Share links and the clinician report** are not on iOS (P1, and they need Firebase). The
+  result page suggests bringing the result to the GP instead of "Share a summary".
+- **Days in each state** on `trends` lists the last 120 scored days per state, for
+  docs/10 metric 13.
