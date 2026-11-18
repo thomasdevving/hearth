@@ -142,6 +142,17 @@ th { background: var(--surface-2); font-weight: 600; position: sticky; top: 0; }
 .file-btn:focus-within { box-shadow: 0 0 0 3px var(--magenta-tint); border-color: var(--magenta); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
+/* ---------- my plan: today's pick ---------- */
+.myplan-why { color: var(--ink-2); margin: 0 0 var(--s2); }
+.myplan-why strong { color: var(--ink); }
+.today-pick { margin: var(--s5) 0 var(--s2); padding: var(--s4); border-radius: var(--radius); background: var(--magenta-tint); border: 1px solid var(--magenta-line); }
+.today-pick-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
+.today-pick-head h2 { margin: 0; font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--magenta-deep); }
+.today-pick ul { list-style: none; margin: var(--s3) 0 var(--s2); padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.today-pick li { display: flex; align-items: center; gap: var(--s3); font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink); }
+.today-pick li svg { flex: none; color: var(--magenta); }
+.today-pick small { color: var(--ink-2); }
+
 /* ---------- plan cards (plan setup) ---------- */
 .plan-group { font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: var(--s5) 0 var(--s2); }
 .plan-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); overflow: hidden; }

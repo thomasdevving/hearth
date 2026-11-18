@@ -43,39 +43,48 @@ export function MyPlan() {
   return (
     <Screen title="Your plan">
       {changed && (
-        <Card tone="warm">
-          <strong>Your days look different from usual{d.last && d.last.contributors.length ? `: ${d.last.contributors.map((c) => c.phrase).join(", ")}` : ""}.</strong>
-          <span>This is what you wrote down for a time like this.</span>
-        </Card>
+        <p className="myplan-why">
+          <strong>Your days look different from usual{d.last && d.last.contributors.length ? `: ${d.last.contributors.map((c) => c.phrase).join(", ")}` : ""}.</strong> This is what you wrote down for a time like this.
+        </p>
       )}
       {fit && (
-        <>
-          <h2 style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            For today, from your own list <ModelBadge ranOn={fit.ranOn} />
-          </h2>
-          <ul className="plain-list">
+        <section className="today-pick" aria-labelledby="today-pick-title">
+          <div className="today-pick-head">
+            <h2 id="today-pick-title">For today</h2>
+            <ModelBadge ranOn={fit.ranOn} />
+          </div>
+          <ul>
             {fit.ids.map((id) => {
               const a = actions.find((x) => x.id === id);
               return a ? (
-                <li key={id} className="item-text">
-                  {a.text}
+                <li key={id}>
+                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M4 12 12 4M5.5 4H12v6.5" />
+                  </svg>
+                  <span>{a.text}</span>
                 </li>
               ) : null;
             })}
           </ul>
-        </>
+          <small>Picked from what you said helps.</small>
+        </section>
       )}
-      <h2>{fit ? "Everything you said helps" : "You said this helps"}</h2>
+      <h2 className="plan-group">{fit ? "Also on your list" : "What helps you"}</h2>
       {actions.length === 0 && <p className="muted">Nothing yet.</p>}
-      <ul className="plain-list">
-        {actions.map((a) => (
-          <li key={a.id} className="item-text" style={{ fontWeight: 500 }}>
-            {a.text}
-            <br />
-            <small className="quote">in your words: “{a.quote}”</small>
-          </li>
-        ))}
-      </ul>
+      {actions.filter((a) => !fit?.ids.includes(a.id)).length > 0 && (
+        <ul className="plan-list">
+          {actions
+            .filter((a) => !fit?.ids.includes(a.id))
+            .map((a) => (
+              <li key={a.id} className="plan-item">
+                <div className="plan-item-text">
+                  <strong>{a.text}</strong>
+                  <span className="quote">“{a.quote}”</span>
+                </div>
+              </li>
+            ))}
+        </ul>
+      )}
       {d.state?.state === "CONFIRMED" && (
         <Card tone="plain">
           <strong>Talk it through with someone</strong>
@@ -85,22 +94,37 @@ export function MyPlan() {
           </button>
         </Card>
       )}
-      <h2>Signs you watch for</h2>
-      <ul className="plain-list">
+      <h2 className="plan-group">Signs you watch for</h2>
+      <ul className="plan-list">
         {d.rules.map((r) => (
-          <li key={r.id}>
-            {featureLabel(ruleFeature(r), d.state?.places)} {DIRECTION_TEXT[r.direction]} <small className="quote">(“{r.quote}”)</small>
-          </li>
-        ))}
-        {d.items.map((i) => (
-          <li key={i.id}>
-            {i.question} <small className="quote">(“{i.quote}”)</small>
+          <li key={r.id} className="plan-item">
+            <div className="plan-item-text">
+              <strong>
+                {featureLabel(ruleFeature(r), d.state?.places)} {DIRECTION_TEXT[r.direction]}
+              </strong>
+              <span className="quote">“{r.quote}”</span>
+            </div>
           </li>
         ))}
       </ul>
+      {d.items.length > 0 && <h2 className="plan-group">Questions in your check-ins</h2>}
+      {d.items.length > 0 && (
+      <ul className="plan-list">
+        {d.items.map((i) => (
+          <li key={i.id} className="plan-item">
+            <div className="plan-item-text">
+              <strong>{i.question}</strong>
+              <span className="quote">“{i.quote}”</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+      )}
+      <div className="row">
       <button className="secondary" onClick={() => navigate("plan_setup")}>
         Edit my plan
       </button>
+      </div>
       <HelpButton />
     </Screen>
   );
