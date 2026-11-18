@@ -106,3 +106,13 @@ and forbids deriving that data another way.
   Ordinary Web Speech recognition sends audio to a server, so the app uses speech only with
   `processLocally`. In the headless Chromium used for testing, calling `available()`
   **crashes the renderer**, so the app calls it only after the user taps the microphone.
+
+## 8. iOS engine in JavaScriptCore (verified 2026-11-18, Xcode 26.1, iOS 26.1 Simulator)
+
+| Fact | Status | Note |
+|---|---|---|
+| `engine.js` (IIFE, ES2019) loads in JavaScriptCore unchanged, including Ajv | verified | macOS `jsc` and the iOS Simulator |
+| JavaScriptCore's `Math.log`, `log10`, `exp`, `sin`, `cos`, `asin` differ from V8's in the last bit for about 1–10 % of inputs | verified | V8 uses its own fdlibm port (`src/base/ieee754.cc`); JavaScriptCore calls the system libm. Without a fix, 2 of 31 golden fixtures differ (`location_entropy`, `location_variance`, by 1–4 ulp). |
+| A JavaScript port of those fdlibm routines (`apps/ios/Hearth/Engine/v8math.js`), loaded before `engine.js`, makes all 31 fixtures match bit for bit | verified | Adapter only; the engine is unchanged. The port gives identical results in Node and in JavaScriptCore. |
+| Node on Apple Silicon itself differs from plain fdlibm for some inputs (its C++ fdlibm is compiled with fused multiply-add) | verified | The fixtures were generated on x86-64 and match the port; the engine's own Vitest suite also passes on this Mac (216/216). |
+| CoreText reads the web app's WOFF2 font files directly (`CTFontManagerCreateFontDescriptorsFromData`) | verified | macOS 15; the same CoreText runs on iOS. No TTF conversion needed. |
