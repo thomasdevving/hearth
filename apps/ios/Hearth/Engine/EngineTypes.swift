@@ -1,0 +1,221 @@
+import Foundation
+
+// Swift mirrors of the engine types the screens read (docs/07 §1). Field names are exactly
+// the engine's. They are decoded from the engine's own JSON; records written back to the
+// engine are stored as that JSON, so fields Swift does not model are never lost.
+
+enum EngineStateName: String, Codable { case WARM_UP, MONITOR, ELEVATED, CONFIRMED }
+
+struct Contributor: Codable, Hashable { var feature: String; var r: Double; var phrase: String }
+
+struct FeatureDay: Codable {
+  var date: String
+  var dayType: String
+  var values: [String: Double?]
+  var restSource: String?
+}
+
+struct DayRecordValue: Codable {
+  var date: String
+  var features: FeatureDay
+  var z: [String: Double?]
+  var r: [String: Double?]
+  var domainScores: [String: Double]
+  var maskedDomains: [String]
+  var D: Double?
+  var D_daily: Double?
+  var P: Double?
+  var S: Double
+  var C: Double
+  var UCL: Double?
+  var mu0: Double?
+  var sigma0: Double?
+  var elevated: Bool
+  var contributors: [Contributor]
+  var state: EngineStateName
+}
+
+struct Place: Codable, Hashable { var id: String; var lat: Double; var lon: Double; var minutes: Double; var label: String? }
+
+struct EngineStateValue: Codable {
+  var state: EngineStateName
+  var places: [Place]
+  var homePlaceId: String?
+  var lastProcessedDate: String?
+}
+
+struct PlanRuleValue: Codable, Hashable {
+  var id: String
+  var feature: String
+  var direction: String
+  var placeId: String?
+  var quote: String
+  var active: Bool
+}
+struct PersonalItemValue: Codable, Hashable { var id: String; var question: String; var quote: String; var active: Bool }
+struct PlanActionValue: Codable, Hashable { var id: String; var text: String; var quote: String; var active: Bool }
+
+struct ContextLabelValue: Codable, Hashable {
+  var id: String
+  var type: String
+  var kind: String
+  var start: String
+  var end: String
+  var quote: String?
+  var source: String
+  var confirmed: Bool
+}
+
+struct CheckinAnswers: Codable, Hashable {
+  var mood_low: Double?
+  var enjoyment: Double?
+  var energy: Double?
+  var company: String?
+}
+
+struct CheckinRecordValue: Codable, Hashable {
+  var id: String
+  var scheduledAt: String
+  var answeredAt: String?
+  var kind: String
+  var reasons: [Contributor]
+  var answers: CheckinAnswers
+  var personalAnswers: [String: String]
+  var hasFreeText: Bool
+}
+
+struct QuestionnaireResult: Codable, Hashable {
+  var id: String
+  var total: Int
+  var band: String?
+  var positive: Bool
+  var flagged: Bool
+  var changeFromReference: Int?
+  var safetyItemPositive: Bool
+  var nextStep: String
+}
+
+struct QuestionnaireRecordValue: Codable, Hashable {
+  var id: String
+  var instrument: String
+  var takenAt: String
+  var answers: [Int]
+  var result: QuestionnaireResult
+}
+
+struct RouteDecision: Codable, Hashable {
+  var run: String            // "model" | "fallback"
+  var mode: String?          // ONLY_ON_DEVICE | PREFER_ON_DEVICE | PREFER_IN_CLOUD | ONLY_IN_CLOUD
+  var variant: String?       // full | lite
+  var reason: String?        // no_model | no_consent | offline
+}
+
+struct LedgerEntryValue: Codable, Hashable {
+  var id: String
+  var at: String
+  var task: String
+  var promptVersion: String
+  var dataClass: String
+  var decision: RouteDecision
+  var ranOn: String          // on_device | cloud | none
+  var outcome: String        // ok | invalid_output | error | fallback
+  var attempts: Int
+  var latencyMs: Int?
+  var bytesSent: Int
+  var payloadSent: String?
+}
+
+struct DiaryMarkers: Codable, Hashable {
+  var negative_affect: Int
+  var anhedonic_language: Int
+  var social_withdrawal: Int
+  var hopelessness: Int
+  var sleep_complaint: Bool
+  var themes: [String]
+  var crisis: String
+}
+
+struct VerifiedRule: Codable, Hashable { var feature: String; var direction: String; var place_label: String?; var quote: String }
+struct VerifiedItem: Codable, Hashable { var question: String; var quote: String }
+struct VerifiedAction: Codable, Hashable { var text: String; var quote: String }
+struct VerifiedPlan: Codable, Hashable {
+  var rules: [VerifiedRule]
+  var personal_checkin_items: [VerifiedItem]
+  var actions: [VerifiedAction]
+  var dropped: Int
+  var valid: Bool
+  static let empty = VerifiedPlan(rules: [], personal_checkin_items: [], actions: [], dropped: 0, valid: true)
+}
+
+struct VerifiedContext: Codable, Hashable {
+  var type: String
+  var kind: String
+  var start: String
+  var end: String
+  var quote: String
+  var confidence: String
+  var startResolved: Bool
+  var endResolved: Bool
+}
+
+struct CheckinOutput: Codable { var crisis: Bool; var momentaryHigh: Bool; var offerPhq2: Bool }
+
+/// docs/04 §8 `Action`.
+struct EngineAction: Codable {
+  var type: String           // schedule_checkin | offer_questionnaire | show_plan | context_expired
+  var kind: String?
+  var reasons: [Contributor]?
+  var id: String?            // PHQ2 | PHQ9
+  var reason: String?
+  var contextId: String?
+}
+
+struct WeekAggregateValue: Codable {
+  struct Ema: Codable { var n: Int; var mood_low: Double?; var enjoyment: Double?; var energy: Double? }
+  var isoWeek: String
+  var daysWithData: Int
+  var indexMean: Double?
+  var daysElevated: Int
+  var domainMeans: [String: Double]
+  var topContributors: [String]
+  var ema: Ema
+  var phq2: Int?
+  var phq9: Int?
+  var phq9Flagged: Bool?
+  var contexts: [String]
+}
+
+// Questionnaires and safety lists from shared/ -----------------------------------------
+
+struct QuestionnaireDef: Codable {
+  struct Option: Codable, Hashable { var label: String; var value: Int }
+  struct Item: Codable, Hashable { var n: Int; var text: String }
+  var id: String
+  var title: String
+  var stem: String
+  var options: [Option]
+  var items: [Item]
+}
+
+struct MomentaryDef: Codable {
+  struct Item: Codable, Hashable {
+    var id: String
+    var text: String
+    var type: String
+    var min: Int?
+    var max: Int?
+    var min_label: String?
+    var max_label: String?
+    var options: [String]?
+  }
+  var items: [Item]
+  var personal_item_options: [String]
+  var free_text_prompt: String
+}
+
+struct CrisisLines: Codable {
+  struct Line: Codable, Hashable { var name: String; var phone: String?; var alt_phone: String?; var url: String; var emergency: String? }
+  var `default`: Line
+  var countries: [String: Line]
+  var emergency_text: String
+}

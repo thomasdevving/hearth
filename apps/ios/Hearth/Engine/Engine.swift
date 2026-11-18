@@ -119,9 +119,8 @@ enum JSONText {
     case let r as RawJSON: return r.text
     case is NSNull: return "null"
     case let s as String: return quote(s)
-    case let b as Bool: return b ? "true" : "false"
-    case let i as Int: return String(i)
-    case let d as Double: return number(d)
+    // Numbers before Bool: `NSNumber(1) as? Bool` succeeds in Swift, so a 0 or 1 from
+    // JSONSerialization would otherwise be written as a boolean. Only a real CFBoolean is one.
     case let n as NSNumber:
       if CFGetTypeID(n) == CFBooleanGetTypeID() { return n.boolValue ? "true" : "false" }
       return number(n.doubleValue)
