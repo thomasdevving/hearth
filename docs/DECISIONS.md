@@ -552,3 +552,31 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   directly). The test target gets `packages/engine/test/fixtures/*.json`. Nothing is copied
   into the repository twice.
 - **Bundle id** `com.thomasdevving.hearth`, signed with the owner's personal team.
+- **SwiftData rows keep the engine's JSON.** Each collection of docs/07 §2 is one `@Model`
+  (`DayRaw`, `DayRecord`, `EngineState`, `PlanRule`, `CheckinRecord`, `LedgerEntry`, …) with
+  its key as a column and the record as the engine's own JSON, field names as in docs/07 §1.
+  Records go back into the engine byte for byte, and fields Swift does not model (for example
+  the optional `heart`) are never lost in a Swift round trip. Swift structs with the same
+  field names decode them for the screens (`Engine/EngineTypes.swift`, tested against the
+  fixtures).
+- **HealthKit mapping** (docs/03 §1): steps as 96 sums per local day from a 15-minute
+  statistics collection, rounded to whole steps; a day without any step statistics is `null`.
+  Walking speed and resting heart rate are daily averages. Sleep: every asleep sample
+  (`allAsleepValues`; "in bed" is not sleep) that overlaps the night window of a date
+  (21:00 the day before to 12:00), unclipped; the engine finds the main period. HRV: the mean
+  of SDNN samples starting inside the longest merged asleep interval of that night (gaps
+  under 60 min merged, as in docs/03 §4), else between 00:00 and 06:00.
+- **A day is scored once it is over.** Today's partial data would look like a quiet day, so
+  `dailyUpdate` runs up to yesterday, and only for days whose HealthKit read happened after the
+  day ended (`DayRaw.complete`). Later reads refresh the last three days' raws so late watch
+  syncs are picked up before those days are scored.
+- **Backfill actions are dropped.** On the first launch every backfilled day is scored in
+  order, but actions are only turned into inbox items for the most recent day (yesterday).
+  Check-ins "scheduled" months ago were never shown, and storing them as unanswered would
+  count as ignored prompts and halve future check-in chances.
+- **Visits** (`LocationCollector`, P1 brought forward because the owner asked for it): only
+  completed `CLVisit`s (with a departure) are stored, in the `visits` of every `day_raw` date
+  they overlap. HealthKit refreshes keep them.
+- **Debug demo data.** Debug builds launched with `-HearthDemo YES` fill 120 days of generated
+  raws instead of HealthKit, to check the screens in the Simulator (which has no Health
+  history). Not in release builds.
