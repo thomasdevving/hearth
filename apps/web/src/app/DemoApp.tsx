@@ -32,12 +32,14 @@ export default function DemoApp({ route }: { route: Route }) {
   }, []);
   const Comp = SCREENS[route.screen] ?? SCREENS.home;
   const fullScreen = route.screen === "safety" || route.screen === "report";
+  // First run: no tabs until the plan is set up, so there is one clear way forward.
+  const firstRun = route.screen === "onboarding" || route.screen === "baseline_phq" || (route.screen === "plan_setup" && route.params.first === "1");
   return (
     <div className="app">
-      {route.screen !== "report" && <div className="demo-banner" role="note">Demo: the sensor data is simulated. Everything else is live.</div>}
+      {route.screen !== "report" && <div className="demo-banner" role="note">Demo with simulated sensor data. Everything else is live.</div>}
       <header className="app-header"><Wordmark /></header>
       {!fullScreen && <OnDeviceBanner />}
-      {!fullScreen && (
+      {!fullScreen && !firstRun && (
         <nav className="tabs" aria-label="Main">
           {TABS.map((tab) => <a key={tab.id} href={`#/${tab.id}`} aria-current={route.screen === tab.id ? "page" : undefined}>{tab.label}</a>)}
         </nav>

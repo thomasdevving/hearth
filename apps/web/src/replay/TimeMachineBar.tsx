@@ -40,72 +40,77 @@ export function TimeMachineBar() {
     <aside className="timemachine" aria-label="Time machine (demo control)">
       <div className="tm-row">
         <span className="tm-date" aria-live="polite">
-          <strong>Day {meta.dayNumber}</strong>/{d.total} · {prettyDate(meta.today)} {d.phase && <em>· {d.phase}</em>}
-          {!d.processed && <em> · not processed yet</em>}
+          <strong>Day {meta.dayNumber}</strong>
+          <span className="tm-of">/{d.total}</span> <span className="tm-sub">· {prettyDate(meta.today)}{d.phase && ` · ${d.phase}`}{!d.processed && " · not run yet"}</span>
         </span>
-        <button onClick={() => tm.step()} disabled={tm.busy || tm.playing} aria-label="Next day">
-          +1 day
-        </button>
-        {tm.playing ? (
-          <button onClick={() => tm.pause()} aria-label="Pause">
-            ❚❚ Pause
+        <div className="tm-controls">
+          <button onClick={() => tm.step()} disabled={tm.busy || tm.playing} aria-label="Next day">
+            +1 day
           </button>
-        ) : (
-          <button onClick={() => tm.play()} disabled={tm.busy} aria-label="Play">
-            ▶ Play
+          {tm.playing ? (
+            <button onClick={() => tm.pause()} aria-label="Pause">
+              ❚❚
+            </button>
+          ) : (
+            <button onClick={() => tm.play()} disabled={tm.busy} aria-label="Play">
+              ▶
+            </button>
+          )}
+          <select aria-label="Jump to" value="" onChange={(e) => e.target.value && jump(e.target.value as JumpTarget)} disabled={tm.busy || tm.playing}>
+            <option value="">Jump to…</option>
+            <option value="holiday">Holiday</option>
+            <option value="first_change">First change</option>
+            <option value="phq9">PHQ-9</option>
+          </select>
+          <button className="tm-more" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="More demo controls">
+            ⋯
           </button>
-        )}
-        <select aria-label="Jump to" value="" onChange={(e) => e.target.value && jump(e.target.value as JumpTarget)} disabled={tm.busy || tm.playing}>
-          <option value="">Jump to…</option>
-          <option value="holiday">Holiday</option>
-          <option value="first_change">First change</option>
-          <option value="phq9">PHQ-9</option>
-        </select>
-        <button className="tm-more" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="More time machine controls">
-          ⋯
-        </button>
-      </div>
-      <div className="tm-row small">
-        <label>
-          <input type="checkbox" checked={tm.autoAnswer} onChange={(e) => tm.setAutoAnswer(e.target.checked)} /> Answer with Sam's script
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={settings.online}
-            onChange={async (e) => {
-              await updateSettings({ online: e.target.checked });
-              emitChange();
-            }}
-          />{" "}
-          {settings.online ? "Online" : "Offline"}
-        </label>
-        <span className={`tm-model ${status.onDevice}`}>{ON_DEVICE_TEXT[status.onDevice]}{status.last ? ` · last: ${status.last.task} ${status.last.ranOn === "on_device" ? "on-device" : status.last.ranOn === "cloud" ? "cloud" : "fallback"}` : ""}</span>
+        </div>
       </div>
       {tm.message && <div className="tm-msg" role="status">{tm.message}</div>}
       {open && (
-        <div className="tm-row small">
+        <div className="tm-panel">
           <label>
-            Scenario{" "}
-            <select value={scenario} onChange={(e) => setScenario(e.target.value as Scenario)}>
-              <option value="default">default</option>
-              <option value="slow">slow</option>
-              <option value="safety">safety</option>
-              <option value="stable">stable</option>
-            </select>
+            <input type="checkbox" checked={tm.autoAnswer} onChange={(e) => tm.setAutoAnswer(e.target.checked)} /> Answer with Sam's script
           </label>
           <label>
-            Seed <input type="number" min={1} max={999} value={seed} onChange={(e) => setSeed(Number(e.target.value) || 1)} style={{ width: "4em" }} />
+            <input
+              type="checkbox"
+              checked={settings.online}
+              onChange={async (e) => {
+                await updateSettings({ online: e.target.checked });
+                emitChange();
+              }}
+            />{" "}
+            Online
           </label>
-          <button
-            onClick={async () => {
-              if (confirm("Reset the local store and load the persona?")) {
-                await tm.load(scenario, seed);
-              }
-            }}
-          >
-            Load persona
-          </button>
+          <span className={`tm-model ${status.onDevice}`}>
+            {ON_DEVICE_TEXT[status.onDevice]}
+            {status.last ? ` · last: ${status.last.task} ${status.last.ranOn === "on_device" ? "on-device" : status.last.ranOn === "cloud" ? "cloud" : "fallback"}` : ""}
+          </span>
+          <div className="tm-load">
+            <label>
+              Scenario{" "}
+              <select value={scenario} onChange={(e) => setScenario(e.target.value as Scenario)}>
+                <option value="default">default</option>
+                <option value="slow">slow</option>
+                <option value="safety">safety</option>
+                <option value="stable">stable</option>
+              </select>
+            </label>
+            <label>
+              Seed <input type="number" min={1} max={999} value={seed} onChange={(e) => setSeed(Number(e.target.value) || 1)} style={{ width: "4em" }} />
+            </label>
+            <button
+              onClick={async () => {
+                if (confirm("Reset the local store and load the persona?")) {
+                  await tm.load(scenario, seed);
+                }
+              }}
+            >
+              Load persona
+            </button>
+          </div>
         </div>
       )}
     </aside>

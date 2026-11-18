@@ -32,10 +32,11 @@ export function weeklyTemplate(weeks: WeekAggregate[]): { reflection: string; op
   const w = weeks[weeks.length - 1];
   const prev = weeks.length > 1 ? weeks[weeks.length - 2] : null;
   if (!w) return { reflection: "No full week of data yet.", open_question: "What would you like to notice this week?" };
-  const parts = [`In ${w.isoWeek} there were ${w.daysWithData} days with data.`];
+  const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+  const parts = [`In ${w.isoWeek} there were ${plural(w.daysWithData, "day", "days")} with data.`];
   if (w.indexMean !== null) parts.push(`Your change index averaged ${w.indexMean}${prev?.indexMean != null ? `, against ${prev.indexMean} the week before` : ""}.`);
-  if (w.daysElevated > 0) parts.push(`On ${w.daysElevated} days your pattern looked different from usual.`);
-  if (w.ema.n > 0 && w.ema.mood_low !== null) parts.push(`You answered ${w.ema.n} check-ins; "feeling down" averaged ${w.ema.mood_low} out of 7.`);
+  if (w.daysElevated > 0) parts.push(`On ${plural(w.daysElevated, "day", "days")} your pattern looked different from usual.`);
+  if (w.ema.n > 0 && w.ema.mood_low !== null) parts.push(`You answered ${plural(w.ema.n, "check-in", "check-ins")}; "feeling down" averaged ${w.ema.mood_low} out of 7.`);
   if (w.contexts.length > 0) parts.push(`You noted: ${w.contexts.join(", ")}.`);
   return { reflection: parts.join(" "), open_question: "What made the better days of this week different?" };
 }

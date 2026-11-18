@@ -268,8 +268,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
   return (
     <Screen title="Your plan" back={first ? undefined : "my_plan"}>
       <p className="muted">
-        Hearth already watches research-based signals of your daily life: sleep, activity, rhythm, heart rate and the places you go. Your own signs make it sharper. Write them in your own words, tick the ones that fit, or both. It all
-        stays on this device.
+        Hearth already watches signals research links to harder periods. Your own signs make it sharper: write them, tick them, or both. It all stays on this device.
       </p>
       <label className="stack">
         <strong>When things start to slip, what do you, or the people close to you, notice first?</strong>
@@ -339,9 +338,11 @@ function ScanPlan({ onText }: { onText: (t: string) => void }) {
   const [state, setState] = useState<"idle" | "reading" | "done" | "failed">("idle");
   return (
     <div className="stack" style={{ gap: 4 }}>
-      <label className="secondary" style={{ display: "inline-block" }}>
-        <span>Already have a written plan? Scan a photo of it: </span>
+      <label className="file-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinejoin="round" aria-hidden="true"><path d="M2 5.5h2.5L6 3.5h4l1.5 2H14V13H2z" /><circle cx="8" cy="9" r="2.3" /></svg>
+        <span>Scan a paper plan</span>
         <input
+          className="visually-hidden"
           type="file"
           accept="image/jpeg,image/png"
           aria-label="Photo of a paper plan"

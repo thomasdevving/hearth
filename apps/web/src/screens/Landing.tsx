@@ -135,8 +135,7 @@ export function Landing({ section }: { section?: string }) {
             When your days drift, <em>Hearth notices</em> and reminds you what helps.
           </h1>
           <p className="lead">
-            Hearth learns what your usual days look like. When something changes, it checks in and shows you the plan you wrote, in your own words. If the change continues, it
-            offers a short validated questionnaire. What you write stays on your device.
+            Hearth learns your usual days. When they change, it checks in and shows the plan you wrote, in your own words. What you write stays on your device.
           </p>
           <div className="ctas">
             <a className="land-cta" href="#/home">
@@ -158,7 +157,7 @@ export function Landing({ section }: { section?: string }) {
           <div className="flow-head-inner reveal">
             <p className="eyebrow">How it works</p>
             <h2 id="how-title">Research-based signals, sharpened by the signs you know.</h2>
-            <p className="intro">Hearth watches signals that research links to harder periods: sleep, activity, daily rhythm, heart rate and the places you go. The early signs you know from experience make it sharper, and what helps you is shown back when it matters.</p>
+            <p className="intro">Signals research links to harder periods: sleep, activity, daily rhythm, heart rate and the places you go. The signs you know from experience make it sharper.</p>
           </div>
         </div>
 
@@ -167,10 +166,10 @@ export function Landing({ section }: { section?: string }) {
             n="01"
             title="Your plan: your own signs, plus the science"
             side="left"
-            shots={<Phone src={shotPlan} alt="Plan setup: the user's words turned into cards with quotes and Keep or Not right buttons" label="Plan setup · cards from your words" />}
+            shots={<Phone src={shotPlan} alt="Plan setup: the user's words turned into cards, each with its quote and a tick to keep it" label="Plan setup · cards from your words" />}
           >
-            <p>Write what you, or the people close to you, notice first: “I go to bed later, I skip the gym, calling my sister helps.” The model on your device turns it into signs to watch, questions for your check-ins and the things that help. You can also tick signs research links to harder periods, or skip this step if you don't know your signs yet.</p>
-            <p className="feature-note">Every card shows where it came from. Anything you didn't actually write is removed in code, and you keep or reject each card.</p>
+            <p>Write what you, or people close to you, notice first: “I go to bed later, I skip the gym, calling my sister helps.” The model on your device turns it into cards. You can also tick research-based signs, or skip this step.</p>
+            <p className="feature-note">Every card shows where it came from. Anything you didn't write is removed in code.</p>
           </Feature>
 
           <Feature
@@ -187,7 +186,7 @@ export function Landing({ section }: { section?: string }) {
               </div>
             }
           >
-            <p>Steps, sleep times, daily rhythm, walking pace, heart rate variability, resting heart rate and the places you go are compared only with your own usual days, never with anyone else. These signals run for everyone; the signs you named weigh more.</p>
+            <p>Steps, sleep, daily rhythm, walking pace, heart rate and the places you go are compared only with your own usual days, never with anyone else. The signs you named weigh more.</p>
             <p className="feature-note">The first two weeks it simply learns: “Learning your pattern”.</p>
           </Feature>
 
@@ -197,8 +196,8 @@ export function Landing({ section }: { section?: string }) {
             side="left"
             shots={<Phone src={shotCheckin} alt="Check-in with a short opening line, three 1 to 7 scales and the user's own questions" label="Check-in · about 20 seconds" />}
           >
-            <p>When your days drift away from your usual range for a few days, Hearth opens your plan and asks how you are: three quick taps and your own questions. With the on-device model, the opening line names what changed, in plain words.</p>
-            <p className="feature-note">About one day in three there is also a random check-in. “Not today” and “Why am I being asked?” are always there.</p>
+            <p>When your days stay outside your usual range for a few days, Hearth opens your plan and asks how you are: three taps and your own questions. The opening line says what changed.</p>
+            <p className="feature-note">Some check-ins are random on purpose. “Not today” is always there.</p>
           </Feature>
 
           <Feature
@@ -217,7 +216,7 @@ export function Landing({ section }: { section?: string }) {
             side="left"
             shots={<Phone src={shotMyPlan} alt="Your plan: what changed, and the actions the user wrote, in their own words" label="Your plan" />}
           >
-            <p>As soon as a change starts, your plan opens: what you said helps, in your own words, with the ones that fit today on top. If the change continues, two short questions follow, and nine if needed, worded exactly as published and compared with your own earlier score.</p>
+            <p>As soon as a change starts, your plan opens, with what fits today on top. If the change continues, a short validated questionnaire follows, worded exactly as published.</p>
           </Feature>
         </div>
       </section>
@@ -234,15 +233,15 @@ export function Landing({ section }: { section?: string }) {
               <ul className="routes">
                 <li className="route reveal" style={{ ["--d" as string]: "0ms" }}>
                   <h3>Your words stay on this device</h3>
-                  <p>Gemini Nano reads your plans, notes, check-ins, speech and questions in Chrome. If unavailable, a local fallback takes over. Your words never go to the cloud.</p>
+                  <p>Gemini Nano in Chrome reads your plan, notes and check-ins. Without it, simple rules take over. Never the cloud.</p>
                 </li>
                 <li className="route reveal" style={{ ["--d" as string]: "120ms" }}>
-                  <h3>Numbers use your device first</h3>
-                  <p>Questionnaire totals and check-in reasons are processed on your device when possible. Cloud processing needs your consent.</p>
+                  <h3>Everything else: device first</h3>
+                  <p>Check-in lines and explanations run on your device too. The cloud only with your consent.</p>
                 </li>
                 <li className="route reveal" style={{ ["--d" as string]: "240ms" }}>
-                  <h3>Weekly summaries, with your consent</h3>
-                  <p>Preview the weekly numbers before they enter your private cloud space. Gemini writes a fuller reflection; offline, your device writes a short one.</p>
+                  <h3>Weekly numbers, if you choose</h3>
+                  <p>You see them first. Gemini writes a longer reflection; offline, your device writes a short one.</p>
                 </li>
               </ul>
             </div>
@@ -256,7 +255,7 @@ export function Landing({ section }: { section?: string }) {
               side="right"
               shots={<Phone src={shotLedger} alt="Privacy ledger listing every model call, where it ran and what was sent" label="Privacy ledger" />}
             >
-              <p>Every time a model is asked something, the privacy ledger records the task, where it ran and, for the cloud, the exact text that was sent. A filter shows only what left the device.</p>
+              <p>The privacy ledger records every model call: the task, where it ran and, for the cloud, the exact text sent.</p>
               <div className="facts">
                 <div className="fact reveal">
                   <div className="n">
@@ -273,7 +272,7 @@ export function Landing({ section }: { section?: string }) {
                 <div className="fact reveal" style={{ ["--d" as string]: "240ms" }}>
                   <div className="n">
                     0<span className="vs"> vs </span>
-                    <CountUp to={101} />
+                    <CountUp to={92} />
                   </div>
                   <p>holiday alarm days with the holiday confirmed, and without, across 20 simulated people.</p>
                 </div>
@@ -291,7 +290,7 @@ export function Landing({ section }: { section?: string }) {
             side="left"
             shots={<Phone src={shotSafety} alt="Support screen with the 988 Suicide and Crisis Lifeline call button and 911 for immediate danger" label="Support screen" />}
           >
-            <p>Hearth is a companion for noticing: not a doctor and not a crisis line. It will sometimes ask when nothing is wrong, and some check-ins are random on purpose, so you can see whether its questions are useful for you.</p>
+            <p>Hearth is a companion for noticing, not a doctor or a crisis line. The support screen works offline and is always one tap away.</p>
             <div className="land-help">
               <p>
                 <strong>Need help right now?</strong> In the US, call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline). If you are in immediate danger, call <a href="tel:911">911</a>.

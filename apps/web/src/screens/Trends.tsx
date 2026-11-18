@@ -162,8 +162,7 @@ export function Trends() {
   return (
     <Screen title="Trends">
       <p className="muted">
-        How far your days are from your own usual pattern. Above the dashed line for a few days means “a change from your usual pattern”. Shaded periods are set aside
-        because of something you confirmed; a dotted outline is a stressful period that is still counted.
+        How far your days are from your own usual pattern. Above the dashed line for a few days counts as a change. Shaded: set aside; dotted: a stressful week, still counted.
       </p>
       <h2>Change index</h2>
       <UChart opts={charts.index.opts} data={charts.index.data} ariaLabel="Daily change index with the smoothed line and your usual limit" />
@@ -202,7 +201,7 @@ export function Trends() {
       {d.diary.length > 0 && (
         <>
           <h2>From your notes</h2>
-          <p className="muted">Read from your notes by the on-device model (0 = not there, 3 = strong). Shown only to you; never used to decide anything.</p>
+          <p className="muted">Read on this device (0 = not there, 3 = strong). Only for you; never used to decide anything.</p>
           <UChart opts={charts.markers.opts} data={charts.markers.data} ariaLabel="Language markers from your notes over time" />
         </>
       )}

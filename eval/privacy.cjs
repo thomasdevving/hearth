@@ -57,6 +57,7 @@ const S3_WORDS = /Spain|skip the gym|sister|going to bed later|didn't eat|stayed
     await page.click("text=Use scripted answer");
     await page.waitForTimeout(800);
   }
+  await page.click("button.tm-more");
   await page.click("text=Answer with Sam");
   await page.click('button[aria-label="Play"]');
   await page.waitForFunction(() => /End of the replay|support/.test(document.querySelector(".tm-msg")?.textContent ?? ""), null, { timeout: 300000 });

@@ -12,28 +12,26 @@ export function Onboarding() {
   if (!s) return null;
   const pages = [
     <>
-      <p className="item-text">Hearth helps you notice early when your days start to change, and shows you your own plan when they do.</p>
-      <p>It learns your usual pattern from steps, rest times, walking pace and the places you go. It compares each day only with your own usual days, not with anyone else.</p>
-      <p>When something changes for a few days, it asks how you are. If the change continues, it offers a short questionnaire and shows the plan you wrote.</p>
+      <p className="item-text">Hearth notices when your days start to drift, and shows you your own plan.</p>
+      <ul className="plain-list">
+        <li>It learns your usual days from sleep, steps, daily rhythm, heart rate and the places you go.</li>
+        <li>It compares you only with yourself, never with other people.</li>
+        <li>When something changes for a few days, it asks how you are and opens your plan.</li>
+      </ul>
     </>,
     <>
       <h2>Your words stay on this device</h2>
-      <p>What you write — your plan, your notes, your answers — is read only by a model that runs on this device. It is never sent to a server.</p>
-      <p>Every time a model is used, the privacy ledger shows where it ran and exactly what was sent.</p>
+      <p>Your plan, notes and answers are read only by the model on this device. The privacy ledger shows every model call.</p>
       <h2>It will sometimes be wrong</h2>
-      <p>
-        <strong>Sometimes I'll ask when nothing is wrong. That's fine.</strong> A holiday, a busy week or visitors can look like a change. You can tell the app, and it will set those days aside.
-      </p>
-      <p>Some check-ins are random on purpose, so you can see later whether the app's questions are useful for you.</p>
+      <p>A holiday or visitors can look like a change. Tell Hearth, and those days are set aside. Some check-ins are random on purpose, so you can see whether its questions help you.</p>
     </>,
     <>
       <h2>What Hearth is not</h2>
-      <p>It cannot tell you what is wrong, and it is not a crisis service. Nobody watches your data and the app never contacts anyone for you.</p>
-      <p>If you ever need help right away, the “I need help now” button shows support lines and your own safety plan, even offline.</p>
+      <p>Not a diagnosis and not a crisis service. Nobody watches your data. “I need help now” shows support lines, even offline.</p>
       <h2>Optional: the cloud model</h2>
       <label className="toggle">
         <span>
-          Allow weekly summaries to be sent to Gemini in the cloud for a longer reflection. Off by default; you can change it in Settings.
+          A longer weekly reflection by Gemini in the cloud, from weekly numbers only. Off by default.
           {!cloudConfigured && <small> (Not available in this build.)</small>}
         </span>
         <input
@@ -49,7 +47,7 @@ export function Onboarding() {
           }}
         />
       </label>
-      <p className="muted">In this demo the sensors are simulated: you follow Sam, a made-up person, for 150 days. On iPhone, Hearth would ask for Health and location access here.</p>
+      <p className="muted">In this demo you follow Sam, a made-up person, for 150 days. On iPhone, Hearth would ask for Health and location access here.</p>
     </>,
   ];
   return (

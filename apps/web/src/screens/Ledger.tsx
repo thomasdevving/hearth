@@ -35,7 +35,7 @@ export function Ledger() {
   const counts = { device: d.ledger.filter((e) => e.ranOn === "on_device").length, cloud: d.ledger.filter((e) => e.ranOn === "cloud").length, none: d.ledger.filter((e) => e.ranOn === "none").length };
   return (
     <Screen title="Privacy ledger">
-      <p className="muted">Every time a model was asked something: which task, where it ran and exactly what was sent. Your own words only ever go to the model on this device.</p>
+      <p className="muted">Every model call: which task, where it ran and exactly what was sent.</p>
       <p>
         {counts.device} on this device · {counts.cloud} in the cloud · {counts.none} without a model
       </p>

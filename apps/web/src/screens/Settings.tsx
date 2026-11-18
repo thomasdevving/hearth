@@ -114,7 +114,7 @@ export function Settings() {
 
       <h2>Support</h2>
       <label className="toggle">
-        <span>Country for the crisis line</span>
+        <span>Crisis line</span>
         <select value={settings.country} onChange={(e) => set({ country: e.target.value })} aria-label="Country">
           {Object.entries(crisisLines.countries).map(([code, v]) => (
             <option key={code} value={code}>

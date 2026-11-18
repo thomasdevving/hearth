@@ -70,7 +70,7 @@ export function Weekly({ params }: { params: Record<string, string> }) {
   return (
     <Screen title="Weekly reflection" back="home" badge={ref ? <ModelBadge ranOn={ref.ranOn} /> : undefined}>
       {weeks.length === 0 && <p className="muted">No finished week yet.</p>}
-      {!d.settings.cloudConsent && <p className="muted">The longer reflection is written by the cloud model from your weekly summaries only. It needs your permission in Settings{cloudConfigured ? "" : " (not available in this build)"}; until then you see a plain summary.</p>}
+      {!d.settings.cloudConsent && <p className="muted">A plain summary. With the cloud model allowed in Settings{cloudConfigured ? "" : " (not in this build)"}, Gemini writes a longer reflection from these numbers.</p>}
       {ref && (
         <>
           {ref.variant === "lite" && <p className="muted">Short version, written on this device (you are offline or the cloud was not reachable).</p>}
