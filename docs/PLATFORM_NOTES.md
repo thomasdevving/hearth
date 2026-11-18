@@ -116,3 +116,13 @@ and forbids deriving that data another way.
 | A JavaScript port of those fdlibm routines (`apps/ios/Hearth/Engine/v8math.js`), loaded before `engine.js`, makes all 31 fixtures match bit for bit | verified | Adapter only; the engine is unchanged. The port gives identical results in Node and in JavaScriptCore. |
 | Node on Apple Silicon itself differs from plain fdlibm for some inputs (its C++ fdlibm is compiled with fused multiply-add) | verified | The fixtures were generated on x86-64 and match the port; the engine's own Vitest suite also passes on this Mac (216/216). |
 | CoreText reads the web app's WOFF2 font files directly (`CTFontManagerCreateFontDescriptorsFromData`) | verified | macOS 15; the same CoreText runs on iOS. No TTF conversion needed. |
+
+## 9. iOS 26 SDK facts used in M9 (verified 2026-11-18 in the iOS 26.1 SDK interfaces and Simulator)
+
+| Fact | Status | Note |
+|---|---|---|
+| `FoundationModels` is in the iOS 26 SDK: `SystemLanguageModel.default.availability` (`.available` or `.unavailable(.deviceNotEligible / .appleIntelligenceNotEnabled / .modelNotReady)`), `LanguageModelSession(model:instructions:)`, `respond(to:schema:options:)` with a `GenerationSchema` | verified | Only the cloud side (`geminiLanguageModel`) needs iOS 27. |
+| `DynamicGenerationSchema` + `GenerationSchema(root:dependencies:)` accept every shared task schema | verified | XCTest `OnDeviceSchemaTests` |
+| The iOS Simulator on this Mac (macOS 15.6) has no Apple Intelligence model | verified | All model tasks take their fallback there; on-device inference must be checked on the iPhone. |
+| `HKCategoryValueSleepAnalysis.allAsleepValues` gives the asleep categories (core, deep, REM, unspecified) | verified | "In bed" is excluded. |
+| Free provisioning: Xcode could not create a profile because the Apple ID login stored in Xcode was rejected | seen 2026-11-18 | The owner has to sign in again in Xcode → Settings → Accounts. Whether a personal team may use the HealthKit background-delivery entitlement is still **must check**. |

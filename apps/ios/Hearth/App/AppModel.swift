@@ -7,6 +7,7 @@ import SwiftData
 @MainActor @Observable
 final class AppModel {
   let store: Store
+  let router: InferenceRouter
 
   /// Bumped after every write, so screens re-read the store.
   var revision = 0
@@ -29,6 +30,7 @@ final class AppModel {
 
   init(store: Store) {
     self.store = store
+    self.router = InferenceRouter(store: store)
   }
 
   func changed() { store.save(); revision += 1 }
@@ -56,6 +58,7 @@ final class AppModel {
       buildWeeks()
       closeStale()
       changed()
+      await Notifications.scheduleIfDue(store: store)
     } while pendingRun
   }
 
