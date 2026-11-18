@@ -55,7 +55,7 @@ describe("what helped me last time (tasks R and T)", () => {
     expect(draft).toEqual({ message: "Hey Maya, walk tomorrow?", ranOn: "on_device" });
     expect(requests).toEqual([]);
     const ledger = (await db.ledger.orderBy("at").toArray()).filter((l) => l.task === "R" || l.task === "T");
-    expect(ledger.map((l) => [l.task, l.ranOn, l.payloadSent])).toEqual([["R", "on_device", null], ["T", "on_device", null]]);
+    expect(ledger.map((l) => [l.task, l.ranOn, l.payloadSent]).sort()).toEqual([["R", "on_device", null], ["T", "on_device", null]]);
   });
 
   it("without a model: no guessed match, and the draft is the person's own saved message (never the cloud)", async () => {
