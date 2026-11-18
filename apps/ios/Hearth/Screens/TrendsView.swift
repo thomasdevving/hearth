@@ -27,6 +27,7 @@ struct TrendsView: View {
         domainChart(records)
       }
       questionnaires
+      if !all.isEmpty { stateCounts(all) }
       if !all.isEmpty { signals(all) }
     }
   }
@@ -98,6 +99,21 @@ struct TrendsView: View {
     }
     if qs.contains(where: { $0.instrument == "PHQ9" }) {
       Muted("Your own usual PHQ-9 score is the reference for a change, not a general cut-off alone.")
+    }
+  }
+
+  /// Days in each state over the last 120 scored days (docs/10 metric 13).
+  private func stateCounts(_ all: [DayRecordValue]) -> some View {
+    let last = all.suffix(120)
+    let order: [(EngineStateName, String)] = [(.WARM_UP, "Learning your pattern"), (.MONITOR, "Steady"), (.ELEVATED, "Changed"), (.CONFIRMED, "Changed, confirmed by a questionnaire")]
+    return VStack(alignment: .leading, spacing: 4) {
+      SectionTitle(text: "Days in each state")
+      Muted("Your last \(last.count) scored days, \(Clock.pretty(last.first?.date ?? "")) to \(Clock.pretty(last.last?.date ?? "")).")
+      ForEach(order, id: \.0) { st, label in
+        HStack { Text(label); Spacer(); Text("\(last.filter { $0.state == st }.count)").font(HearthFont.body(16, weight: "SemiBold")) }
+      }
+      let episodes = zip(last.dropLast(), last.dropFirst()).filter { $0.0.state != .ELEVATED && $0.1.state == .ELEVATED }.map { Clock.pretty($0.1.date) }
+      if !episodes.isEmpty { Muted("Changes started on: \(episodes.joined(separator: ", ")).") }
     }
   }
 

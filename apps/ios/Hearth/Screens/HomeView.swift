@@ -32,7 +32,10 @@ struct HomeView: View {
       SectionTitle(text: "Your signals")
       let rules = app.store.activeRules()
       if rules.isEmpty {
-        Muted("No personal signals yet.")
+        HStack(spacing: 4) {
+          Muted("No personal signals yet.")
+          Button("Set up your plan") { app.path.append(.planSetup(first: false)) }.buttonStyle(.link)
+        }
       }
       ForEach(rules, id: \.id) { r in
         let f = Copy.ruleFeature(r)
@@ -55,6 +58,7 @@ struct HomeView: View {
       HStack {
         Button("See all trends ›") { app.selectedTab = .trends }.buttonStyle(.link)
         Spacer()
+        Button("Weekly reflection ›") { app.path.append(.weekly) }.buttonStyle(.link)
       }
       extras
     }
@@ -106,7 +110,76 @@ struct HomeView: View {
     }
   }
 
-  // Filled in by M9 (inbox, note box, help button).
-  @ViewBuilder var inbox: some View { EmptyView() }
-  @ViewBuilder var extras: some View { EmptyView() }
+  /// Things for today: the engine's actions as cards (docs/DECISIONS.md, M4).
+  @ViewBuilder var inbox: some View {
+    let items = app.store.openInbox()
+    if items.isEmpty {
+      Muted("Nothing to do today.")
+    } else {
+      ForEach(items, id: \.id) { item in inboxCard(item) }
+    }
+  }
+
+  @ViewBuilder private func inboxCard(_ item: InboxItem) -> some View {
+    switch item.type {
+    case "checkin":
+      cardButton(.accent, "Check-in ready", "Three quick questions, about 20 seconds.") { app.path.append(.checkin(item.checkinId ?? "")) }
+    case "questionnaire":
+      cardButton(.accent, item.instrument == "PHQ2" ? "Two short questions" : "A short questionnaire (9 questions)", "About the last two weeks.") {
+        app.path.append(.questionnaire(item.instrument ?? "PHQ2"))
+      }
+    case "context_confirm":
+      let label = item.contextJSON.flatMap { try? JSONText.decode(ContextLabelValue.self, $0) }
+      let title = (label?.type).flatMap { $0.isEmpty ? nil : "\(Copy.context[$0] ?? $0)?" } ?? "Is something changing your routine?"
+      cardButton(.warm, title, "One tap to confirm. Nothing changes until you do.") { app.path.append(.contextConfirm(item.id)) }
+    case "context_expired":
+      cardButton(.warm, "Does your earlier note still apply?", "It ended yesterday. Tap to extend it or leave it.") { app.path.append(.contextConfirm(item.id)) }
+    case "show_plan":
+      cardButton(.warm, "Your plan", "You wrote down what helps. Have a look.") { app.selectedTab = .plan }
+    default:
+      EmptyView()
+    }
+  }
+
+  private func cardButton(_ tone: Card<AnyView>.Tone, _ title: String, _ sub: String, action: @escaping () -> Void) -> some View {
+    Button(action: action) {
+      Card(tone: tone) {
+        AnyView(VStack(alignment: .leading, spacing: 4) {
+          Text(title).font(HearthFont.body(17, weight: "SemiBold"))
+          Text(sub).foregroundStyle(Theme.ink2)
+        })
+      }
+    }
+    .buttonStyle(.plain)
+  }
+
+  @ViewBuilder var extras: some View {
+    NoteBox()
+    HelpButton()
+  }
+}
+
+/// "Anything different this week?": free text at any time (DECISIONS M3), through crisis
+/// keywords, task H and task B on the device.
+struct NoteBox: View {
+  @Environment(AppModel.self) private var app
+  @State private var text = ""
+  @State private var busy = false
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      TextArea(label: "Anything different this week?", text: $text, placeholder: "For example: visitors until Sunday", minHeight: 60)
+      Button(busy ? "Saving…" : "Add note") {
+        Task {
+          busy = true
+          await app.submitNote(text)
+          text = ""
+          busy = false
+        }
+      }
+      .buttonStyle(.secondary)
+      .disabled(busy || text.trimmed.isEmpty)
+      Muted("Stays on this device. Read by the on-device model only.")
+    }
+    .padding(.top, 16)
+  }
 }
