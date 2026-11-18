@@ -27,7 +27,7 @@ We do **not** claim diagnostic accuracy or that the app predicts relapse.
 | 10 | Privacy | Run the default scenario with consent off while recording network traffic: number of requests containing any S3 or S2 content | 0 || 0 requests leaving the page in both runs (no model; stand-in model), 0 containing user text; 0 requests before consent with a configured project |
 | 11 | On-device share | From the ledger after a full replay with consent on: share of calls that ran on-device, per task | report || Not yet measured (needs the real model; table on `#/eval_g` from the ledger) |
 | 12 | Latency | From the ledger: p50 and p95 per task, on-device and cloud | task A p95 < 3 s || Not yet measured (same) |
-| 13 | Own data (iOS) | On the developer's own HealthKit history: days in each state over the last 120 days; do `ELEVATED` periods match anything the developer remembers? | describe honestly || Not done: iOS app not built (no Mac in the build environment) |
+| 13 | Own data (iOS) | On the developer's own HealthKit history: days in each state over the last 120 days; do `ELEVATED` periods match anything the developer remembers? | describe honestly || **Not measured yet.** The iOS app is built (M8/M9) but has not run on the developer's iPhone (not connected; Xcode sign-in to renew). Once it has, Trends → "Days in each state" shows the counts for the last 120 scored days and the dates on which changes started. Days in each state: WARM_UP –, MONITOR –, ELEVATED –, CONFIRMED –. **To be written by the developer:** whether the changed periods match anything they remember. This part is not to be guessed. |
 
 ## 3. Evaluation sets
 

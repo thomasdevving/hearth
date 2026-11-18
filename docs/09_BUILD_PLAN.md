@@ -130,26 +130,38 @@ reflection still appears as the lite on-device variant.
 Read: `docs/02_ARCHITECTURE.md` §3, §7; `docs/03_FEATURES.md` §1; `docs/PLATFORM_NOTES.md`.
 
 - [ ] Xcode project, SwiftUI, Firebase Apple SDK, `shared/` copied into the bundle.
-- [ ] `Engine` bridge on JavaScriptCore; a test target runs every golden fixture through it.
-- [ ] SwiftData store.
-- [ ] `HealthKitCollector`: permissions, 120-day backfill of steps (15-minute bins),
+- [x] `Engine` bridge on JavaScriptCore; a test target runs every golden fixture through it.
+- [x] SwiftData store.
+- [x] `HealthKitCollector`: permissions, 120-day backfill of steps (15-minute bins),
       walking speed and sleep into `day_raw`; observer queries for new data.
-- [ ] On first launch, run `dailyUpdate` for every backfilled day in order.
-- [ ] `home` and `trends`.
+- [x] On first launch, run `dailyUpdate` for every backfilled day in order.
+- [x] `home` and `trends`.
 
 Done when: on a real iPhone the app shows state `MONITOR` and a chart of the user's own
 last months within a minute of granting HealthKit access.
 
+*Status 2026-11-18:* built with Xcode 26.1 and iOS 26 as deployment target (owner's choice,
+docs/DECISIONS.md M8 iOS). Firebase Apple SDK not yet added (first box open). 17 iOS tests
+pass, all 31 golden fixtures bit for bit. In the Simulator with generated data, 120 days are
+scored in under 4 s and home shows `MONITOR` with the chart. **Not yet checked on the
+iPhone** (not connected; Xcode's Apple ID login must be renewed).
+
 ## M9 · iOS product loop
 - [ ] `InferenceRouter` for iOS (Apple Foundation Models on-device, Gemini in cloud, both
       through Firebase AI Logic) with the same ledger.
-- [ ] `plan_setup` (task G), `checkin` (A, H), `questionnaire`, `result` (C), `my_plan`,
+- [x] `plan_setup` (task G), `checkin` (A, H), `questionnaire`, `result` (C), `my_plan`,
       `safety`, `ledger`, `settings`.
-- [ ] Daily update on app open and by background refresh; local notification for a due check-in.
+- [x] Daily update on app open and by background refresh; local notification for a due check-in.
 - [ ] Cloud consent, weekly aggregate upload, task D.
 
 Done when: in airplane mode, plan setup, a check-in and a PHQ-2 all work and the ledger
 shows only on-device entries.
+
+*Status 2026-11-18:* the router runs Apple's on-device model; the Gemini side and cloud
+consent wait for iOS 27 / Xcode 27, the Firebase SDK and `GoogleService-Info.plist` (boxes 1
+and 4 open). Without a model (Simulator) plan setup, check-in and PHQ-2 work through their
+fallbacks and the ledger has no cloud entries (XCTest `AppFlowTests`). **The on-device
+model run on the iPhone is not yet checked.**
 
 ## M10 · P1 extras (in this order; stop when time runs out)
 1. [x] Speech input on `plan_setup` and `checkin` (on-device speech recognition). *(web)*
