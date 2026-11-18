@@ -22,8 +22,8 @@ export function Onboarding() {
     <>
       <h2>Your words stay on this device</h2>
       <p>Your plan, notes and answers are read only by the model on this device. The privacy ledger shows every model call.</p>
-      <h2>It will sometimes be wrong</h2>
-      <p>A holiday or visitors can look like a change. Tell Hearth, and those days are set aside. Some check-ins are random on purpose, so you can see whether its questions help you.</p>
+      <h2>It takes your holidays into account</h2>
+      <p>Going away or having visitors changes your days. Tell Hearth, and those days are set aside. Now and then it may still ask when nothing is wrong, and that's fine: some check-ins are random on purpose.</p>
     </>,
     <>
       <h2>What Hearth is not</h2>

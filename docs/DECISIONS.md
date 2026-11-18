@@ -522,3 +522,10 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - Seed 1's first change moves from day 110 to day 109 (reasons: later sleep time, higher
   resting heart rate; the gym follows on day 110). The demo video was re-timed to day 109.
 
+## Onboarding wording (2026-11-18)
+
+- docs/01 asks the onboarding to say plainly that Hearth will sometimes ask when nothing is
+  wrong. The heading is now "It takes your holidays into account" (friendlier, at the user's
+  request); the body still says "Now and then it may still ask when nothing is wrong, and
+  that's fine", so the honesty requirement is kept.
+
