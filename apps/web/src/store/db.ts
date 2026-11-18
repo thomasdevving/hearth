@@ -33,6 +33,19 @@ export interface DiaryEntry {
   language: LanguageFeatures | null;
 }
 
+/** "What helped me last time": a sentence and/or a short voice note, attached to one of the user's signs. S3: never leaves the device. */
+export interface HelpedNote {
+  id: string;
+  signQuote: string; // the sign, by the user's own words (PlanRule.quote or PersonalItem.quote)
+  text: string;
+  audio: Blob | null; // optional voice note, at most ~15 s
+  message: string | null; // optional text to send
+  contactName: string | null;
+  createdAt: string; // YYYY-MM-DD
+  source: "user" | "seed";
+  archived: boolean;
+}
+
 export interface SafetyEvent {
   id: string;
   at: string;
@@ -50,6 +63,7 @@ export interface Settings {
   planDone: boolean;
   baselineDone: boolean;
   firstUploadConfirmed: boolean;
+  helpedPromptDone: string | null; // date of the hard period the "what helped?" prompt was answered for
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -63,6 +77,7 @@ export const DEFAULT_SETTINGS: Settings = {
   planDone: false,
   baselineDone: false,
   firstUploadConfirmed: false,
+  helpedPromptDone: null,
 };
 
 export interface ReplayMeta {
@@ -138,6 +153,7 @@ export class HearthDB extends Dexie {
   reports!: Table<ReportRow, string>;
   network_log!: Table<NetworkLogEntry, number>;
   day_actions!: Table<{ date: string; actions: Action[] }, string>;
+  helped_notes!: Table<HelpedNote, string>;
 
   constructor(name = "hearth") {
     super(name);
@@ -165,6 +181,7 @@ export class HearthDB extends Dexie {
       network_log: "++id, at",
       day_actions: "date",
     });
+    this.version(2).stores({ helped_notes: "id, signQuote, createdAt" });
   }
 }
 

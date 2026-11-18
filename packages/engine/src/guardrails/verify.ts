@@ -124,6 +124,7 @@ export interface VerifyContext {
   placeLabels?: string[]; // task P
   contactName?: string | null; // task P
   variant?: "full" | "lite"; // task D
+  signIds?: string[]; // task R
 }
 
 export type VerifyResult = { ok: true; value: unknown } | { ok: false; reason: string };
@@ -222,6 +223,26 @@ export function verifyTask(task: TaskId | "Q_classify" | "Q_phrase", raw: unknow
       if (hasBannedWords(note)) return { ok: false, reason: "banned_word" };
       const pii = piiCheck(note, { placeLabels: ctx.placeLabels, contactName: ctx.contactName });
       return pii.ok ? { ok: true, value: raw } : { ok: false, reason: `pii:${pii.reasons.join(",")}` };
+    }
+    case "R": {
+      // Recall: only the user's own signs, and only with a quote that is really in their text.
+      if (!validate("R", raw).valid) return { ok: false, reason: "schema" };
+      const allowed = new Set(ctx.signIds ?? []);
+      const seen = new Set<string>();
+      const matches = (raw as { matches: { sign_id: string; quote: string }[] }).matches.filter((m) => {
+        if (!allowed.has(m.sign_id) || seen.has(m.sign_id) || !verifyQuote(m.quote, ctx.sourceText ?? "")) return false;
+        seen.add(m.sign_id);
+        return true;
+      });
+      return { ok: true, value: { matches } };
+    }
+    case "T": {
+      if (!validate("T", raw).valid) return { ok: false, reason: "schema" };
+      const message = (raw as { message: string }).message.trim();
+      if (!message) return { ok: false, reason: "empty" };
+      if (words(message) > 40) return { ok: false, reason: "too_long" };
+      const bad = prose(message, ctx.facts);
+      return bad ? { ok: false, reason: bad } : { ok: true, value: { message } };
     }
     case "Q":
     case "Q_classify":

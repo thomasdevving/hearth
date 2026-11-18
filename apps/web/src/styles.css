@@ -142,6 +142,19 @@ th { background: var(--surface-2); font-weight: 600; position: sticky; top: 0; }
 .file-btn:focus-within { box-shadow: 0 0 0 3px var(--magenta-tint); border-color: var(--magenta); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
+/* ---------- what helped me last time ---------- */
+.helped-card { border: 1px solid var(--magenta-line); border-left: 4px solid var(--magenta); border-radius: var(--radius); background: var(--white); padding: var(--s4); margin: var(--s3) 0; }
+.helped-card.compact { border-left-width: 1px; }
+.helped-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--magenta-deep); margin: 0 0 var(--s2); }
+.helped-card blockquote { margin: 0 0 var(--s2); font-family: var(--font-display); font-weight: 600; font-size: 1.12rem; line-height: 1.4; color: var(--ink); }
+.helped-card audio { width: 100%; margin: var(--s2) 0; height: 40px; }
+.helped-card .row { margin-bottom: 0; }
+.helped-draft { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.helped-draft textarea { font-size: 1.05rem; }
+.recall-ask { border-radius: var(--radius); background: var(--magenta-tint); padding: var(--s4); margin: var(--s4) 0 var(--s2); }
+.recall-ask p { margin: 0 0 var(--s2); }
+.recall-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); margin-bottom: var(--s2); }
+
 /* ---------- my plan: today's pick ---------- */
 .myplan-why { color: var(--ink-2); margin: 0 0 var(--s2); }
 .myplan-why strong { color: var(--ink); }

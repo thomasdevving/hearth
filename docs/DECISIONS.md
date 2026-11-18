@@ -614,3 +614,18 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   result page suggests bringing the result to the GP instead of "Share a summary".
 - **Days in each state** on `trends` lists the last 120 scored days per state, for
   docs/10 metric 13.
+
+## "What helped me last time" (2026-11-18)
+
+- A note is attached to a sign by the user's own words (`PlanRule.quote` / `PersonalItem.quote`),
+  not by id, so it survives editing the plan. Sam's persona has one note from an earlier hard
+  week (`SAM_HELPED_NOTE`), seeded when the persona loads.
+- Recall needs the person's confirmation: task R only proposes a sign (with a quote from their
+  text); the note appears after "Yes, that's it". Sensors alone never bring a note back.
+  Without a model, chips with the user's own signs appear (only when notes exist).
+- R and T are S3 (they read the person's own words) and run on-device only.
+- Voice notes stay in IndexedDB as blobs. "Export everything" serialises the table, where a
+  Blob becomes `{}`, so audio is not exported.
+- The "what helped?" prompt on Today appears once after a hard stretch ends (state back to
+  MONITOR, a changed day in the last 14 days); "Not now" closes it for that stretch.
+

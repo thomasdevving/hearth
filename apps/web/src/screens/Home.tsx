@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { db, getSingleton } from "../store/db";
+import { db, getSettings, getSingleton, updateSettings, type HelpedNote, type Settings } from "../store/db";
+import type { DayRecord } from "@hearth/engine";
 import { getEngineState, getMeta, openInbox } from "../app/runtime";
 import { useData } from "../ui/hooks";
 import { Card, Screen, Sparkline } from "../ui/kit";
 import { STATE_LABEL, STATE_TEXT, featureLabel, formatValue, ruleFeature, CONTEXT_LABEL, prettyDate } from "../app/labels";
-import { navigate } from "../app/events";
+import { emitChange, navigate } from "../app/events";
 import { openSafety, submitNote, skipNote } from "../app/actions";
 import type { InboxItem } from "../store/db";
 
@@ -91,6 +92,46 @@ function NoteSuggestion({ item }: { item: Extract<InboxItem, { type: "note" }> }
   );
 }
 
+/**
+ * After a hard stretch ends (back to Steady within the last 14 days), ask once: anything that
+ * helped? Save it for next time.
+ */
+function HelpedPrompt({ records, settings, helped }: { records: DayRecord[]; settings: Settings; helped: HelpedNote[] }) {
+  const last = records[records.length - 1];
+  if (!last || last.state !== "MONITOR") return null;
+  const recent = records.slice(-14);
+  const hard = recent.filter((r) => r.state === "ELEVATED" || r.state === "CONFIRMED");
+  if (hard.length === 0) return null;
+  const startedOn = hard[0].date;
+  if (settings.helpedPromptDone && settings.helpedPromptDone >= startedOn) return null;
+  if (helped.some((n) => n.source === "user" && n.createdAt >= startedOn)) return null;
+  const close = async () => {
+    await updateSettings({ helpedPromptDone: last.date });
+    emitChange();
+  };
+  return (
+    <div className="recall-ask" role="group" aria-label="Save what helped">
+      <p>
+        <strong>Your days look steadier again.</strong> Anything that helped? Save it in your own words, and Hearth brings it back next time.
+      </p>
+      <div className="row">
+        <button
+          className="primary"
+          onClick={async () => {
+            await close();
+            navigate("helped_new");
+          }}
+        >
+          Save what helped
+        </button>
+        <button className="secondary" onClick={close}>
+          Not now
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function NoteBox() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -120,7 +161,9 @@ export function Home() {
   const data = useData(async () => {
     const [meta, state, inbox, rules, records, contexts] = await Promise.all([getMeta(), getEngineState(), openInbox(), db.plan_rules.toArray(), db.day_records.orderBy("date").toArray(), db.contexts.toArray()]);
     const plan = await getSingleton(db.plan_source);
-    return { meta, state, inbox, rules, records, contexts, plan };
+    const settings = await getSettings();
+    const helped = await db.helped_notes.toArray();
+    return { meta, state, inbox, rules, records, contexts, plan, settings, helped };
   });
   const [why, setWhy] = useState(false);
   if (!data || !data.meta) return <Screen title="Today">Loading…</Screen>;
@@ -165,6 +208,7 @@ export function Home() {
           ))}
         </div>
       )}
+      <HelpedPrompt records={records} settings={data.settings} helped={data.helped} />
       {inbox.length === 0 && <p className="muted">Nothing to do today.</p>}
 
       <h2>Your signals</h2>

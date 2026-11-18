@@ -21,7 +21,7 @@ const MODE = {
 } as const;
 
 /** Tasks whose input is the user's own text: it goes between delimiters, never as instructions. */
-const TEXT_TASKS = new Set<AnyTask>(["G", "G2", "H", "I", "B", "P", "Q_classify"]);
+const TEXT_TASKS = new Set<AnyTask>(["G", "G2", "H", "I", "B", "P", "Q_classify", "R", "T"]);
 
 const STRUCTURAL = new Set(["type", "properties", "required", "enum", "items", "additionalProperties"]);
 /** On-device constraint: only the structural keywords; the engine still validates everything (R8). */

@@ -29,6 +29,8 @@ export const TASKS: Record<TaskId, TaskDef> = {
   K: { id: "K", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "K", prompt: "K", priority: "P1" },
   Q: { id: "Q", dataClass: "S2", prefersCloud: false, hasLiteVariant: false, schema: "Q_classify", prompt: "Q_classify", priority: "P1" },
   P: { id: "P", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "P", prompt: "P", priority: "P1" },
+  R: { id: "R", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "R", prompt: "R", priority: "P1" },
+  T: { id: "T", dataClass: "S3", prefersCloud: false, hasLiteVariant: false, schema: "T", prompt: "T", priority: "P1" },
   D: { id: "D", dataClass: "S1", prefersCloud: true, hasLiteVariant: true, schema: "D", prompt: "D", priority: "P0" },
   E: { id: "E", dataClass: "S1", prefersCloud: true, hasLiteVariant: false, schema: "E", prompt: "E", priority: "P1" },
 };

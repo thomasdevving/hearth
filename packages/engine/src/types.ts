@@ -35,7 +35,7 @@ export interface DayRaw {
 export type FeatureId = string; // catalogue ids, or "place_visits:<placeId>"
 export type Domain = "activity" | "rhythm" | "sleep" | "body" | "mobility" | "phone";
 export type State = "WARM_UP" | "MONITOR" | "ELEVATED" | "CONFIRMED";
-export type TaskId = "G" | "G2" | "H" | "I" | "A" | "B" | "C" | "K" | "Q" | "P" | "D" | "E";
+export type TaskId = "G" | "G2" | "H" | "I" | "A" | "B" | "C" | "K" | "Q" | "P" | "D" | "E" | "R" | "T";
 export type QuestionnaireId = "PHQ2" | "PHQ9" | "GAD2" | "WHO5";
 export type DayType = "weekday" | "weekend";
 export type DataClass = "S1" | "S2" | "S3";

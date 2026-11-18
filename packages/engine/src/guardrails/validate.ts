@@ -12,11 +12,13 @@ import K from "../../../../shared/schemas/K.schema.json";
 import P from "../../../../shared/schemas/P.schema.json";
 import Q_classify from "../../../../shared/schemas/Q_classify.schema.json";
 import Q_phrase from "../../../../shared/schemas/Q_phrase.schema.json";
+import R from "../../../../shared/schemas/R.schema.json";
+import T from "../../../../shared/schemas/T.schema.json";
 
-export type SchemaId = "A" | "B" | "C" | "D" | "E" | "G" | "G2" | "H" | "I" | "K" | "P" | "Q_classify" | "Q_phrase";
+export type SchemaId = "A" | "B" | "C" | "D" | "E" | "G" | "G2" | "H" | "I" | "K" | "P" | "Q_classify" | "Q_phrase" | "R" | "T";
 
 /** The JSON Schemas in shared/schemas, keyed by id. */
-export const schemas: Record<SchemaId, object> = { A, B, C, D, E, G, G2, H, I, K, P, Q_classify, Q_phrase };
+export const schemas: Record<SchemaId, object> = { A, B, C, D, E, G, G2, H, I, K, P, Q_classify, Q_phrase, R, T };
 
 export interface ValidationResult {
   valid: boolean;

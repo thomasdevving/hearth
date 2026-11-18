@@ -1,0 +1,14 @@
+{
+  "$id": "R", "title": "Which of the user's own signs a check-in text describes", "type": "object", "additionalProperties": false,
+  "properties": {
+    "matches": {
+      "type": "array", "maxItems": 2,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "properties": { "sign_id": { "type": "string" }, "quote": { "type": "string", "maxLength": 120 } },
+        "required": ["sign_id", "quote"]
+      }
+    }
+  },
+  "required": ["matches"]
+}

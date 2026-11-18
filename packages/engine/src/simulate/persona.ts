@@ -41,6 +41,18 @@ export const SAM_PLAN_EXPECTED = {
   ],
 };
 
+/**
+ * "What helped me last time": a note Sam saved after an earlier hard week, before the replay
+ * starts. It is attached to Sam's own sign by its words ("stop replying to messages").
+ */
+export const SAM_HELPED_NOTE = {
+  signQuote: "stop replying to messages",
+  text: "Calling felt like too much. I texted Maya \u201cwalk tomorrow?\u201d and that was easier.",
+  message: "Walk tomorrow?",
+  contactName: "Maya",
+  savedOn: "2026-02-26",
+};
+
 export const SAM_HOLIDAY_TEXT = "I'm in Spain this week, back on Sunday.";
 export const SAM_EXAM_TEXT = "Exam week, lots of stress.";
 

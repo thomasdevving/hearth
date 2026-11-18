@@ -2,6 +2,7 @@
 // and the engine's actions become items in the inbox that the screens show.
 import {
   addDays,
+  SAM_HELPED_NOTE,
   dailyUpdate,
   dateOfTimestamp,
   defaultConfig,
@@ -51,6 +52,8 @@ export async function loadPersona(scenario: Scenario, seed: number): Promise<voi
   await updateSettings({ cloudConsent: prev.cloudConsent, onDeviceEnabled: prev.onDeviceEnabled, online: prev.online, onboarded: false, planDone: false, baselineDone: false, firstUploadConfirmed: prev.firstUploadConfirmed });
   await putSingleton(db.replay, { scenario, seed, startDate: data.startDate, today: data.startDate, dayNumber: 1, notesHandled: [] });
   await putSingleton(db.engine_state, initialState(seed));
+  // Sam saved one note after an earlier hard week, before the replay starts.
+  await db.helped_notes.put({ id: "seed-sam-1", signQuote: SAM_HELPED_NOTE.signQuote, text: SAM_HELPED_NOTE.text, audio: null, message: SAM_HELPED_NOTE.message, contactName: SAM_HELPED_NOTE.contactName, createdAt: SAM_HELPED_NOTE.savedOn, source: "seed", archived: false });
   setToday(data.startDate);
   emitChange();
 }

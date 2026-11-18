@@ -8,6 +8,9 @@ import { completeCheckin, skipCheckin } from "../app/actions";
 import { currentReplay, getMeta, openInbox } from "../app/runtime";
 import { INTRO_FIXED, INTRO_RANDOM, INTRO_TRIGGERED } from "../app/templates";
 import { MicButton } from "../ui/Speech";
+import { notesFor, recallFromText, userSigns, type Recall, type Sign } from "../app/helped";
+import type { HelpedNote } from "../store/db";
+import { HelpedCard } from "../ui/HelpedCard";
 
 type Scale = { id: "mood_low" | "enjoyment" | "energy"; text: string; min: number; max: number; min_label: string; max_label: string };
 const items = MOMENTARY_ITEMS.items;
@@ -31,6 +34,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
   const [busy, setBusy] = useState(false);
   const [prefill, setPrefill] = useState<"idle" | "working" | "done" | "none">("idle");
   const [done, setDone] = useState<string | null>(null);
+  const [recall, setRecall] = useState<Recall | null>(null);
   const [script, setScript] = useState<{ answers: Record<string, number | string>; personal: Record<string, PersonalAnswer>; freeText: string | null; expectedContext?: unknown } | null>(null);
 
   useEffect(() => {
@@ -57,6 +61,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
     return (
       <Screen title="Thanks">
         <p>{done}</p>
+        {recall && <RecallBlock recall={recall} />}
         <button className="primary" onClick={async () => navigate((await openInbox()).some((i) => i.type === "context_confirm") ? "home" : "home")}>
           Back to today
         </button>
@@ -68,6 +73,8 @@ export function Checkin({ params }: { params: Record<string, string> }) {
     const res = await completeCheckin(rec.id, a, { expectedContext });
     setBusy(false);
     if (res.safety) return;
+    // "What helped me last time": recall by meaning, on this device, from what was just written.
+    setRecall(a.freeText?.trim() ? await recallFromText(a.freeText) : { matches: [], ranOn: "none" });
     const after = rec.kind === "triggered" ? `This check-in came because some of your signals changed: ${rec.reasons.map((r) => r.phrase).join("; ") || "a small change across several signals"}.` : rec.kind === "fixed" ? "This was your regular check-in." : "This was a random check-in. They help you see later whether the app's questions are useful for you.";
     setDone(`${after}${res.offerPhq2 ? " Two short questions are waiting on the home screen." : ""}`);
   };
@@ -183,5 +190,81 @@ export function Checkin({ params }: { params: Record<string, string> }) {
         )}
       </div>
     </Screen>
+  );
+}
+
+/**
+ * After a check-in: if the text sounds like one of the user's own signs, ask, and on yes show
+ * what helped them last time. Without a match, the user can pick a sign (only when notes exist).
+ */
+function RecallBlock({ recall }: { recall: Recall }) {
+  const [signs, setSigns] = useState<Sign[]>([]);
+  const [withNotes, setWithNotes] = useState<Set<string>>(new Set());
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState(false);
+  const [notes, setNotes] = useState<HelpedNote[] | null>(null);
+  useEffect(() => {
+    (async () => {
+      const s = await userSigns();
+      setSigns(s);
+      const has = new Set<string>();
+      for (const sg of s) if ((await notesFor(sg.quote)).length) has.add(sg.quote);
+      setWithNotes(has);
+    })();
+  }, []);
+  const choose = async (quote: string) => {
+    setChosen(quote);
+    setNotes(await notesFor(quote));
+  };
+  const match = recall.matches[0];
+  if (chosen && notes)
+    return (
+      <>
+        {notes.length > 0 ? (
+          notes.map((n) => <HelpedCard key={n.id} note={n} signQuote={chosen} />)
+        ) : (
+          <div className="recall-ask">
+            <p>Nothing saved for “{chosen}” yet. When things are steadier, you can save what helped.</p>
+            <button className="link" onClick={() => navigate("helped_new", { sign: chosen })}>
+              Save what helped ›
+            </button>
+          </div>
+        )}
+      </>
+    );
+  if (match && !dismissed)
+    return (
+      <div className="recall-ask" role="group" aria-label="One of your signs?">
+        <div className="recall-head">
+          <strong>That sounds like one of your signs</strong>
+          <ModelBadge ranOn={recall.ranOn === "none" ? "template" : recall.ranOn} />
+        </div>
+        <p>
+          You wrote “{match.quote}”. You once named this sign: <strong>“{match.sign.quote}”</strong>. Is that right?
+        </p>
+        <div className="row">
+          <button className="primary" onClick={() => choose(match.sign.quote)}>
+            Yes, that's it
+          </button>
+          <button className="secondary" onClick={() => setDismissed(true)}>
+            Not quite
+          </button>
+        </div>
+      </div>
+    );
+  if (withNotes.size === 0) return null;
+  return (
+    <div className="recall-ask" role="group" aria-label="Do any of your signs feel true right now?">
+      <p>
+        <strong>Do any of your signs feel true right now?</strong>
+      </p>
+      <div className="chips">
+        {signs.map((s) => (
+          <button key={s.quote} type="button" onClick={() => choose(s.quote)}>
+            “{s.quote}”
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

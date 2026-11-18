@@ -13,6 +13,8 @@ const TASK_NAME: Record<string, string> = {
   B: "Diary markers",
   C: "Explain a result",
   K: "Pick your own actions",
+  R: "Recall what helped",
+  T: "Draft a text",
   Q: "Ask your data",
   P: "Shareable weekly note",
   D: "Weekly reflection",

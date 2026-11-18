@@ -68,6 +68,8 @@ names above are logical; map them to the SDK's enum on each platform.
 | P | Privacy gateway: week's texts → shareable note | S3 | P1 | no | No note is shared |
 | D | Weekly reflection (lite on-device, full in cloud) | S1 | P0 | yes | Template with the numbers |
 | E | Clinician report with questions to bring | S1 | P1 | yes | Table of aggregates only |
+| R | Check-in text → which of the user's own signs it describes (recall what helped) | S3 | P1 | no | The user picks a sign from their own list |
+| T | Saved "what helped" note → a short text to someone they trust | S3 | P1 | no | The person's saved message, or the message quoted in their note |
 
 Schemas are in `shared/schemas/<id>.schema.json`; system prompts in
 `shared/prompts/<id>.md`. On iOS, mirror each schema as a `@Generable` Swift type; the
@@ -187,6 +189,20 @@ Only an approved note becomes part of `WeekAggregate.note` (class S1).
 - **Input:** 12 `WeekAggregate` records and the confirmed rule list as enums (no quotes).
 - **Output:** `summary`, `timeline[]`, `questions_to_bring[]` (max 3).
 - Cloud only. Rendered on the `report` screen next to the raw aggregate table.
+
+### R · Recall what helped (P1)
+- **Input:** the check-in free text (`<user_text>`) and the user's signs as `{id, words}`
+  (their own words from the plan).
+- **Output:** `matches[]` of `{sign_id, quote}`, at most 2. Match by meaning.
+- **Code:** only ids from the list; every `quote` must be in the check-in text (quote check).
+- **Then:** the app asks "That sounds like one of your signs … Is that right?" and only on
+  yes shows the notes saved for that sign. The model never chooses what is shown.
+
+### T · Draft a text (P1)
+- **Input:** a saved "what helped" note (`<user_text>`), the contact's name, the saved message.
+- **Output:** `message`, at most two sentences.
+- **Code:** schema, ≤ 40 words, banned words, number check. Shown in an editable box; the
+  person opens it in their own messaging app. Hearth never sends anything.
 
 ## 5. Guardrails in code
 

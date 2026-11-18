@@ -9,6 +9,7 @@ import { closeInbox, openInbox } from "../app/runtime";
 import { useEffect, useState } from "react";
 import { router } from "../inference";
 import { ModelBadge } from "../ui/kit";
+import { HelpedCard } from "../ui/HelpedCard";
 
 export function MyPlan() {
   const d = useData(async () => ({
@@ -18,6 +19,7 @@ export function MyPlan() {
     state: await getEngineState(),
     source: await getSingleton(db.plan_source),
     last: (await db.day_records.orderBy("date").last()) ?? null,
+    helped: (await db.helped_notes.toArray()).filter((n) => !n.archived).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
   }));
   const [fit, setFit] = useState<{ ids: string[]; ranOn: "on_device" | "cloud" } | null>(null);
   // Task K: which of the user's own actions fit today. The model returns ids only; the user's
@@ -94,6 +96,17 @@ export function MyPlan() {
           </button>
         </Card>
       )}
+      <h2 className="plan-group">What helped you before</h2>
+      {d.helped.length === 0 && <p className="muted">After a hard stretch, save what helped. Hearth brings it back when the same sign shows up.</p>}
+      {d.helped.map((n) => (
+        <div key={n.id}>
+          <small className="muted">For “{n.signQuote}”</small>
+          <HelpedCard note={n} compact />
+        </div>
+      ))}
+      <button className="secondary" onClick={() => navigate("helped_new")}>
+        Save what helped
+      </button>
       <h2 className="plan-group">Signs you watch for</h2>
       <ul className="plan-list">
         {d.rules.map((r) => (

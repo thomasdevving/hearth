@@ -96,6 +96,7 @@ Logical collections. Web: Dexie tables. iOS: SwiftData models with file protecti
 | 2.9 | `ledger` | id | see below | — | kept |
 | 2.10 | `questionnaires` | id | `QuestionnaireRecord` | S2 | kept |
 | 2.11 | `safety_plan`, `trusted_contact` | singleton | free text, name, phone | S3 | until deleted |
+| 2.11b | `helped_notes` | id | sign (by the user's own words), sentence, optional voice note (≤ 15 s, local blob), optional message and contact name, date, archived | S3 | until deleted; voice notes are never uploaded or exported |
 | 2.12 | `safety_events` | id | timestamp, entry point | S2 | kept, never uploaded |
 | 2.13 | `settings` | singleton | consent flags, sensor switches, country, schedule mode | — | kept |
 | 2.14 | `week_aggregates` | isoWeek | `WeekAggregate`, `uploaded` flag | S1 | kept |

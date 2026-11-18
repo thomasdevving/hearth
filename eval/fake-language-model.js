@@ -30,6 +30,14 @@ window.LanguageModel = class {
         else if (system.includes("classify a question")) out = { intent: "compare", feature: "rest_midpoint", period: "last_week" };
         else if (system.includes("answer a question using only the facts")) out = { answer: "Your rest was later last week than your usual." };
         else if (system.includes("Transcribe the handwritten")) out = { text: "When it goes wrong I go to bed later and skip the gym. Calling my sister helps." };
+        else if (system.includes("just wrote in a check-in")) {
+          const signs = [...user.matchAll(/"id":"([^"]+)","words":"([^"]+)"/g)].map(m => ({ id: m[1], words: m[2] }));
+          const text = (user.split("<user_text>")[1] || "").split("</user_text>")[0];
+          const people = signs.find(x => /repl|message|people|friend/i.test(x.words));
+          const q = ["avoiding people again", "Haven't answered anyone in days"].find(x => text.includes(x));
+          out = { matches: people && q ? [{ sign_id: people.id, quote: q }] : [] };
+        }
+        else if (system.includes("write a short text message")) out = { message: user.includes("Maya") ? "Hey Maya, walk tomorrow?" : "Walk tomorrow?" };
         else if (system.includes("weekly reflection")) out = { reflection: "A quieter week than the one before.", open_question: "What made the better days different?" };
         return JSON.stringify(out);
       },
