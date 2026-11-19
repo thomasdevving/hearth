@@ -1,3 +1,4 @@
+import { findQuoteSpan } from "../src/guardrails/quotes";
 import { describe, expect, it } from "vitest";
 import {
   CRISIS_KEYWORDS,
@@ -233,5 +234,24 @@ describe("banned words and task checks", () => {
     const long = Array.from({ length: 70 }, () => "word").join(" ");
     expect(verifyTask("D", { reflection: long, open_question: "What helped?" }, { variant: "lite", facts: {} }).ok).toBe(false);
     expect(verifyTask("D", { reflection: long, open_question: "What helped?" }, { variant: "full", facts: {} }).ok).toBe(true);
+  });
+});
+
+describe("quote check tolerates a dropped word, never an invented one", () => {
+  const SAM = "When things go wrong I keep going to bed later, I skip the gym, I stay inside more and I eat badly. I also stop replying to messages.";
+  it("a quote missing a word or two of the user's text is found, and the user's own span is returned", () => {
+    expect(findQuoteSpan("I stop replying to messages", SAM)).toBe("I also stop replying to messages");
+    expect(findQuoteSpan("going to bed later", SAM)).toBe("going to bed later");
+    expect(findQuoteSpan("I keep going to bed later", SAM)).toBe("I keep going to bed later");
+  });
+  it("words that are not in the text, or in another order, still fail", () => {
+    expect(findQuoteSpan("I stop walking my dog", SAM)).toBeNull();
+    expect(findQuoteSpan("replying to messages stop", SAM)).toBeNull();
+    expect(findQuoteSpan("I skip messages", SAM)).toBeNull(); // more than two words in between
+  });
+  it("verifyPlan keeps a paraphrased-by-omission sign and stores the user's own words", () => {
+    const plan = verifyPlan({ rules: [], personal_checkin_items: [{ question: "Did you reply to messages today?", quote: "I stop replying to messages" }], actions: [] }, SAM);
+    expect(plan.personal_checkin_items).toEqual([{ question: "Did you reply to messages today?", quote: "I also stop replying to messages" }]);
+    expect(plan.dropped).toBe(0);
   });
 });

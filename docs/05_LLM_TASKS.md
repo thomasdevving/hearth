@@ -209,7 +209,10 @@ Only an approved note becomes part of `WeekAggregate.note` (class S1).
 ### 5.1 Quote verification (`guardrails/quotes.ts`)
 Normalise both strings: lowercase, Unicode NFKC, replace every run of non-alphanumeric
 characters with one space, trim. A quote is valid when it has at least 3 characters and
-the normalised quote is a substring of the normalised source text.
+the normalised quote is a substring of the normalised source text, or when every word of
+the quote appears in the source in the same order with at most 2 extra source words in
+between (a model that drops "also" from "I also stop replying"). In the second case the
+user's own span of text replaces the model's quote, so a card always shows what they wrote.
 
 ### 5.2 Number check
 Extract all numbers from the model's text. Each must equal a number present in the input

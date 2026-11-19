@@ -167,6 +167,9 @@ th { background: var(--surface-2); font-weight: 600; position: sticky; top: 0; }
 .today-pick small { color: var(--ink-2); }
 
 /* ---------- plan cards (plan setup) ---------- */
+.add-own { display: inline-block; margin: var(--s4) 0 var(--s2); }
+.add-own-form { margin: var(--s4) 0; padding: var(--s4); border: 1px dashed var(--magenta-line); border-radius: var(--radius); }
+.add-own-form .row { margin-bottom: 0; }
 .plan-group { font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: var(--s5) 0 var(--s2); }
 .plan-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); overflow: hidden; }
 .plan-item { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); transition: opacity 0.15s; }

@@ -4,7 +4,7 @@ import { defaultConfig } from "../config";
 import { CONTEXT_TABLE } from "../context";
 import { featureDef } from "../features/catalogue";
 import { validate } from "./validate";
-import { verifyQuote } from "./quotes";
+import { findQuoteSpan, verifyQuote } from "./quotes";
 import { resolveContextPeriod, resolveDateHint } from "./dates";
 import { hasBannedWords, numberCheck, piiCheck } from "./text";
 
@@ -48,7 +48,7 @@ export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defau
       continue;
     }
     seen.add(key);
-    rules.push({ feature: r.feature, direction: r.direction, place_label: label || null, quote: r.quote });
+    rules.push({ feature: r.feature, direction: r.direction, place_label: label || null, quote: findQuoteSpan(r.quote, sourceText) ?? r.quote });
   }
   const items: { question: string; quote: string }[] = [];
   const seenItems = new Set<string>();
@@ -59,7 +59,7 @@ export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defau
       continue;
     }
     seenItems.add(key);
-    items.push({ question: it.question.trim(), quote: it.quote });
+    items.push({ question: it.question.trim(), quote: findQuoteSpan(it.quote, sourceText) ?? it.quote });
   }
   const actions: { text: string; quote: string }[] = [];
   const seenActions = new Set<string>();
@@ -70,7 +70,7 @@ export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defau
       continue;
     }
     seenActions.add(key);
-    actions.push({ text: a.text.trim(), quote: a.quote });
+    actions.push({ text: a.text.trim(), quote: findQuoteSpan(a.quote, sourceText) ?? a.quote });
   }
   return { rules, personal_checkin_items: items, actions, dropped, valid: true };
 }
@@ -233,7 +233,7 @@ export function verifyTask(task: TaskId | "Q_classify" | "Q_phrase", raw: unknow
         if (!allowed.has(m.sign_id) || seen.has(m.sign_id) || !verifyQuote(m.quote, ctx.sourceText ?? "")) return false;
         seen.add(m.sign_id);
         return true;
-      });
+      }).map((m) => ({ sign_id: m.sign_id, quote: findQuoteSpan(m.quote, ctx.sourceText ?? "") ?? m.quote }));
       return { ok: true, value: { matches } };
     }
     case "T": {

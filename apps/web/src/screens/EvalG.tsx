@@ -8,7 +8,9 @@ import { G_CASES, scoreCase, summarise, type GCaseResult } from "../eval/taskG";
 import { promptFor } from "../inference/prompts";
 import { H_CASES, H_TODAY, ledgerStats, scoreH } from "../eval/stats";
 import { useData } from "../ui/hooks";
-import type { VerifiedContext } from "@hearth/engine";
+import type { DiaryMarkers, VerifiedContext } from "@hearth/engine";
+import bEveryday from "../../../../eval/task_b_everyday.json";
+import crisisSet from "../../../../eval/crisis.json";
 
 /** Hidden screen (#/eval_g): runs the task G evaluation set through the real model. */
 export function EvalG() {
@@ -43,6 +45,20 @@ export function EvalG() {
       setH([...out]);
     }
     setHBusy(false);
+  };
+  // Task B crisis flag: false positives on everyday low-mood texts, and recall on crisis sentences.
+  const [b, setB] = useState<{ text: string; crisis: string; kind: "everyday" | "crisis" }[]>([]);
+  const [bBusy, setBBusy] = useState(false);
+  const runB = async () => {
+    setBBusy(true);
+    const out: typeof b = [];
+    const cases = [...bEveryday.texts.map((t) => ({ text: t, kind: "everyday" as const })), ...crisisSet.crisis.map((t: string) => ({ text: t, kind: "crisis" as const }))];
+    for (const c of cases) {
+      const res = await router().run<DiaryMarkers>("B", { text: c.text }, { sourceText: c.text });
+      out.push({ text: c.text, kind: c.kind, crisis: res.ok ? res.value.crisis : `fallback (${res.reason})` });
+      setB([...out]);
+    }
+    setBBusy(false);
   };
   const s = summarise(results);
   const pct = (x: number | null) => (x === null ? "–" : `${Math.round(x * 100)} %`);
@@ -125,6 +141,30 @@ export function EvalG() {
               <li key={x.text}>
                 <small>
                   “{x.text}” → {x.got}
+                </small>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <h2>Task B · crisis flag</h2>
+      <p className="muted">
+        {bEveryday.texts.length} everyday low-mood texts with no crisis (eval/task_b_everyday.json) and {crisisSet.crisis.length} crisis sentences (eval/crisis.json). Model only; the keyword check is not included here.
+      </p>
+      <button className="secondary" disabled={bBusy} onClick={runB}>
+        {bBusy ? `Running ${b.length + 1} of ${bEveryday.texts.length + crisisSet.crisis.length}…` : "Run task B"}
+      </button>
+      {b.length > 0 && (
+        <>
+          <p>
+            False positives on everyday texts: {b.filter((x) => x.kind === "everyday" && x.crisis !== "none" && !x.crisis.startsWith("fallback")).length} of {b.filter((x) => x.kind === "everyday").length}
+            {" "}(possible: {b.filter((x) => x.kind === "everyday" && x.crisis === "possible").length}, explicit: {b.filter((x) => x.kind === "everyday" && x.crisis === "explicit").length}). Crisis sentences flagged: {b.filter((x) => x.kind === "crisis" && (x.crisis === "possible" || x.crisis === "explicit")).length} of {b.filter((x) => x.kind === "crisis").length}.
+          </p>
+          <ul className="plain-list">
+            {b.filter((x) => (x.kind === "everyday" && x.crisis !== "none") || (x.kind === "crisis" && x.crisis === "none")).map((x) => (
+              <li key={x.text}>
+                <small>
+                  {x.kind === "everyday" ? "False alarm" : "Missed"}: “{x.text}” → {x.crisis}
                 </small>
               </li>
             ))}

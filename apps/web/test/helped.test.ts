@@ -72,3 +72,13 @@ describe("what helped me last time (tasks R and T)", () => {
     expect((await notesFor("going to bed later")).map((n) => n.text)).toEqual(["Phone out of the bedroom at ten."]);
   });
 });
+
+describe("notes follow the sign when the wording differs a little", () => {
+  it("a note for 'stop replying to messages' shows for the sign 'I also stop replying to messages'", async () => {
+    await db.delete();
+    await db.open();
+    await loadPersona("default", 1);
+    expect((await notesFor("I also stop replying to messages")).length).toBe(1);
+    expect((await notesFor("I skip the gym")).length).toBe(0);
+  });
+});

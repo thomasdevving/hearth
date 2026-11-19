@@ -7,7 +7,7 @@ import { router } from "../inference";
 import { ModelBadge, Screen } from "../ui/kit";
 import { DIRECTION_TEXT, featureLabel } from "../app/labels";
 import { MicButton } from "../ui/Speech";
-import { detectCrisis, verifyPlan, type VerifiedPlan, type PersonaPlace, type RuleDirection } from "@hearth/engine";
+import { detectCrisis, hasBannedWords, verifyPlan, type VerifiedPlan, type PersonaPlace, type RuleDirection } from "@hearth/engine";
 
 type Status = { kind: "idle" } | { kind: "working" } | { kind: "cards"; plan: VerifiedPlan; ranOn: "on_device" | "cloud" | "template"; dropped: number } | { kind: "fallback"; reason: string };
 
@@ -218,7 +218,13 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
             ))}
           </ul>
         )}
-        {plan.rules.length + plan.personal_checkin_items.length + plan.actions.length === 0 && <p>No cards came out of this text. You can add them by hand.</p>}
+        {plan.rules.length + plan.personal_checkin_items.length + plan.actions.length === 0 && <p>No cards came out of this text. Add your signs in your own words below.</p>}
+        <AddOwnSign
+          onAdd={(item) => {
+            setStatus({ ...status, plan: { ...plan, personal_checkin_items: [...plan.personal_checkin_items, item] } });
+            setItemsOk([...itemsOk, true]);
+          }}
+        />
         <div className="row">
           <button className="secondary" onClick={() => setStatus({ kind: "idle" })}>
             Edit my text
@@ -312,6 +318,57 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
         <small>Not sure? That's fine. Hearth notices changes from your usual days on its own, and you can add your signs later, ideally together with your GP or therapist.</small>
       </p>
     </Screen>
+  );
+}
+
+/**
+ * A sign the model missed, added in the user's own words. It becomes one of their check-in
+ * questions (no model involved, so no quote check is needed: these are the user's words).
+ */
+function AddOwnSign({ onAdd }: { onAdd: (item: { question: string; quote: string }) => void }) {
+  const [open, setOpen] = useState(false);
+  const [sign, setSign] = useState("");
+  const [question, setQuestion] = useState("");
+  const [edited, setEdited] = useState(false);
+  const suggested = sign.trim() ? `Did you notice this today: “${sign.trim()}”?` : "";
+  const q = edited ? question : suggested;
+  const bad = hasBannedWords(q);
+  if (!open)
+    return (
+      <button className="link add-own" onClick={() => setOpen(true)}>
+        + Missing a sign? Add it in your own words
+      </button>
+    );
+  return (
+    <div className="add-own-form">
+      <label className="stack">
+        <strong>Your sign, in your own words</strong>
+        <input value={sign} onChange={(e) => setSign(e.target.value)} placeholder="For example: I stop replying to messages" autoFocus />
+      </label>
+      <label className="stack">
+        <span>Hearth asks you this in check-ins</span>
+        <input value={q} onChange={(e) => { setEdited(true); setQuestion(e.target.value); }} placeholder="Did you reply to messages today?" />
+      </label>
+      {bad && <small className="muted">Please word the question without diagnostic terms.</small>}
+      <div className="row">
+        <button
+          className="primary"
+          disabled={!sign.trim() || !q.trim() || bad}
+          onClick={() => {
+            onAdd({ question: q.trim(), quote: sign.trim() });
+            setSign("");
+            setQuestion("");
+            setEdited(false);
+            setOpen(false);
+          }}
+        >
+          Add this sign
+        </button>
+        <button className="secondary" onClick={() => setOpen(false)}>
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }
 

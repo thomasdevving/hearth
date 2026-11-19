@@ -1,5 +1,5 @@
 // "What helped me last time" (docs/05 tasks R and T). Everything here stays on this device (S3).
-import { draftWithoutModel } from "@hearth/engine";
+import { draftWithoutModel, normalizeForQuote } from "@hearth/engine";
 import { db, newId, type HelpedNote } from "../store/db";
 import { router } from "../inference";
 import { getToday } from "./clock";
@@ -19,8 +19,15 @@ export async function userSigns(): Promise<Sign[]> {
   return [...rules, ...items].filter((s) => s.quote && !seen.has(s.quote) && seen.add(s.quote));
 }
 
+/** Same sign when one wording contains the other ("stop replying to messages" ⊂ "I also stop replying to messages"). */
+export function sameSign(a: string, b: string): boolean {
+  const x = normalizeForQuote(a);
+  const y = normalizeForQuote(b);
+  return x.length >= 3 && y.length >= 3 && (x.includes(y) || y.includes(x));
+}
+
 export async function notesFor(signQuote: string): Promise<HelpedNote[]> {
-  return (await db.helped_notes.where("signQuote").equals(signQuote).toArray()).filter((n) => !n.archived).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return (await db.helped_notes.toArray()).filter((n) => !n.archived && sameSign(n.signQuote, signQuote)).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
 export async function saveNote(n: { signQuote: string; text: string; audio: Blob | null; message: string | null; contactName: string | null }): Promise<void> {

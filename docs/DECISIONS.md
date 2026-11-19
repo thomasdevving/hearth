@@ -629,3 +629,20 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - The "what helped?" prompt on Today appears once after a hard stretch ends (state back to
   MONITOR, a changed day in the last 14 days); "Not now" closes it for that stretch.
 
+## Findings from the first run with Gemini Nano (2026-11-19)
+
+- **Quote check tolerates dropped words.** Nano quoted "I stop replying to messages" for "I also
+  stop replying to messages"; the strict substring check removed the card. `findQuoteSpan` now
+  first tries the old substring rule, then accepts the quote if all its words appear in the
+  user's text in the same order with at most 2 extra words in between, and stores the user's
+  own span as the quote. Invented words still fail. docs/05 §5.1 is read this way from now on.
+- **Add a sign in your own words** on the cards screen, for a sign the model missed. It becomes a
+  check-in question with the user's words as its quote (no model, so no quote check).
+- **Notes follow the sign when the wording differs a little** (one wording contains the other).
+- **Crisis flag (task B).** Prompt v2 keeps "when unsure, choose possible" for thoughts of death or
+  self-harm, and says that low mood, avoiding people and phrases like "dead tired" alone are not
+  crisis. Sensitivity on real crisis wording is unchanged by intent; the keyword check runs
+  first anyway. Whether `possible` should open the full safety screen or show the support
+  resources in place is an open design decision (docs/05, docs/06) for the owner, ideally with
+  a clinician. New metric 9b measures false positives on everyday texts (`#/eval_g`).
+
