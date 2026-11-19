@@ -86,7 +86,7 @@ button.link { background: none; border: none; color: var(--magenta); padding: va
 button.link:hover:not(:disabled) { background: none; color: var(--magenta-deep); }
 button.danger { background: var(--danger); color: var(--white); border-color: var(--danger); }
 button.back { padding-right: var(--s2); }
-textarea, input[type="text"], input[type="tel"], input[type="date"], input[type="number"], select { border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: var(--s3); background: var(--white); min-height: 44px; }
+textarea, input:not([type]), input[type="text"], input[type="tel"], input[type="date"], input[type="number"], select { border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: var(--s3); background: var(--white); min-height: 44px; }
 textarea:focus, input:focus, select:focus { border-color: var(--magenta); outline: none; box-shadow: 0 0 0 3px var(--magenta-tint); }
 label.stack { gap: var(--s2); }
 input[type="checkbox"] { accent-color: var(--magenta); }

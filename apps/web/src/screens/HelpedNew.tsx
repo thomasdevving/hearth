@@ -89,11 +89,11 @@ export function HelpedNew({ params }: { params: Record<string, string> }) {
         <summary>A text you could send (optional)</summary>
         <label className="stack">
           <span>To</span>
-          <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Maya" />
+          <input type="text" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Maya" />
         </label>
         <label className="stack">
           <span>Message</span>
-          <input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Walk tomorrow?" />
+          <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Walk tomorrow?" />
         </label>
       </details>
       <div className="row">

@@ -336,18 +336,18 @@ function AddOwnSign({ onAdd }: { onAdd: (item: { question: string; quote: string
   if (!open)
     return (
       <button className="link add-own" onClick={() => setOpen(true)}>
-        + Missing a sign? Add it in your own words
+        + Add your own sign
       </button>
     );
   return (
     <div className="add-own-form">
       <label className="stack">
-        <strong>Your sign, in your own words</strong>
-        <input value={sign} onChange={(e) => setSign(e.target.value)} placeholder="For example: I stop replying to messages" autoFocus />
+        <strong>Your sign</strong>
+        <input type="text" value={sign} onChange={(e) => setSign(e.target.value)} placeholder="For example: I stop replying to messages" autoFocus />
       </label>
       <label className="stack">
         <span>Hearth asks you this in check-ins</span>
-        <input value={q} onChange={(e) => { setEdited(true); setQuestion(e.target.value); }} placeholder="Did you reply to messages today?" />
+        <input type="text" value={q} onChange={(e) => { setEdited(true); setQuestion(e.target.value); }} placeholder="Did you reply to messages today?" />
       </label>
       {bad && <small className="muted">Please word the question without diagnostic terms.</small>}
       <div className="row">

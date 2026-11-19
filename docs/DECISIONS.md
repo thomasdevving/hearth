@@ -645,3 +645,9 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   first anyway. New metric 9b measures false positives on everyday texts (`#/eval_g`).
 - **`possible` shows support in place** (owner's decision, 2026-11-19): docs/06 §4.4. `explicit`,
   keyword hits, PHQ-9 item 9 and the button keep the full screen. To review with a clinician.
+- **Prompt G v2.** Every sign mentioned becomes exactly one entry (no merging or skipping);
+  quotes are copied word for word, including small words like "also"; category hints for
+  common signs (bed later → rest_midpoint, skipping the gym → place_visits, …) and one worked
+  example whose wording does not occur in `eval/task_g.json`. The category hints are general,
+  but they do touch signs in the evaluation set, so metric 7 is not fully blind to them.
+
