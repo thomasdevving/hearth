@@ -49,7 +49,7 @@ export interface HelpedNote {
 export interface SafetyEvent {
   id: string;
   at: string;
-  entry: "phq9_item9" | "keyword" | "model_crisis" | "button";
+  entry: "phq9_item9" | "keyword" | "model_crisis" | "model_possible" | "button";
 }
 
 export interface Settings {
@@ -102,6 +102,7 @@ export type InboxItem = {
   | { type: "show_plan" }
   | { type: "note"; text: string; expectedContext: unknown }
   | { type: "upload_preview"; isoWeek: string }
+  | { type: "support" } // support shown in place after a *possible* crisis label (docs/06 §4.4)
 );
 
 export interface WeekRow {

@@ -71,7 +71,8 @@ interface QuestionnaireResult {
 ### 4.1 Entry points
 1. PHQ-9 item 9 answered above 0.
 2. `detectCrisis` matches any free text (check-in, plan, ask-your-data question).
-3. Task B or task Q returns a crisis value other than `none`.
+3. Task B returns `crisis: "explicit"`, or task Q classifies a question as `crisis`.
+   Task B `crisis: "possible"` shows support in place instead (§4.4).
 4. The user taps "I need help now", which is on `home` and `settings` at all times.
 
 ### 4.2 The `safety` screen
@@ -93,6 +94,19 @@ Shown full-screen, immediately, with no network needed:
   safety. It is not a crisis service and says so in onboarding.
 - Opening the flow is logged locally only (`safety_events`), never uploaded.
 - No risk scoring: the app does not administer the C-SSRS or classify risk.
+
+### 4.4 Support in place (task B `possible`)
+A small on-device model is often unsure, and "when unsure choose possible" would otherwise put
+ordinary low-mood text on the full-screen safety page; frequent takeovers scare people and
+teach them to ignore it. So for `possible` (and only when no keyword matched):
+- A support card appears on the screen the person is on (the check-in's thanks screen, and on
+  `home` until closed): a calm line, the crisis line for their country with a call button,
+  the trusted contact if set, the emergency text, and links to their safety plan and to the
+  full support screen.
+- "I'm OK for now" becomes active only after the card has been visible for 3 seconds (R7).
+- Logged locally as `model_possible`. Keyword hits, `explicit`, PHQ-9 item 9 and the button
+  still open the full screen (§4.2).
+Decided by the project owner on 2026-11-19; to be reviewed with a clinician.
 
 ## 5. Required tests
 

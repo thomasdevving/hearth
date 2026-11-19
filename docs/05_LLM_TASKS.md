@@ -145,7 +145,8 @@ The user answers the check-in by talking for a few seconds.
 - **Input:** one free-text answer, in chunks of at most 2 500 tokens.
 - **Output:** ordinal 0–3 for `negative_affect`, `anhedonic_language`, `social_withdrawal`,
   `hopelessness`; `sleep_complaint` boolean; up to 3 `themes` (enum); `crisis` enum.
-- `crisis ≠ "none"` opens the safety flow. The keyword check (§5.3) runs regardless of the model.
+- `crisis: "explicit"` opens the safety flow; `crisis: "possible"` shows support in place
+  (docs/06 §4.4). The keyword check (§5.3) runs regardless of the model, and first.
 - Markers are stored and charted only (rule R6).
 
 ### C · Explain a result

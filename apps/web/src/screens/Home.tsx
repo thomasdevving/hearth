@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { db, getSettings, getSingleton, updateSettings, type HelpedNote, type Settings } from "../store/db";
 import type { DayRecord } from "@hearth/engine";
-import { getEngineState, getMeta, openInbox } from "../app/runtime";
+import { closeInbox, getEngineState, getMeta, openInbox } from "../app/runtime";
+import { SupportCard } from "../ui/SupportCard";
 import { useData } from "../ui/hooks";
 import { Card, Screen, Sparkline } from "../ui/kit";
 import { STATE_LABEL, STATE_TEXT, featureLabel, formatValue, ruleFeature, CONTEXT_LABEL, prettyDate } from "../app/labels";
@@ -63,6 +64,15 @@ function InboxCard({ item }: { item: InboxItem }) {
       );
     case "note":
       return <NoteSuggestion item={item} />;
+    case "support":
+      return (
+        <SupportCard
+          onClose={async () => {
+            await closeInbox(item.id, "done");
+            emitChange();
+          }}
+        />
+      );
   }
 }
 

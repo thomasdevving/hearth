@@ -79,9 +79,14 @@ export async function processFreeText(text: string, opts: TextOptions): Promise<
   if (b.ok) {
     const entry = await db.diary.get(opts.diaryId);
     if (entry) await db.diary.put({ ...entry, markers: b.value, markersSource: b.ranOn });
-    if (b.value.crisis !== "none") {
+    if (b.value.crisis === "explicit") {
       await openSafety("model_crisis");
       return true;
+    }
+    if (b.value.crisis === "possible") {
+      // docs/06 §4.4: support in place, not a full-screen takeover; the resources are always shown.
+      await db.safety_events.put({ id: newId("safety"), at: nowStamp(), entry: "model_possible" });
+      if (!(await openInbox()).some((i) => i.type === "support")) await addInbox({ date: opts.date, type: "support" });
     }
   }
   emitChange();
@@ -132,7 +137,7 @@ export interface CheckinAnswers {
   freeText: string | null;
 }
 
-export async function completeCheckin(checkinId: string, a: CheckinAnswers, opts: { auto?: boolean; expectedContext?: unknown } = {}): Promise<{ safety: boolean; offerPhq2: boolean }> {
+export async function completeCheckin(checkinId: string, a: CheckinAnswers, opts: { auto?: boolean; expectedContext?: unknown } = {}): Promise<{ safety: boolean; offerPhq2: boolean; support: boolean }> {
   const rec = await db.checkins.get(checkinId);
   if (!rec) throw new Error("unknown check-in");
   const date = dateOfTimestamp(rec.scheduledAt);
@@ -163,7 +168,7 @@ export async function completeCheckin(checkinId: string, a: CheckinAnswers, opts
     await addInbox({ date, type: "questionnaire", instrument: "PHQ2", reason: "momentary" });
   }
   emitChange();
-  return { safety, offerPhq2: out.offerPhq2 };
+  return { safety, offerPhq2: out.offerPhq2, support: (await openInbox()).some((i) => i.type === "support") };
 }
 
 /** "Not today": the check-in counts as ignored. */

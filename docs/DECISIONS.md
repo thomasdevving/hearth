@@ -642,7 +642,6 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
 - **Crisis flag (task B).** Prompt v2 keeps "when unsure, choose possible" for thoughts of death or
   self-harm, and says that low mood, avoiding people and phrases like "dead tired" alone are not
   crisis. Sensitivity on real crisis wording is unchanged by intent; the keyword check runs
-  first anyway. Whether `possible` should open the full safety screen or show the support
-  resources in place is an open design decision (docs/05, docs/06) for the owner, ideally with
-  a clinician. New metric 9b measures false positives on everyday texts (`#/eval_g`).
-
+  first anyway. New metric 9b measures false positives on everyday texts (`#/eval_g`).
+- **`possible` shows support in place** (owner's decision, 2026-11-19): docs/06 §4.4. `explicit`,
+  keyword hits, PHQ-9 item 9 and the button keep the full screen. To review with a clinician.

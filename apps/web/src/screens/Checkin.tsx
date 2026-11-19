@@ -11,6 +11,7 @@ import { MicButton } from "../ui/Speech";
 import { notesFor, recallFromText, userSigns, type Recall, type Sign } from "../app/helped";
 import type { HelpedNote } from "../store/db";
 import { HelpedCard } from "../ui/HelpedCard";
+import { SupportCard } from "../ui/SupportCard";
 
 type Scale = { id: "mood_low" | "enjoyment" | "energy"; text: string; min: number; max: number; min_label: string; max_label: string };
 const items = MOMENTARY_ITEMS.items;
@@ -35,6 +36,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
   const [prefill, setPrefill] = useState<"idle" | "working" | "done" | "none">("idle");
   const [done, setDone] = useState<string | null>(null);
   const [recall, setRecall] = useState<Recall | null>(null);
+  const [support, setSupport] = useState(false);
   const [script, setScript] = useState<{ answers: Record<string, number | string>; personal: Record<string, PersonalAnswer>; freeText: string | null; expectedContext?: unknown } | null>(null);
 
   useEffect(() => {
@@ -60,8 +62,9 @@ export function Checkin({ params }: { params: Record<string, string> }) {
   if (done)
     return (
       <Screen title="Thanks">
+        {support && <SupportCard />}
         <p>{done}</p>
-        {recall && <RecallBlock recall={recall} />}
+        {recall && !support && <RecallBlock recall={recall} />}
         <button className="primary" onClick={async () => navigate((await openInbox()).some((i) => i.type === "context_confirm") ? "home" : "home")}>
           Back to today
         </button>
@@ -73,6 +76,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
     const res = await completeCheckin(rec.id, a, { expectedContext });
     setBusy(false);
     if (res.safety) return;
+    setSupport(res.support);
     // "What helped me last time": recall by meaning, on this device, from what was just written.
     setRecall(a.freeText?.trim() ? await recallFromText(a.freeText) : { matches: [], ranOn: "none" });
     const after = rec.kind === "triggered" ? `This check-in came because some of your signals changed: ${rec.reasons.map((r) => r.phrase).join("; ") || "a small change across several signals"}.` : rec.kind === "fixed" ? "This was your regular check-in." : "This was a random check-in. They help you see later whether the app's questions are useful for you.";
