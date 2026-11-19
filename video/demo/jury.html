@@ -87,7 +87,7 @@ const DEMO = [
   { from: ["jump_holiday", 0], to: ["holiday_check", 0], n: 4, title: "Day 61: \u201cI\u2019m in Spain this week\u201d", sub: "The time machine replays Sam\u2019s simulated sensor data." },
   { from: ["holiday_check", 0], to: ["jump_change", 0], n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
   { from: ["jump_change", 0], to: ["changed", 0], speed: 1.5, n: 5, title: "Day 109", sub: "Sam\u2019s days have been drifting for six days." },
-  { from: ["changed", 0], to: ["checkin", 0], speed: 1.25, n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
+  { from: ["changed", 0], to: ["checkin", 0], n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
   { from: ["checkin", 0], to: ["checkin_text", 0], speed: 2.2, n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
   { from: ["checkin_text", 0], to: ["recall_ask", 0], n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
   { from: ["recall_ask", 0], to: ["recall_card", 0], n: 7, title: "Gemini Nano recognises one of Sam\u2019s signs", sub: "By meaning, on the device. Sam confirms it.", callout: "recall" },
@@ -112,7 +112,7 @@ function layout(marks) {
   }
   let cur = 0;
   const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-  seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 11); seg("theory", 14); seg("arch", 13); seg("control", 11); seg("numbers", 11); seg("close", 11);
+  seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 12); seg("theory", 14); seg("arch", 13); seg("control", 11); seg("numbers", 12); seg("close", 11);
   TOTAL = cur;
 }
 
