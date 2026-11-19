@@ -28,6 +28,12 @@ const SITE = "hearth-ecru-sigma.vercel.app";
 const SCIENCE_URL = "hearth-ecru-sigma.vercel.app/science";
 
 function text(str, x, y, f, color, align = "left") { g.font = f; g.fillStyle = color; g.textAlign = align; g.textBaseline = "alphabetic"; g.fillText(str, x, y); }
+/** Text centred exactly on (cx, cy), using the glyphs' real bounds. */
+function centred(str, cx, cy, f, color) {
+  g.font = f; g.fillStyle = color; g.textAlign = "center"; g.textBaseline = "alphabetic";
+  const m = g.measureText(str);
+  g.fillText(str, cx, cy + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2);
+}
 function wrap(str, x, y, maxW, f, color, lh, align = "left") {
   g.font = f; g.fillStyle = color; g.textAlign = align;
   const words = str.split(" "); let line = ""; let yy = y; const lines = [];
@@ -71,31 +77,44 @@ function webcam(x, y, w, h, title, lines, small = false) {
 function timecode(t) { const m = Math.floor(t / 60), s = Math.floor(t % 60); return `${m}:${String(s).padStart(2, "0")}`; }
 
 // ---------- timeline ----------
-// Live demo: ranges of the recording (seconds) with chapter captions; `hold` freezes a frame.
+// Live demo: ranges of the recording, given as [mark, offset in s] from frames.json (capture.cjs),
+// so the timeline follows any new recording. `hold` freezes one frame for `dur` seconds.
 const DEMO = [
-  { from: 0.3, to: 7.0, n: 1, title: "Sam writes the plan in their own words", sub: "Typed or spoken. It never leaves the device." },
-  { from: 7.0, to: 8.5, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
-  { hold: 8.5, dur: 4.2, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", callout: "catch" },
-  { from: 8.5, to: 15.4, speed: 1.3, n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
-  { from: 19.7, to: 24.0, n: 4, title: "Day 61: \u201cI\u2019m in Spain this week\u201d", sub: "The time machine replays Sam\u2019s simulated sensor data." },
-  { from: 24.0, to: 28.1, n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
-  { from: 28.1, to: 31.2, speed: 1.5, n: 5, title: "Day 109", sub: "Sam\u2019s days have been drifting for six days." },
-  { from: 31.2, to: 37.9, n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
-  { from: 37.9, to: 46.1, speed: 2.2, n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
-  { from: 46.1, to: 51.7, n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
-  { from: 51.7, to: 55.9, n: 7, title: "Gemini Nano recognises one of Sam\u2019s signs", sub: "By meaning, on the device. Sam confirms it.", callout: "recall" },
-  { from: 55.9, to: 59.9, n: 7, title: "What helped last time", sub: "A note Sam saved after an earlier hard week, in Sam\u2019s own words." },
-  { from: 59.9, to: 64.1, n: 7, title: "Draft that text", sub: "Written on the device. Sam edits it and sends it, or not.", callout: "draft" },
-  { from: 64.1, to: 67.7, speed: 1.3, n: 8, title: "Sam\u2019s own plan opens", sub: "What Sam said helps, with what fits today on top." },
-  { from: 67.7, to: 71.2, n: 9, title: "Nothing private left the device", sub: "Every model call is in the privacy ledger, with exactly what was sent." },
+  { from: ["plan", -0.3], to: ["cards", 0], n: 1, title: "Sam adds their own early signs", sub: "Hearth already watches research-based signals for everyone. Sam\u2019s own signs make it sharper." },
+  { from: ["cards", 0], to: ["cards", 1.5], n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
+  { hold: ["cards", 1.5], dur: 4.2, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", callout: "catch" },
+  { from: ["cards", 1.5], to: ["phq", -0.1], speed: 1.3, n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
+  { from: ["jump_holiday", 0], to: ["holiday_check", 0], n: 4, title: "Day 61: \u201cI\u2019m in Spain this week\u201d", sub: "The time machine replays Sam\u2019s simulated sensor data." },
+  { from: ["holiday_check", 0], to: ["jump_change", 0], n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
+  { from: ["jump_change", 0], to: ["changed", 0], speed: 1.5, n: 5, title: "Day 109", sub: "Sam\u2019s days have been drifting for six days." },
+  { from: ["changed", 0], to: ["checkin", 0], speed: 1.25, n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
+  { from: ["checkin", 0], to: ["checkin_text", 0], speed: 2.2, n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
+  { from: ["checkin_text", 0], to: ["recall_ask", 0], n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
+  { from: ["recall_ask", 0], to: ["recall_card", 0], n: 7, title: "Gemini Nano recognises one of Sam\u2019s signs", sub: "By meaning, on the device. Sam confirms it.", callout: "recall" },
+  { from: ["recall_card", 0], to: ["draft", 0], n: 7, title: "What helped last time", sub: "A note Sam saved after an earlier hard week, in Sam\u2019s own words." },
+  { from: ["draft", 0], to: ["myplan", 0], n: 7, title: "Draft that text", sub: "Written on the device. Sam edits it and sends it, or not.", callout: "draft" },
+  { from: ["myplan", 0], to: ["ledger", 0], speed: 1.3, n: 8, title: "Sam\u2019s own plan opens", sub: "What Sam said helps, with what fits today on top." },
+  { from: ["ledger", 0], to: ["end", -0.1], n: 9, title: "Nothing private left the device", sub: "Every model call is in the privacy ledger, with exactly what was sent." },
 ];
-let demoLen = 0; for (const s of DEMO) { s.start = demoLen; s.len = s.hold !== undefined ? s.dur : (s.to - s.from) / (s.speed || 1); demoLen += s.len; }
-
 const T = {};
-let cur = 0;
-const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 12); seg("theory", 14); seg("arch", 13); seg("control", 11); seg("numbers", 12); seg("close", 11);
-const TOTAL = cur;
+let TOTAL = 0;
+/** Resolves the demo ranges against the recording's marks and lays out every section. */
+function layout(marks) {
+  const at = ([name, off]) => {
+    if (!(name in marks)) throw new Error(`mark ${name} missing in frames.json`);
+    return marks[name] + off;
+  };
+  let demoLen = 0;
+  for (const s of DEMO) {
+    if (s.hold) { s.holdAt = at(s.hold); s.len = s.dur; }
+    else { s.a = at(s.from); s.b = at(s.to); s.len = (s.b - s.a) / (s.speed || 1); }
+    s.start = demoLen; demoLen += s.len;
+  }
+  let cur = 0;
+  const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
+  seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 11); seg("theory", 14); seg("arch", 13); seg("control", 11); seg("numbers", 11); seg("close", 11);
+  TOTAL = cur;
+}
 
 // ---------- sections ----------
 function hook(t, k) {
@@ -132,6 +151,7 @@ function phone(img, x, y, h) {
   g.restore();
   return w;
 }
+let MODEL = "stand-in";
 let FRAMES = null, frameImg = null, frameFile = "";
 async function frameAt(rec) {
   let lo = 0, hi = FRAMES.length - 1;
@@ -144,7 +164,7 @@ async function demo(t) {
   const local = t - T.demo[0];
   let s = DEMO[DEMO.length - 1];
   for (const x of DEMO) if (local >= x.start && local < x.start + x.len) { s = x; break; }
-  const rec = s.hold !== undefined ? s.hold : s.from + (local - s.start) * (s.speed || 1);
+  const rec = s.hold ? s.holdAt : s.a + (local - s.start) * (s.speed || 1);
   const img = await frameAt(rec);
   bg(0.16, "L");
   // phone
@@ -173,8 +193,10 @@ async function demo(t) {
     });
   }
   // draft label + webcam picture-in-picture
-  rr(140, 92, 640, 48, 24, C.amberBg, "#f0c890", 2);
-  text("DRAFT: stand-in model. Re-record with Gemini Nano in Chrome", 162, 124, font(600, 20), C.amber);
+  if (MODEL !== "chrome") {
+    rr(140, 92, 640, 48, 24, C.amberBg, "#f0c890", 2);
+    text("DRAFT: stand-in model. Re-record with Gemini Nano in Chrome", 162, 124, font(600, 20), C.amber);
+  }
   webcam(140, 820, 360, 202, "WEBCAM (optional)", ["small, while you narrate"], true);
 }
 
@@ -202,7 +224,7 @@ function watches(t) {
     c.sig.forEach(([a, l], k) => {
       const yy = y + 122 + k * 34;
       rr(x + 26, yy - 22, 30, 30, 15, off ? "#eee" : C.tint);
-      text(a, x + 41, yy, "700 19px 'DejaVu Sans', sans-serif", off ? C.muted : C.mag, "center");
+      centred(a, x + 41, yy - 7, "700 19px 'DejaVu Sans', sans-serif", off ? C.muted : C.mag);
       text(l, x + 68, yy, font(500, 22), off ? C.muted : C.ink);
     });
     const wy = y + 122 + c.sig.length * 34 + 14;
@@ -231,7 +253,8 @@ function theory(t) {
   const days = SAM.days.filter((d) => d.day >= d0 && d.day <= d1);
   const X = (day) => x0 + 60 + ((day - d0) / (d1 - d0)) * (w - 330);
   const Y = (v) => y0 + h - 40 - (Math.min(v, 1.3) / 1.3) * (h - 70);
-  const reveal = d0 + (d1 - d0) * ease((s - 0.3) / 6);
+  const rx = Math.min(1, Math.max(0, (s - 0.3) / 7));
+  const reveal = d0 + (d1 - d0) * rx * rx * (3 - 2 * rx); // even pace, soft start and end
   fade(ease(s / 0.5), () => {
     rr(x0, y0, w, h, 24, "#fff", C.line, 2);
     text("Sam\u2019s change index, compared with Sam\u2019s own usual days", x0 + 30, y0 + 44, font(600, 22), C.ink2);
@@ -240,9 +263,17 @@ function theory(t) {
     g.save(); g.setLineDash([10, 8]); g.strokeStyle = C.ink2; g.lineWidth = 2; g.beginPath(); g.moveTo(X(d0), Y(ucl)); g.lineTo(X(d1), Y(ucl)); g.stroke(); g.restore();
     text("top of Sam\u2019s usual range", X(d0) + 6, Y(ucl) - 10, font(500, 18), C.ink2);
     const vis = days.filter((d) => d.day <= reveal);
-    g.strokeStyle = "rgba(110,100,112,.55)"; g.lineWidth = 1.5; g.beginPath(); vis.forEach((d, k) => (k ? g.lineTo(X(d.day), Y(d.D)) : g.moveTo(X(d.day), Y(d.D)))); g.stroke();
-    vis.forEach((d) => { g.beginPath(); g.arc(X(d.day), Y(d.D), 3.5, 0, Math.PI * 2); g.fillStyle = "rgba(110,100,112,.8)"; g.fill(); });
-    g.strokeStyle = C.mag; g.lineWidth = 4; g.beginPath(); vis.forEach((d, k) => (k ? g.lineTo(X(d.day), Y(d.S)) : g.moveTo(X(d.day), Y(d.S)))); g.stroke();
+    const nextDay = days.find((d) => d.day > reveal);
+    const frac = nextDay && vis.length ? (reveal - vis[vis.length - 1].day) / (nextDay.day - vis[vis.length - 1].day) : 0;
+    const path = (key) => {
+      const pts = vis.map((d) => [X(d.day), Y(d[key])]);
+      if (nextDay && vis.length) { const a = vis[vis.length - 1]; pts.push([X(a.day + (nextDay.day - a.day) * frac), Y(a[key] + (nextDay[key] - a[key]) * frac)]); }
+      g.beginPath(); pts.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke();
+    };
+    g.lineJoin = "round"; g.lineCap = "round";
+    g.strokeStyle = "rgba(110,100,112,.55)"; g.lineWidth = 1.5; path("D");
+    vis.forEach((d) => { const k = Math.min(1, (reveal - d.day) / 0.6 + 0.3); g.beginPath(); g.arc(X(d.day), Y(d.D), 3.5 * k, 0, Math.PI * 2); g.fillStyle = "rgba(110,100,112,.8)"; g.fill(); });
+    g.strokeStyle = C.mag; g.lineWidth = 4; path("S");
     text("one day", x0 + w - 250, y0 + h - 14, font(500, 17), C.muted);
     g.beginPath(); g.arc(x0 + w - 270, y0 + h - 20, 4, 0, Math.PI * 2); g.fillStyle = "rgba(110,100,112,.8)"; g.fill();
     g.fillStyle = C.mag; g.fillRect(x0 + w - 170, y0 + h - 22, 26, 4); text("trend", x0 + w - 136, y0 + h - 14, font(500, 17), C.muted);
@@ -278,7 +309,7 @@ function theory(t) {
   steps.forEach(([a, b], k) => fade(ease((s - 7 - k * 0.9) / 0.6), () => {
     const y = 340 + k * 135;
     g.beginPath(); g.arc(1102, y + 32, 22, 0, Math.PI * 2); g.fillStyle = C.mag; g.fill();
-    text(String(k + 1), 1102, y + 41, font(800, 24, "Syne"), "#fff", "center");
+    centred(String(k + 1), 1102, y + 32, font(800, 24, "Syne"), "#fff");
     text(a, 1145, y + 40, font(700, 28), C.ink);
     wrap(b, 1145, y + 78, 640, font(400, 23), C.ink2, 31);
   }));
@@ -413,7 +444,10 @@ let LOGO, FLOWER, FLOWER_L, QR, SAM;
   FLOWER = await load("../../apps/web/src/assets/flower-right.webp");
   FLOWER_L = await load("../../apps/web/src/assets/flower-left.webp");
   QR = await load("assets/qr-website.png");
-  FRAMES = (await (await fetch("frames.json")).json()).frames;
+  const rec = await (await fetch("frames.json")).json();
+  FRAMES = rec.frames;
+  MODEL = rec.model;
+  layout(Object.fromEntries(rec.marks.map((m) => [m.name, m.at])));
   SAM = await (await fetch("../data.json")).json();
   await document.fonts.load('800 40px "Syne"'); await document.fonts.load('700 40px "Syne"'); await document.fonts.load('400 30px "Outfit"'); await document.fonts.load('700 30px "Outfit"');
   window.TOTAL = TOTAL; window.render = render; window.SECTIONS = T; window.ready = true;

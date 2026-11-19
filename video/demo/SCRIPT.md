@@ -1,4 +1,4 @@
-# Jury demo: script and voice-over (2:54)
+# Jury demo: script and voice-over (2:53)
 
 Draft video: `video/demo/hearth-jury-draft.mp4` (1920×1080). The small timecode in the top
 right corner of every frame matches the times below, so you can line up your webcam clips and
@@ -7,23 +7,23 @@ voice-over in any editor (CapCut, iMovie, Premiere, DaVinci).
 - **WEBCAM** = a placeholder. Put your own clip on top of it.
 - **VO** = voice-over over the screen. About 2.5 words per second is a calm pace; the lines
   below fit their slots at that pace.
-- The time limit is 3:00. The draft is 2:54, so keep your clips inside their placeholders.
+- The time limit is 3:00. The draft is 2:53, so keep your clips inside their placeholders.
 
 ## How it maps to the recipe
 
 | # | Recipe point | Where |
 |---|---|---|
 | 1 | Recognisable problem, ≤ 30 s | 0:00–0:30 webcam hook + "Today" slide |
-| 2 | One sentence, repeated at the end | 0:30 and 2:43 (same sentence) |
-| 3 | A real, live demo with visible effect | 0:38–1:41, the real web app |
+| 2 | One sentence, repeated at the end | 0:30 and 2:42 (same sentence) |
+| 3 | A real, live demo with visible effect | 0:38–1:42, the real web app |
 | 4 | The agent catches or verifies a mistake, and you say so | 0:46–0:50 "Caught and checked" (quote check); 1:22 recall with a checked quote and Sam's confirmation |
 | 5 | Sponsor models by name, each with a role, architecture slide | 2:07–2:20 |
 | 6 | Human control, safety, privacy | 2:20–2:31 (and in the demo at 0:50, 1:00 and 1:30) |
-| 7 | Hard numbers | 2:31–2:43 |
-| 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:43–2:54 |
+| 7 | Hard numbers | 2:31–2:42 |
+| 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:42–2:53 |
 
 The tech and theory sit between the demo and the architecture: what Hearth watches
-(1:41–1:53) and what counts as a drift (1:53–2:07).
+(1:42–1:53) and what counts as a drift (1:53–2:07).
 
 ## Script
 
@@ -45,10 +45,10 @@ Your own words, to camera. A suggestion to adapt:
 > VO: "Hearth notices when your days drift from your usual pattern, and reminds you what
 > helps, in your own words, on your own device."
 
-### 0:38–1:41 · LIVE DEMO (screen recording, optional small WEBCAM bottom left)
+### 0:38–1:42 · LIVE DEMO (screen recording, optional small WEBCAM bottom left)
 | Time | On screen | VO |
 |---|---|---|
-| 0:38 | Sam types the plan | "This is Sam. Sam writes down, in their own words, what happens when things start to slip, and what helps." |
+| 0:38 | Sam types the plan | "This is Sam. Hearth already watches research-based signals for everyone. Sam adds the early signs Sam knows, in their own words." |
 | 0:45 | Cards appear | "Gemini Nano, running inside Chrome, turns that into a plan." |
 | 0:46 | **Caught and checked** | "The model made something up, a dog Sam never mentioned. Hearth checks every quote in code, so it's left out." |
 | 0:50 | Sam reviews and saves | "Sam stays in control: untick anything that's wrong." |
@@ -62,7 +62,7 @@ Your own words, to camera. A suggestion to adapt:
 | 1:35 | Sam's plan | "Sam's own plan opens." |
 | 1:37 | Privacy ledger | "Every call ran on the device." |
 
-### 1:41–1:53 · What Hearth watches, and why
+### 1:42–1:53 · What Hearth watches, and why
 > VO: "Hearth watches what research links to harder periods: sleep, activity, rhythm, heart
 > rate and places, each only against your own usual days."
 
@@ -82,14 +82,14 @@ Sam's usual range; on day 109 the trend crosses.
 > VO: "You confirm every card and context. The cloud is off until you say yes, and the 988
 > screen works offline."
 
-### 2:31–2:43 · Numbers
+### 2:31–2:42 · Numbers
 > VO: "On fifty simulated people: a drift noticed after a median of seven days, about one
 > false-alarm day per hundred, and nothing left the browser."
 
 Fill in the amber card before recording: run `#/eval_g` in Chrome with Gemini Nano and use
 the precision it shows.
 
-### 2:43–2:54 · Close (optional small WEBCAM)
+### 2:42–2:53 · Close (optional small WEBCAM)
 > VO / WEBCAM: "When your days drift, Hearth notices. Built with Firebase AI Logic and
 > Gemini. Scan the code to try it yourself."
 
@@ -104,11 +104,17 @@ The QR code opens https://hearth-ecru-sigma.vercel.app; the GitHub link is shown
      Start → Jump to: Holiday → Use scripted note → confirm → Yes → Jump to: First change →
      Today → Why? → open the check-in → answer, type "Yeah, I've started avoiding people again.
      Haven't answered anyone in days." → Save → Yes, that's it → Draft that text → Plan tab → Privacy tab.
-     Then put your recording over 0:38–1:41 (the phone frame), or use it full screen.
-   - **Or let the script drive your Chrome:**
-     `CHROME_PROFILE=<a Chrome profile folder where Gemini Nano is downloaded> node video/demo/capture.cjs`
-     with the app on `http://localhost:4173`, then `node video/demo/build.cjs`. Not tested
-     here (no Chrome with Gemini Nano in the build container).
+     Then put your recording over 0:38–1:42 (the phone frame), or use it full screen.
+   - **Or let the script drive your Chrome (recommended):** the video layout reads the
+     timing marks from the recording, so a new recording drops straight in.
+     1. In Chrome, check that `chrome://on-device-internals` shows the model as ready.
+     2. Close Chrome completely (the profile can only be open once).
+     3. Run the app: `npm run build -w apps/web && npx vite preview --port 4173` (in `apps/web`).
+     4. `CHROME_PROFILE="$HOME/Library/Application Support/Google/Chrome" node video/demo/capture.cjs`
+        (Windows: `%LOCALAPPDATA%\Google\Chrome\User Data`; Linux: `~/.config/google-chrome`).
+     5. `python3 -m http.server 8090 --bind 127.0.0.1` from the repo root, then `node video/demo/build.cjs`.
+     The "DRAFT: stand-in model" label disappears by itself for a recording made this way.
+     Not tested here: Gemini Nano does not run in the build container.
    - **The recall and the draft text** in the draft video also come from the stand-in model.
      With Gemini Nano, check that it recognises "avoiding people again" as Sam's sign. If it
      doesn't, the app shows Sam's signs as buttons instead; tap "stop replying to messages".

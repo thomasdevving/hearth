@@ -31,7 +31,17 @@ const TOUCH = `
   const real = !!process.env.CHROME_PROFILE;
   const opts = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
   const browser = real ? null : await chromium.launch({ args: ["--force-device-scale-factor=2"] });
-  const ctx = real ? await chromium.launchPersistentContext(process.env.CHROME_PROFILE, { ...opts, channel: "chrome", headless: false }) : await browser.newContext(opts);
+  // Real mode: your own Google Chrome profile, where Gemini Nano is already downloaded (check
+  // chrome://on-device-internals first). Close Chrome before running: a profile can be open once.
+  const ctx = real
+    ? await chromium.launchPersistentContext(process.env.CHROME_PROFILE, {
+        ...opts,
+        channel: "chrome",
+        headless: false,
+        args: ["--enable-features=OptimizationGuideOnDeviceModel,PromptAPIForGeminiNano,PromptAPIForGeminiNanoMultimodalInput"],
+        ignoreDefaultArgs: ["--disable-component-update", "--disable-background-networking"],
+      })
+    : await browser.newContext(opts);
   if (!real) await ctx.addInitScript(fs.readFileSync(path.join(__dirname, "../../eval/fake-language-model.js"), "utf8"));
   await ctx.addInitScript(TOUCH);
   const page = ctx.pages()[0] ?? (await ctx.newPage());
@@ -125,7 +135,10 @@ const TOUCH = `
   await page.evaluate(() => scrollTo(0, 0));
   mark("changed");
   await pause(1600);
-  await tap("button:has-text('Why?')", { hold: 2800 });
+  await tap("button:has-text('Why?')", { hold: 2200 });
+  await scrollBy(360, 1100); // show "Your signals" above the demo bar
+  await pause(1800);
+  await page.evaluate(() => scrollTo(0, 0));
 
   // 4. The check-in, in Sam's own words.
   await tap('button[aria-label="Open check-in"]', { hold: 300 });
