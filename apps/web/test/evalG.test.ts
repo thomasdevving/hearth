@@ -12,7 +12,7 @@ describe("task G evaluation scoring", () => {
     await updateSettings({ cloudConsent: false, onDeviceEnabled: true });
   });
   it("every expected rule in the set is legal and every case has text", () => {
-    expect(G_CASES).toHaveLength(20);
+    expect(G_CASES).toHaveLength(35);
     for (const c of G_CASES) {
       expect(c.text.length).toBeGreaterThan(10);
       const raw = { rules: c.rules.map(([f, d, l]) => ({ feature: f, direction: d, place_label: l ?? "", quote: c.text.slice(0, 12) })), personal_checkin_items: [], actions: [] };

@@ -650,4 +650,14 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   common signs (bed later → rest_midpoint, skipping the gym → place_visits, …) and one worked
   example whose wording does not occur in `eval/task_g.json`. The category hints are general,
   but they do touch signs in the evaluation set, so metric 7 is not fully blind to them.
+- **Plan output is checked entry by entry.** A malformed entry, an unknown feature, extra fields
+  or one entry over the schema's maximum drop only that entry (counted in "left out"), not the
+  whole plan. Output that is not an object at all is still invalid (form fallback).
+- **Many ways of writing, tested** (`packages/engine/test/planInputs.test.ts`, 29 cases): lists,
+  a partner's words, second person, curly quotes, emoji and slang, typos, negations, invented
+  signs and actions, illegal directions, phone signs while off, duplicates, diagnostic words,
+  four check-in questions, malformed entries, injection, long text, Dutch, stitched quotes.
+  Two bugs found and fixed: a negation in an earlier list item blocked the next sign, and a
+  quote could match across a comma to an earlier word ("stop cooking, stop showering").
+- **Evaluation set G grows to 35 cases** with the same kinds of writing, for the real model.
 

@@ -76,9 +76,13 @@ describe("verifyPlan (task G)", () => {
     const withPhone = verifyPlan(raw, SAM_PLAN_TEXT, loadConfig({ phone: { enabled: true, thresholds: [0, 30] } }));
     expect(withPhone.rules.map((r) => r.feature)).toEqual(["rest_midpoint", "communication_time"]);
   });
-  it("marks a schema violation as invalid", () => {
-    expect(verifyPlan({ rules: "nope" }, SAM_PLAN_TEXT).valid).toBe(false);
-    expect(verifyPlan({ rules: [{ feature: "mood", direction: "lower", place_label: "", quote: "x" }], personal_checkin_items: [], actions: [] }, SAM_PLAN_TEXT).valid).toBe(false);
+  it("output that is not a plan at all is invalid; one broken entry only drops that entry", () => {
+    expect(verifyPlan("nope", SAM_PLAN_TEXT).valid).toBe(false);
+    expect(verifyPlan(null, SAM_PLAN_TEXT).valid).toBe(false);
+    const p = verifyPlan({ rules: [{ feature: "mood", direction: "lower", place_label: "", quote: "x" }, { feature: "home_stay", direction: "higher", place_label: "", quote: "I stay inside more" }], personal_checkin_items: [], actions: [] }, SAM_PLAN_TEXT);
+    expect(p.valid).toBe(true);
+    expect(p.rules.map((r) => r.feature)).toEqual(["home_stay"]);
+    expect(p.dropped).toBe(1);
   });
 });
 

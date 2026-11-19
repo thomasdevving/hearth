@@ -46,3 +46,19 @@ describe("routing (R3)", () => {
     expect(route).toBeTypeOf("function");
   });
 });
+
+describe("task R on everyday ways of writing", () => {
+  const ids = ["i_reply"];
+  const r = (text: string, quote: string) => verifyTask("R", { matches: [{ sign_id: "i_reply", quote }] }, { sourceText: text, signIds: ids });
+  it("matches a sign written in other words, with typos or slang", () => {
+    expect(r("havent answerd anyone in days tbh", "havent answerd anyone")).toMatchObject({ ok: true, value: { matches: [{ sign_id: "i_reply" }] } });
+    expect(r("Ghosting everyone again 😶", "Ghosting everyone again")).toMatchObject({ ok: true, value: { matches: [{ sign_id: "i_reply" }] } });
+  });
+  it("does not match a sign the person says is not happening", () => {
+    expect(r("I haven't been avoiding people this week, actually.", "avoiding people")).toEqual({ ok: true, value: { matches: [] } });
+    expect(r("Not ignoring my messages anymore.", "ignoring my messages")).toEqual({ ok: true, value: { matches: [] } });
+  });
+  it("a negation in an earlier sentence does not count", () => {
+    expect(r("No gym today. Avoiding people again.", "Avoiding people again")).toMatchObject({ ok: true, value: { matches: [{ sign_id: "i_reply" }] } });
+  });
+});

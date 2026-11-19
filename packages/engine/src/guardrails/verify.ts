@@ -3,8 +3,8 @@ import type { Config, DiaryMarkers, RuleDirection, TaskId, VerifiedContext, Veri
 import { defaultConfig } from "../config";
 import { CONTEXT_TABLE } from "../context";
 import { featureDef } from "../features/catalogue";
-import { validate } from "./validate";
-import { findQuoteSpan, verifyQuote } from "./quotes";
+import { schemas, validate } from "./validate";
+import { findQuoteSpan, quoteDropsNegation, verifyQuote } from "./quotes";
 import { resolveContextPeriod, resolveDateHint } from "./dates";
 import { hasBannedWords, numberCheck, piiCheck } from "./text";
 
@@ -23,15 +23,59 @@ const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
  * Task G guardrails: schema, quote verification on every entry, legal directions, merged
  * duplicates (first quote wins). Phone-domain rules are dropped while `cfg.phone.enabled` is off.
  */
+const gRules = (schemas.G as { properties: { rules: { items: { properties: { feature: { enum: string[] }; direction: { enum: string[] } } } } } }).properties.rules.items.properties;
+const RULE_FEATURES = new Set(gRules.feature.enum);
+const RULE_DIRECTIONS = new Set(gRules.direction.enum);
+
+/**
+ * A small model's output, made safe to check entry by entry: one malformed entry, a missing
+ * place_label, extra fields or one entry too many drop only that entry, not the whole plan.
+ */
+function sanitizePlan(raw: unknown): { plan: unknown; dropped: number } {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { plan: raw, dropped: 0 };
+  const r = raw as Record<string, unknown>;
+  let dropped = 0;
+  const list = (v: unknown, max: number, keep: (e: Record<string, unknown>) => Record<string, unknown> | null) => {
+    if (!Array.isArray(v)) return [];
+    const out: Record<string, unknown>[] = [];
+    for (const e of v) {
+      const k = e && typeof e === "object" && !Array.isArray(e) ? keep(e as Record<string, unknown>) : null;
+      if (!k || out.length >= max) dropped++;
+      else out.push(k);
+    }
+    return out;
+  };
+  const str = (x: unknown, max = 1000) => (typeof x === "string" && x.trim() && x.length <= max ? x : null);
+  const plan = {
+    rules: list(r.rules, 6, (e) => {
+      const feature = str(e.feature), direction = str(e.direction), quote = str(e.quote);
+      if (!feature || !RULE_FEATURES.has(feature) || !direction || !RULE_DIRECTIONS.has(direction)) return null;
+      const place = e.place_label == null ? "" : typeof e.place_label === "string" ? e.place_label.slice(0, 30) : null;
+      return feature && direction && quote && place !== null ? { feature, direction, place_label: place, quote } : null;
+    }),
+    personal_checkin_items: list(r.personal_checkin_items, 3, (e) => {
+      const question = str(e.question, 80), quote = str(e.quote);
+      return question && quote ? { question, quote } : null;
+    }),
+    actions: list(r.actions, 6, (e) => {
+      const text = str(e.text, 80), quote = str(e.quote);
+      return text && quote ? { text, quote } : null;
+    }),
+  };
+  return { plan, dropped };
+}
+
 export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defaultConfig): VerifiedPlan {
   const empty: VerifiedPlan = { rules: [], personal_checkin_items: [], actions: [], dropped: 0, valid: false };
+  const clean = sanitizePlan(raw);
+  raw = clean.plan;
   if (!validate("G", raw).valid) return empty;
   const g = raw as {
     rules: { feature: string; direction: RuleDirection; place_label: string; quote: string }[];
     personal_checkin_items: { question: string; quote: string }[];
     actions: { text: string; quote: string }[];
   };
-  let dropped = 0;
+  let dropped = clean.dropped;
   const rules: VerifiedRule[] = [];
   const seen = new Set<string>();
   for (const r of g.rules) {
@@ -39,6 +83,7 @@ export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defau
     const ok =
       featureDef(r.feature) !== null &&
       verifyQuote(r.quote, sourceText) &&
+      !quoteDropsNegation(r.quote, sourceText) &&
       directionLegal(r.feature, r.direction) &&
       (r.feature !== "place_visits" || label.length > 0) &&
       (cfg.phone.enabled || !PHONE_FEATURES.has(r.feature));
@@ -54,7 +99,7 @@ export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defau
   const seenItems = new Set<string>();
   for (const it of g.personal_checkin_items) {
     const key = norm(it.question);
-    if (!verifyQuote(it.quote, sourceText) || key.length === 0 || seenItems.has(key) || hasBannedWords(it.question)) {
+    if (!verifyQuote(it.quote, sourceText) || quoteDropsNegation(it.quote, sourceText) || key.length === 0 || seenItems.has(key) || hasBannedWords(it.question)) {
       dropped++;
       continue;
     }
@@ -230,7 +275,7 @@ export function verifyTask(task: TaskId | "Q_classify" | "Q_phrase", raw: unknow
       const allowed = new Set(ctx.signIds ?? []);
       const seen = new Set<string>();
       const matches = (raw as { matches: { sign_id: string; quote: string }[] }).matches.filter((m) => {
-        if (!allowed.has(m.sign_id) || seen.has(m.sign_id) || !verifyQuote(m.quote, ctx.sourceText ?? "")) return false;
+        if (!allowed.has(m.sign_id) || seen.has(m.sign_id) || !verifyQuote(m.quote, ctx.sourceText ?? "") || quoteDropsNegation(m.quote, ctx.sourceText ?? "")) return false;
         seen.add(m.sign_id);
         return true;
       }).map((m) => ({ sign_id: m.sign_id, quote: findQuoteSpan(m.quote, ctx.sourceText ?? "") ?? m.quote }));

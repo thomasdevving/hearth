@@ -212,8 +212,11 @@ Normalise both strings: lowercase, Unicode NFKC, replace every run of non-alphan
 characters with one space, trim. A quote is valid when it has at least 3 characters and
 the normalised quote is a substring of the normalised source text, or when every word of
 the quote appears in the source in the same order with at most 2 extra source words in
-between (a model that drops "also" from "I also stop replying"). In the second case the
-user's own span of text replaces the model's quote, so a card always shows what they wrote.
+between (a model that drops "also" from "I also stop replying"), within one sentence or list
+item, and a word of 4 or more letters may differ by one typo ("skipp"). The match with the
+fewest extra words wins. In that case the user's own span of text replaces the model's quote,
+so a card always shows what they wrote. A sign or recall quote that leaves out a negation just
+before it, in the same clause ("I don't sleep less" quoted as "sleep less"), is rejected.
 
 ### 5.2 Number check
 Extract all numbers from the model's text. Each must equal a number present in the input
