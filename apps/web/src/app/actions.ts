@@ -9,6 +9,7 @@ import {
   remissionScore,
   scoreQuestionnaire,
   verifyContext,
+  resolveDateHint,
   verifyPlan,
   pickPlace,
   addDays,
@@ -71,7 +72,7 @@ export async function processFreeText(text: string, opts: TextOptions): Promise<
     await addInbox({ date: opts.date, type: "context_confirm", context: toLabel(found, "model", false), sourceText: text, ranOn });
   } else if (!h.ok) {
     // No model: the one-tap context picker (docs/05 §3).
-    await addInbox({ date: opts.date, type: "context_confirm", context: emptyLabel(opts.date), sourceText: text, ranOn: "none" });
+    await addInbox({ date: opts.date, type: "context_confirm", context: emptyLabel(opts.date, text), sourceText: text, ranOn: "none" });
   }
 
   // Task B: diary markers (S3, P1). Display only (R6).
@@ -96,8 +97,18 @@ export async function processFreeText(text: string, opts: TextOptions): Promise<
 function toLabel(v: VerifiedContext, source: "model" | "manual", confirmed = true): ContextLabel {
   return { id: newId("ctx"), type: v.type, kind: v.kind, start: v.start, end: v.end, quote: v.quote, source, confirmed };
 }
-function emptyLabel(date: string): ContextLabel {
-  return { id: newId("ctx"), type: "", kind: "explains_sensors", start: date, end: addDays(date, 6), quote: null, source: "manual", confirmed: false };
+/**
+ * The one-tap picker without a model. The period is still read from the note, in code, with
+ * the engine's own date resolver: "until Sunday" ends on Sunday, "since Tuesday" starts on
+ * Tuesday. Without such a phrase: today plus 6 days.
+ */
+function emptyLabel(date: string, text = ""): ContextLabel {
+  const startHint = text.match(/\bsince\s+(?:last\s+)?[a-z0-9]+/i)?.[0] ?? null;
+  const endHint = text.match(/\b(?:until|till|through|back on)\s+(?:next\s+|this\s+)?[a-z0-9]+(?:\s+(?:week|weekend))?/i)?.[0] ?? null;
+  const start = resolveDateHint(startHint, date, "start") ?? date;
+  const resolvedEnd = resolveDateHint(endHint, date, "end", start);
+  const end = resolvedEnd && resolvedEnd >= start ? resolvedEnd : addDays(start, 6);
+  return { id: newId("ctx"), type: "", kind: "explains_sensors", start, end, quote: null, source: "manual", confirmed: false };
 }
 
 export async function confirmContextLabel(label: ContextLabel, inboxId?: string): Promise<void> {

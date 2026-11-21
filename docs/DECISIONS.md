@@ -661,3 +661,36 @@ Choices made where a spec was ambiguous (AGENTS.md §1.4). Newest milestones at 
   quote could match across a comma to an earlier word ("stop cooking, stop showering").
 - **Evaluation set G grows to 35 cases** with the same kinds of writing, for the real model.
 
+
+## UX walkthrough of the web demo (2026-11-21)
+
+A full pass through the demo as a judge would take it (landing → onboarding → plan → PHQ-9 →
+day-by-day → jumps → check-in → context → plan → questionnaires → ledger → settings → safety),
+in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
+
+- **The time machine never seems dead.** "+1 day" and Play used to do nothing while a check-in
+  or questionnaire was open. They now say what is waiting and how to continue (answer it,
+  "Not today", or "Answer with Sam's script"). Jumps open what they stopped on: the plan for
+  "First change", the questionnaire for the questionnaire jump (renamed from "PHQ-9", since it
+  stops at the PHQ-2), Today for the holiday note.
+- **Demo guidance:** onboarding names Sam on step 1; Today shows a demo tip during the two
+  learning weeks; "Use Sam's words" moved from the bottom of plan setup to the top.
+- **Plan by hand keeps the user's words in sight** ("You wrote …", with "Edit my text") and
+  every plan view starts at the top of the page.
+- **Plainer words:** `rest_midpoint` is "Middle of your night" (it is the midpoint, which read
+  as a bedtime); plural signs take plural verbs ("Visits to the gym go down"); a place-visit
+  count says "in 7 days"; weeks are named by their Monday ("the week of 28 Sept") instead of
+  "2026-W40"; ledger rows say in words what the data class means; the no-model badge reads
+  "fixed text" instead of "template".
+- **Trends:** the signal list now draws the 8-week line it always promised; domain lines are
+  7-day means on a scale that fits them; context bands and labels are clipped to the chart.
+- **Context without a model:** the one-tap picker reads "until Sunday" / "since Tuesday" from
+  the note with the engine's own `resolveDateHint` (code, not a model), so the period is right
+  without Gemini Nano.
+- **Fewer dead ends:** task I's "Fill in my questions" is hidden when there is no on-device
+  model; check-in answers use functional state updates so fast taps are never lost; the
+  result page no longer repeats the total and change in its fallback text, and the baseline
+  result says it is the user's own reference.
+- **Text 988:** the US line gains `"sms": "988"` in `shared/safety/crisis_lines.json` (988
+  takes texts; the landing page already said so) and the safety screen shows a "Text 988"
+  button. iOS ignores the extra field until it adds the button.

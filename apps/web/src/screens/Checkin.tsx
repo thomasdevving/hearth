@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { getModelStatus, onModelStatus } from "../inference/status";
 import { MOMENTARY_ITEMS, scriptedCheckin, type CheckinRecord, type PersonalAnswer, type PersonalItem } from "@hearth/engine";
 import { db } from "../store/db";
 import { ModelBadge, Screen } from "../ui/kit";
@@ -28,6 +29,9 @@ export function Checkin({ params }: { params: Record<string, string> }) {
   const [personal, setPersonal] = useState<PersonalItem[]>([]);
   const [intro, setIntro] = useState<{ text: string; ranOn: "on_device" | "cloud" | "template" } | null>(null);
   const [vals, setVals] = useState<Record<string, number>>({});
+  // Task I needs the on-device model: without one the button would only say so after a tap.
+  const onDevice = useSyncExternalStore(onModelStatus, getModelStatus).onDevice;
+  const modelMayRun = onDevice !== "unavailable" && onDevice !== "no_api";
   const [who, setWho] = useState<string>("");
   const [pAns, setPAns] = useState<Record<string, PersonalAnswer>>({});
   const [text, setText] = useState("");
@@ -96,7 +100,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
           </legend>
           <div className="scale" role="radiogroup" aria-label={s.text}>
             {Array.from({ length: s.max - s.min + 1 }, (_, k) => s.min + k).map((v) => (
-              <button key={v} role="radio" aria-checked={vals[s.id] === v} aria-pressed={vals[s.id] === v} onClick={() => setVals({ ...vals, [s.id]: v })}>
+              <button key={v} role="radio" aria-checked={vals[s.id] === v} aria-pressed={vals[s.id] === v} onClick={() => setVals((prev) => ({ ...prev, [s.id]: v }))}>
                 {v}
               </button>
             ))}
@@ -123,7 +127,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
           <span>{p.question}</span>
           <div className="chips" role="radiogroup" aria-label={p.question}>
             {(["yes", "partly", "no"] as PersonalAnswer[]).map((a) => (
-              <button key={a} role="radio" aria-checked={pAns[p.id] === a} aria-pressed={pAns[p.id] === a} onClick={() => setPAns({ ...pAns, [p.id]: a })}>
+              <button key={a} role="radio" aria-checked={pAns[p.id] === a} aria-pressed={pAns[p.id] === a} onClick={() => setPAns((prev) => ({ ...prev, [p.id]: a }))}>
                 {a}
               </button>
             ))}
@@ -137,7 +141,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
       </label>
       <div className="row">
         <MicButton onText={(t) => setText((x) => (x ? `${x} ${t}` : t))} label="Talk" />
-        {personal.length > 0 && text.trim().length > 0 && (
+        {personal.length > 0 && text.trim().length > 0 && modelMayRun && (
           <button
             className="secondary"
             disabled={prefill === "working"}

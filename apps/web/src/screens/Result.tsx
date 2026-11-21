@@ -56,6 +56,7 @@ export function Result({ params }: { params: Record<string, string> }) {
         </p>
       )}
       <p aria-live="polite">{text ? text.body : "…"}</p>
+      {baseline && <p className="muted">This is your starting point. Later questionnaires are compared with it, not with other people.</p>}
       {onboardingHigh && (
         <Card tone="warm">
           <strong>A note about your answers</strong>

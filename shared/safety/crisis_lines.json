@@ -16,6 +16,7 @@
     "US": {
       "name": "988 Suicide & Crisis Lifeline",
       "phone": "988",
+      "sms": "988",
       "url": "https://988lifeline.org",
       "emergency": "911"
     },

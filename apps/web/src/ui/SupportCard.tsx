@@ -4,7 +4,7 @@ import { db, getSettings, getSingleton } from "../store/db";
 import { navigate } from "../app/events";
 import { openSafety } from "../app/actions";
 
-type Line = { name: string; phone: string | null; alt_phone?: string; url: string; emergency?: string };
+type Line = { name: string; phone: string | null; alt_phone?: string; sms?: string; url: string; emergency?: string };
 
 /**
  * Support shown in place (docs/06 §4.4): for text the on-device model labels as a *possible*

@@ -74,7 +74,8 @@ export function ContextConfirm({ params }: { params: Record<string, string> }) {
       )}
       {picker && (
         <>
-          <p className="muted">From your note: “{item.sourceText}”. Pick one if it fits; nothing changes otherwise.</p>
+          <p className="quote">From your note: “{item.sourceText.trim()}”</p>
+          <p className="muted">Pick one if it fits; nothing changes otherwise.</p>
           <div className="chips" role="radiogroup" aria-label="What is going on">
             {CONTEXT_TYPES.map((t) => (
               <button key={t} role="radio" aria-checked={label.type === t} aria-pressed={label.type === t} onClick={() => setLabel({ ...label, type: t, kind: CONTEXT_TABLE[t].kind })}>
@@ -108,7 +109,7 @@ export function ContextConfirm({ params }: { params: Record<string, string> }) {
             navigate("home");
           }}
         >
-          Yes
+          {picker ? "Save" : "Yes"}
         </button>
         <button
           className="secondary"

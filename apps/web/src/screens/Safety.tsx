@@ -3,7 +3,7 @@ import crisisLines from "../../../../shared/safety/crisis_lines.json";
 import { db, getSettings, getSingleton, putSingleton } from "../store/db";
 import { navigate } from "../app/events";
 
-type Line = { name: string; phone: string | null; alt_phone?: string; url: string; emergency?: string };
+type Line = { name: string; phone: string | null; alt_phone?: string; sms?: string; url: string; emergency?: string };
 
 /**
  * The safety flow (docs/06 §4). Bundled data only, no network and no model call. The Back
@@ -42,6 +42,11 @@ export function Safety({ params }: { params: Record<string, string> }) {
           ) : (
             <a className="call" href={line.url} target="_blank" rel="noreferrer">
               Find a helpline
+            </a>
+          )}
+          {line.sms && (
+            <a className="call secondary" href={`sms:${line.sms}`}>
+              Text {line.sms}
             </a>
           )}
           {line.alt_phone && (
