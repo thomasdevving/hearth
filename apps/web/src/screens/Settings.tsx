@@ -55,7 +55,7 @@ export function Settings() {
           onChange={async (e) => {
             const on = e.target.checked; // read before any await: React resets a controlled input
             await set({ cloudConsent: on });
-            await onConsentChanged(on);
+            setMsg(await onConsentChanged(on));
           }}
         />
       </label>

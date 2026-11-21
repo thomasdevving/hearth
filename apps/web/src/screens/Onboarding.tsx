@@ -9,6 +9,7 @@ import { onConsentChanged } from "../cloud/consent";
 export function Onboarding() {
   const s = useData(getSettings);
   const [page, setPage] = useState(0);
+  const [cloudMsg, setCloudMsg] = useState<string | null>(null);
   if (!s) return null;
   const pages = [
     <>
@@ -43,11 +44,12 @@ export function Onboarding() {
           onChange={async (e) => {
             const on = e.target.checked; // read before any await: React resets a controlled input
             await updateSettings({ cloudConsent: on });
-            await onConsentChanged(on);
+            setCloudMsg(await onConsentChanged(on));
             emitChange();
           }}
         />
       </label>
+      {cloudMsg && <p role="status">{cloudMsg}</p>}
       <p className="muted">On iPhone, Hearth would ask for Health and location access here.</p>
     </>,
   ];
