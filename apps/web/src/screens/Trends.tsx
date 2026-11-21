@@ -3,7 +3,7 @@ import type uPlot from "uplot";
 import type { ContextLabel, DayRecord, DiaryMarkers, Domain, QuestionnaireRecord } from "@hearth/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
-import { Screen } from "../ui/kit";
+import { Screen, Sparkline } from "../ui/kit";
 import { UChart } from "../ui/UChart";
 import { CONTEXT_LABEL, featureLabel, formatValue, prettyDate, ruleFeature } from "../app/labels";
 import { getEngineState } from "../app/runtime";
@@ -15,6 +15,9 @@ const DOMAIN_LABEL: Record<Domain, string> = { activity: "Activity", rhythm: "Rh
 const INK = "#0b0b0b";
 const INK2 = "#52514e";
 const GRID = "#e6e5e1";
+
+/** The most recent day with a value (a rolling feature can be null on the last day). */
+const lastValue = (vals: (number | null)[]) => [...vals].reverse().find((v) => v !== null) ?? null;
 
 const sec = (date: string) => Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10)) / 1000;
 
@@ -32,12 +35,18 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
       drawAxes: [
         (u) => {
           const ctx = u.ctx;
-          const { top, height } = u.bbox;
+          const { top, height, left, width } = u.bbox;
           for (const c of contexts) {
             if (!c.confirmed) continue;
-            const x0 = u.valToPos(sec(c.start) - 43200, "x", true);
-            const x1 = u.valToPos(sec(c.end) + 43200, "x", true);
+            // A period that started before the chart (or ends after it) is drawn from the edge,
+            // with its label where it becomes visible, never cut off at the axis.
+            const x0 = Math.max(left, u.valToPos(sec(c.start) - 43200, "x", true));
+            const x1 = Math.min(left + width, u.valToPos(sec(c.end) + 43200, "x", true));
+            if (x1 <= x0) continue;
             ctx.save();
+            ctx.beginPath();
+            ctx.rect(left, top, width, height);
+            ctx.clip();
             if (c.kind === "explains_sensors") {
               ctx.fillStyle = "rgba(82,81,78,0.12)";
               ctx.fillRect(x0, top, x1 - x0, height);
@@ -48,7 +57,9 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
             }
             ctx.fillStyle = INK2;
             ctx.font = `${11 * devicePixelRatio}px system-ui, sans-serif`;
-            ctx.fillText(CONTEXT_LABEL[c.type] ?? c.type, x0 + 4, top + height - 8 * devicePixelRatio);
+            ctx.textAlign = "left"; // uPlot leaves the axis alignment set
+            ctx.textBaseline = "alphabetic";
+            ctx.fillText(CONTEXT_LABEL[c.type] ?? c.type, x0 + 4, top + 12 * devicePixelRatio);
             ctx.restore();
           }
         },
@@ -72,6 +83,8 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
             ctx.stroke();
             ctx.fillStyle = INK;
             ctx.font = `${10 * devicePixelRatio}px system-ui, sans-serif`;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "alphabetic";
             if (x - lastLabel > 48 * devicePixelRatio) {
               const label = `PHQ-9 ${q.result.total}`;
               const w = ctx.measureText(label).width;
@@ -121,11 +134,18 @@ function domainChart(all: DayRecord[], contexts: ContextLabel[]) {
   const records = first > 0 ? all.slice(first) : all;
   const domains: Domain[] = ["activity", "rhythm", "sleep", "body", "mobility", "phone"];
   const used = domains.filter((d) => records.some((r) => r.domainScores[d] !== undefined));
-  const data: uPlot.AlignedData = [records.map((r) => sec(r.date)), ...used.map((d) => records.map((r) => r.domainScores[d] ?? null))];
+  // Daily domain scores jump around; the 7-day mean (at least 4 days with a score) shows
+  // which domain is drifting without five overlapping zigzags.
+  const mean7 = (d: Domain) =>
+    records.map((_, i) => {
+      const xs = records.slice(Math.max(0, i - 6), i + 1).map((r) => r.domainScores[d]).filter((v): v is number => v !== undefined && v !== null);
+      return xs.length >= 4 ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+    });
+  const data: uPlot.AlignedData = [records.map((r) => sec(r.date)), ...used.map((d) => mean7(d))];
   const opts: Omit<uPlot.Options, "width"> = {
     height: 180,
     legend: { show: true, live: false },
-    scales: { x: { time: true }, y: { range: [0, 3] } },
+    scales: { x: { time: true }, y: { range: (_u, _min, max) => [0, Math.max(0.5, Math.ceil((max ?? 0.5) * 12) / 10)] } },
     axes: axes("change"),
     series: [{ label: "Date" }, ...used.map((d) => ({ label: DOMAIN_LABEL[d], stroke: DOMAIN_COLOR[d], width: 2, value: (_u: uPlot, v: number | null) => (v == null ? "–" : v.toFixed(2)) }))],
     plugins: [contextPlugin(contexts, [])],
@@ -167,7 +187,8 @@ export function Trends() {
       <h2>Change index</h2>
       <UChart opts={charts.index.opts} data={charts.index.data} ariaLabel="Daily change index with the smoothed line and your usual limit" />
       <h2>By domain</h2>
-      <UChart opts={charts.domains.opts} data={charts.domains.data} ariaLabel="Change per domain" />
+      <p className="muted">Which kind of signal moved, as a 7-day average. Higher means further from your usual days.</p>
+      <UChart opts={charts.domains.opts} data={charts.domains.data} ariaLabel="Change per domain, 7-day average" />
       <h2>Questionnaires</h2>
       {qs.length === 0 ? (
         <p className="muted">None yet.</p>
@@ -193,7 +214,8 @@ export function Trends() {
                 <strong>{featureLabel(f, state?.places)}</strong>
                 <small>last 8 weeks</small>
               </div>
-              <span className="value">{formatValue(f, vals[vals.length - 1])}</span>
+              <Sparkline values={vals} width={160} label={`${featureLabel(f, state?.places)}`} />
+              <span className="value">{formatValue(f, lastValue(vals))}</span>
             </li>
           );
         })}

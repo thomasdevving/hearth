@@ -5,6 +5,7 @@ import { useData } from "../ui/hooks";
 import { ModelBadge, Screen } from "../ui/kit";
 import { router } from "../inference";
 import { weeklyTemplate } from "../app/templates";
+import { weekLabel } from "../app/labels";
 import { confirmFirstUpload, saveReport } from "../cloud/sync";
 import { navigate } from "../app/events";
 import { promptFor } from "../inference/prompts";
@@ -93,7 +94,7 @@ export function Weekly({ params }: { params: Record<string, string> }) {
         <table>
           <thead>
             <tr>
-              <th>Week</th>
+              <th>Week of</th>
               <th>Index</th>
               <th>Changed days</th>
               <th>Check-ins</th>
@@ -104,7 +105,7 @@ export function Weekly({ params }: { params: Record<string, string> }) {
           <tbody>
             {[...d.weeks].reverse().map((w) => (
               <tr key={w.isoWeek}>
-                <td>{w.isoWeek}</td>
+                <td>{weekLabel(w.isoWeek).replace("the week of ", "")}</td>
                 <td>{w.aggregate.indexMean ?? "–"}</td>
                 <td>{w.aggregate.daysElevated}</td>
                 <td>{w.aggregate.ema.n}</td>

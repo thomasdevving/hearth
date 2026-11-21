@@ -1,4 +1,4 @@
-import type { FeatureId, PlanRule, Place, State } from "@hearth/engine";
+import { datesOfIsoWeek, type FeatureId, type PlanRule, type Place, type State } from "@hearth/engine";
 
 export const STATE_LABEL: Record<State, string> = {
   WARM_UP: "Learning your pattern",
@@ -22,7 +22,7 @@ const FEATURE_LABEL: Record<string, string> = {
   fragmentation: "Stop-and-start activity",
   relative_amplitude: "Day–night difference",
   rest_duration: "Rest length",
-  rest_midpoint: "Rest time (midpoint)",
+  rest_midpoint: "Middle of your night",
   rest_regularity: "Regular rest times",
   hrv: "Heart rate variability",
   resting_hr: "Resting heart rate",
@@ -58,6 +58,20 @@ export const DIRECTION_TEXT: Record<PlanRule["direction"], string> = {
   less_regular: "gets less regular",
 };
 
+/** Features whose label is plural ("Steps", "Visits to the gym") take a plural verb. */
+const PLURAL = new Set(["steps", "active_hours", "places_visited", "place_visits"]);
+const PLURAL_TEXT: Record<PlanRule["direction"], string> = {
+  higher: "go up",
+  lower: "go down",
+  later: "get later",
+  earlier: "get earlier",
+  less_regular: "get less regular",
+};
+
+export function directionText(feature: FeatureId, direction: PlanRule["direction"]): string {
+  return (PLURAL.has(feature.split(":")[0]) ? PLURAL_TEXT : DIRECTION_TEXT)[direction];
+}
+
 export const CONTEXT_LABEL: Record<string, string> = {
   holiday: "On holiday",
   travel: "Travelling",
@@ -78,6 +92,7 @@ export function formatValue(feature: FeatureId, v: number | null | undefined): s
     return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
   }
   if (f === "home_stay") return `${Math.round(v * 100)} %`;
+  if (f === "place_visits") return `${v} in 7 days`;
   if (f === "steps") return Math.round(v).toLocaleString("en-GB");
   if (f === "rest_duration") return `${v.toFixed(1)} h`;
   if (f === "walking_speed") return `${v.toFixed(2)} m/s`;
@@ -90,4 +105,11 @@ export function formatValue(feature: FeatureId, v: number | null | undefined): s
 export function prettyDate(date: string): string {
   const d = new Date(`${date}T12:00:00Z`);
   return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+}
+
+/** "2026-W40" → "the week of 28 Sep": people know weeks by their dates, not their number. */
+export function weekLabel(isoWeek: string): string {
+  const monday = datesOfIsoWeek(isoWeek)[0];
+  const d = new Date(`${monday}T12:00:00Z`);
+  return `the week of ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}`;
 }

@@ -3,7 +3,7 @@ import { useData } from "../ui/hooks";
 import { Card, Screen } from "../ui/kit";
 import { navigate } from "../app/events";
 import { getEngineState } from "../app/runtime";
-import { DIRECTION_TEXT, featureLabel, ruleFeature } from "../app/labels";
+import { directionText, featureLabel, ruleFeature } from "../app/labels";
 import { HelpButton } from "./Home";
 import { closeInbox, openInbox } from "../app/runtime";
 import { useEffect, useState } from "react";
@@ -113,7 +113,7 @@ export function MyPlan() {
           <li key={r.id} className="plan-item">
             <div className="plan-item-text">
               <strong>
-                {featureLabel(ruleFeature(r), d.state?.places)} {DIRECTION_TEXT[r.direction]}
+                {featureLabel(ruleFeature(r), d.state?.places)} {directionText(r.feature, r.direction)}
               </strong>
               <span className="quote">“{r.quote}”</span>
             </div>

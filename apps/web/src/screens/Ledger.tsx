@@ -21,6 +21,13 @@ const TASK_NAME: Record<string, string> = {
   E: "Clinician report",
 };
 
+/** The data class in plain words (docs/05 §2); the code stays in the small print. */
+const CLASS_TEXT: Record<string, string> = {
+  S3: "Your own words or places: device only, never the cloud",
+  S2: "Single numbers about you: device first; cloud only with your consent",
+  S1: "Weekly summary you approved: cloud only with your consent",
+};
+
 function where(e: LedgerEntry): string {
   if (e.ranOn === "on_device") return "on this device";
   if (e.ranOn === "cloud") return "cloud (left this device)";
@@ -52,6 +59,8 @@ export function Ledger() {
             <div className="row" style={{ justifyContent: "space-between", margin: 0 }}>
               <span>
                 <strong>{TASK_NAME[e.task] ?? e.task}</strong> · {where(e)}
+                <br />
+                <span className="ledger-what">{CLASS_TEXT[e.dataClass] ?? e.dataClass}</span>
                 <br />
                 <small>
                   {e.at.slice(0, 16).replace("T", " ")} · {e.dataClass} · {e.decision.run === "model" ? `${e.decision.mode.toLowerCase().replace(/_/g, " ")}${e.decision.variant === "lite" ? " (lite)" : ""}` : `fallback: ${e.decision.reason.replace("_", " ")}`} · {e.outcome}

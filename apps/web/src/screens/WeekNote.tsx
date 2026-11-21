@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { weekLabel } from "../app/labels";
 import { datesOfIsoWeek, piiCheck } from "@hearth/engine";
 import { db, getSingleton } from "../store/db";
 import { router } from "../inference";
@@ -64,7 +65,7 @@ export function WeekNote({ isoWeek, existing }: { isoWeek: string; existing: { t
 
   return (
     <section>
-      <h2>A note in your own voice ({isoWeek})</h2>
+      <h2>A note in your own voice for {weekLabel(isoWeek)}</h2>
       {existing && !draft && (
         <>
           <p className="quote">“{existing.text}”</p>

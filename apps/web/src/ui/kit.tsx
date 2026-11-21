@@ -31,7 +31,7 @@ export function Card({ children, tone, onClick, label }: { children: ReactNode; 
 
 /** Every screen with model-written text shows where it was written (docs/01 §7). */
 export function ModelBadge({ ranOn }: { ranOn: "on_device" | "cloud" | "template" | "none" }) {
-  const text = ranOn === "on_device" ? "on-device" : ranOn === "cloud" ? "cloud" : "template";
+  const text = ranOn === "on_device" ? "on-device" : ranOn === "cloud" ? "cloud" : "fixed text";
   return (
     <span className={`badge badge-${ranOn === "none" ? "template" : ranOn}`} title={ranOn === "cloud" ? "Written by the cloud model" : ranOn === "on_device" ? "Written by the model on this device" : "Fixed text, no model"}>
       {text}
