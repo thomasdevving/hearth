@@ -107,6 +107,17 @@ export class WebInferenceRouter implements InferenceRouter {
         generationConfig: { responseMimeType: "application/json", responseJsonSchema: cloudSchema(schema) as { [k: string]: unknown }, temperature: 0.2, maxOutputTokens: 1024 },
       },
     });
+    // App Check (and the anonymous user) must be running before a request that may go to the
+    // cloud, also after a reload with consent already given. Only reached with consent (R4):
+    // routing never returns a cloud mode without it.
+    if (cloudConfigured && settings.cloudConsent && mayReachCloud(decision)) {
+      try {
+        const { startCloud } = await import("../cloud/client");
+        await startCloud();
+      } catch (e) {
+        console.warn("cloud start", e);
+      }
+    }
     const message = buildUserMessage(task, finalInput);
     const blockAi = decision.mode === "ONLY_ON_DEVICE";
 
