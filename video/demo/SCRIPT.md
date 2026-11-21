@@ -93,7 +93,7 @@ the precision it shows.
 > VO / WEBCAM: "When your days drift, Hearth notices. Built with Firebase AI Logic and
 > Gemini. Scan the code to try it yourself."
 
-The QR code opens https://hearth-ecru-sigma.vercel.app; the GitHub link is shown under it.
+The QR code opens https://hearth-9de01.web.app; the GitHub link is shown under it.
 
 ## Before you submit
 

@@ -36,3 +36,18 @@ The Firestore rules test runs against the local emulator and needs no project:
 ```bash
 npm run test:rules
 ```
+
+## Live project (2026-11-21)
+
+- Project `hearth-9de01`; the web app is served by Firebase Hosting at
+  https://hearth-9de01.web.app (`npm run build -w apps/web && firebase deploy --only hosting`).
+  Firestore rules are deployed with `firebase deploy --only firestore:rules`.
+- `.env.local` and `.firebaserc` stay untracked (R10). A production build must not contain
+  `VITE_APPCHECK_DEBUG_TOKEN`: a debug token in a public bundle lets anyone bypass App Check.
+  Use it only for local work.
+- Errors seen while setting up, and what they mean:
+  - `auth/configuration-not-found` on consent: Authentication has not been started in the
+    console (Build → Authentication → Get started → Anonymous).
+  - AI Logic `403 Permission denied on the service`: AI Logic is not enabled yet.
+  - AI Logic `400 genai config not found`: the API is on, but the Gemini Developer API
+    provider setup in Build → AI Logic was not completed.

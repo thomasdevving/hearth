@@ -694,3 +694,12 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
 - **Text 988:** the US line gains `"sms": "988"` in `shared/safety/crisis_lines.json` (988
   takes texts; the landing page already said so) and the safety screen shows a "Text 988"
   button. iOS ignores the extra field until it adds the button.
+
+## Firebase Hosting (2026-11-21)
+
+- The live demo moves from Vercel to **Firebase Hosting** (`hearth-9de01.web.app`), as
+  AGENTS.md §5 asks: app, AI Logic, App Check, Auth and Firestore now live in one Firebase
+  project. The video's QR code and script point to the new address. `vercel.json` is kept
+  for the old address.
+- Cloud consent that cannot reach the cloud now says so in Settings and onboarding instead of
+  failing silently; the choice is kept and Hearth keeps working on the device.

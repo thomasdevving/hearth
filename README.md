@@ -3,6 +3,8 @@
 **Hybrid, privacy-first relapse prevention for depression.**
 Entry for #BuildHybridAI 2026 (Firebase AI Logic hybrid inference). Deadline: **30 November 2026, 2 PM PT**.
 
+**Try it:** https://hearth-9de01.web.app (Firebase Hosting; Chrome desktop, no install).
+
 > Your phone notices your daily rhythm shifting before you do. Hearth turns your own
 > description of how a relapse starts into measurement rules, watches for exactly those
 > signs, and asks a validated question at the right moment. Your raw data never leaves
