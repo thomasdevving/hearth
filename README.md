@@ -118,3 +118,7 @@ Both run the same detection engine (`packages/engine`, TypeScript). Android is n
 *Sensors measure → code computes → the baseline decides when → a validated question
 measures → the LLM explains.* The LLM never changes a validated item and never computes a
 clinical score.
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE).
