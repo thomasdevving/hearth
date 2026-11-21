@@ -219,7 +219,16 @@ export function Home() {
         </div>
       )}
       <HelpedPrompt records={records} settings={data.settings} helped={data.helped} />
-      {inbox.length === 0 && <p className="muted">Nothing to do today.</p>}
+      {inbox.length === 0 && st === "WARM_UP" && (
+        <Card tone="plain">
+          <strong>Demo: Sam's first two weeks</strong>
+          <span>
+            Day {data.meta.dayNumber} of 150. Hearth spends the first two weeks learning Sam's usual days, so nothing happens yet. Use <b>+1 day</b> below to live
+            through them, or <b>Jump to… → First change</b> to see what happens when Sam's days start to drift.
+          </span>
+        </Card>
+      )}
+      {inbox.length === 0 && st !== "WARM_UP" && <p className="muted">Nothing to do today.</p>}
 
       <h2>Your signals</h2>
       {rules.length === 0 && (

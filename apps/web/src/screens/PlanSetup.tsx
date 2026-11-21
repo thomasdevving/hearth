@@ -5,7 +5,7 @@ import { db, getSettings, getSingleton } from "../store/db";
 import { navigate } from "../app/events";
 import { router } from "../inference";
 import { ModelBadge, Screen } from "../ui/kit";
-import { DIRECTION_TEXT, featureLabel } from "../app/labels";
+import { directionText, featureLabel } from "../app/labels";
 import { MicButton } from "../ui/Speech";
 import { detectCrisis, hasBannedWords, verifyPlan, type VerifiedPlan, type PersonaPlace, type RuleDirection } from "@hearth/engine";
 
@@ -79,6 +79,11 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
   const [manualPlaces, setManualPlaces] = useState<boolean[]>(PLACE_SIGNS.map(() => false));
   const [manualItems, setManualItems] = useState("");
   const [manualActions, setManualActions] = useState("");
+
+  // A new view (writing, cards, by hand) starts at the top, not where the last one was scrolled.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [status.kind]);
 
   useEffect(() => {
     (async () => {
@@ -176,7 +181,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
         {plan.rules.length > 0 && (
           <ul className="plan-list">
             {plan.rules.map((r, i) => {
-              const title = `${r.feature === "place_visits" ? `Visits to the ${r.place_label}` : featureLabel(r.feature)} ${DIRECTION_TEXT[r.direction]}`;
+              const title = `${r.feature === "place_visits" ? `Visits to the ${r.place_label}` : featureLabel(r.feature)} ${directionText(r.feature, r.direction)}`;
               return (
                 <PlanItem key={`r${i}`} title={title} kept={rulesOk[i]} onChange={(v) => toggle(rulesOk, setRulesOk, i, v)}>
                   <Origin quote={r.quote} />
@@ -241,6 +246,15 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
     return (
       <Screen title="Your plan">
         <p>The on-device model is not available, so let's do this by hand. Nothing you type leaves this device.</p>
+        {(warning.trim() || helps.trim()) && (
+          <div className="you-wrote">
+            <small>You wrote</small>
+            <q>{[warning.trim(), helps.trim()].filter(Boolean).join(" ")}</q>
+            <button className="link" onClick={() => setStatus({ kind: "idle" })}>
+              Edit my text
+            </button>
+          </div>
+        )}
         <h2>Which of these happen when things start to slip?</h2>
         <SuggestionPicker picked={picked} onChange={setPicked} />
         {PLACE_SIGNS.map((m, i) => (
@@ -276,6 +290,21 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
       <p className="muted">
         Hearth already watches signals research links to harder periods. Your own signs make it sharper: write them, tick them, or both. It all stays on this device.
       </p>
+      {scripted && (
+        <p className="demo-hint">
+          Demo: write as yourself, or{" "}
+          <button
+            className="link"
+            onClick={() => {
+              setWarning(scripted.text);
+              setHelps("");
+            }}
+          >
+            use Sam's words
+          </button>
+          .
+        </p>
+      )}
       <label className="stack">
         <strong>When things start to slip, what do you, or the people close to you, notice first?</strong>
         <textarea rows={4} value={warning} onChange={(e) => setWarning(e.target.value)} placeholder="For example: I go to bed later and stop going to the gym…" />
@@ -291,17 +320,6 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
       <MicButton onText={(t) => setHelps((h) => (h ? `${h} ${t}` : t))} />
       <ScanPlan onText={(t) => setWarning((w) => (w ? `${w}\n${t}` : t))} />
       <div className="row">
-        {scripted && (
-          <button
-            className="secondary"
-            onClick={() => {
-              setWarning(scripted.text);
-              setHelps("");
-            }}
-          >
-            Use Sam's words
-          </button>
-        )}
         <button className="primary" disabled={status.kind === "working" || !(warning.trim() || helps.trim() || picked.size > 0)} onClick={makeCards}>
           {status.kind === "working" ? "Reading on this device…" : "Make cards"}
         </button>

@@ -41,7 +41,7 @@ export function TimeMachineBar() {
       <div className="tm-row">
         <span className="tm-date" aria-live="polite">
           <strong>Day {meta.dayNumber}</strong>
-          <span className="tm-of">/{d.total}</span> <span className="tm-sub">· {prettyDate(meta.today)}{d.phase && ` · ${d.phase}`}{!d.processed && " · not run yet"}</span>
+          <span className="tm-of">/{d.total}</span> <span className="tm-sub">· {prettyDate(meta.today)}{d.phase && ` · ${d.phase}`}{!d.processed && " · today not scored yet"}</span>
         </span>
         <div className="tm-controls">
           <button onClick={() => tm.step()} disabled={tm.busy || tm.playing} aria-label="Next day">
@@ -60,7 +60,7 @@ export function TimeMachineBar() {
             <option value="">Jump to…</option>
             <option value="holiday">Holiday</option>
             <option value="first_change">First change</option>
-            <option value="phq9">PHQ-9</option>
+            <option value="phq9">Questionnaire</option>
           </select>
           <button className="tm-more" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="More demo controls">
             ⋯

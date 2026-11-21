@@ -76,7 +76,13 @@ class TimeMachine {
       const s = await getSettings();
       if (!s.baselineDone && this.autoAnswer) await autoOnboard();
       if ((await this.blocking()).length > 0) {
-        if (!this.autoAnswer) return "paused";
+        if (!this.autoAnswer) {
+          // Time waits for the user: say so, instead of a button that seems to do nothing.
+          this.message = await waitingMessage(await this.blocking());
+          this.emit();
+          navigate("home");
+          return "paused";
+        }
         await this.drain();
       }
       const r = await stepDay(this.autoAnswer ? { onNote: async (item) => (await autoAnswer(item), true) } : {});
@@ -109,11 +115,19 @@ class TimeMachine {
         break;
       }
       if (r === "paused" || (!this.autoAnswer && (await this.blocking()).length > 0)) {
-        this.pause("Paused: something needs you.");
+        this.pause(await waitingMessage(await this.blocking()));
+        navigate("home");
         break;
       }
       await new Promise((res) => setTimeout(res, 400));
     }
+  }
+
+  /** Stop a jump on the questionnaire it found, with that questionnaire open. */
+  private async showQuestionnaire() {
+    const q = (await openInbox()).find((i) => i.type === "questionnaire");
+    this.message = q && q.type === "questionnaire" ? `${q.instrument === "PHQ2" ? "Two short questions (PHQ-2)" : "A questionnaire (PHQ-9)"} offered after the change continued.` : "A questionnaire is offered.";
+    if (q && q.type === "questionnaire") navigate("questionnaire", { instrument: q.instrument });
   }
 
   /** Fast-forward with scripted answers auto-accepted (docs/08 §3). */
@@ -130,7 +144,7 @@ class TimeMachine {
       await autoOnboard();
       const firstElevated0 = async () => (await db.day_records.toArray()).some((r) => r.state === "ELEVATED");
       if (await this.drain(async (item) => target === "phq9" && item.type === "questionnaire" && (await firstElevated0()))) {
-        this.message = "A questionnaire is offered.";
+        await this.showQuestionnaire();
         return;
       }
       const holidayDay = data.phases.find((p) => p.name === "Holiday")?.fromDay ?? 61;
@@ -142,7 +156,8 @@ class TimeMachine {
         if (target === "holiday" && meta.dayNumber >= holidayDay - 1) {
           this.busy = false;
           const r = await stepDayInteractive();
-          this.message = r === "paused" ? "Day of the holiday: Sam wrote a note." : "Holiday reached.";
+          this.message = r === "paused" ? "Day of the holiday: Sam wrote a note. It is on Today." : "Holiday reached.";
+          navigate("home");
           break;
         }
         const r = await stepDay({ onNote: async (item) => (await autoAnswer(item), true) });
@@ -159,7 +174,7 @@ class TimeMachine {
         }
         const halted = await this.drain(async (item) => target === "phq9" && item.type === "questionnaire" && (await firstElevated()));
         if (halted) {
-          this.message = this.stopRequested ? this.message : "A questionnaire is offered.";
+          if (!this.stopRequested) await this.showQuestionnaire();
           break;
         }
         if (this.stopRequested) break;
@@ -169,6 +184,13 @@ class TimeMachine {
       this.emit();
     }
   }
+}
+
+/** What the user has to do before time can move on (docs/DECISIONS.md, M4: Play pauses on these). */
+async function waitingMessage(items: InboxItem[]): Promise<string> {
+  const what = items.map((i) => (i.type === "checkin" ? "a check-in" : i.type === "questionnaire" ? "a questionnaire" : i.type === "note" ? "Sam's note" : "a question about Sam's routine"));
+  const list = [...new Set(what)].join(" and ");
+  return `Waiting for ${list} on Today. Answer it or tap “Not today”, or turn on “Answer with Sam's script” under ⋯.`;
 }
 
 async function stepDayInteractive() {

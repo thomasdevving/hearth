@@ -493,3 +493,13 @@ legend { padding: 0; margin-bottom: var(--s2); }
     .tabs a { padding-left: 5px; padding-right: 5px; font-size: 0.86rem; min-width: 0; }
     .sci-formula { font-size: 0.72rem; padding: var(--s3); }
 }
+
+/* Demo helpers and the user's own text kept in sight (UX pass 2026-11-21) */
+.demo-hint { background: var(--surface-2); border: 1px dashed var(--magenta-line); border-radius: var(--radius-sm); padding: var(--s2) var(--s3); color: var(--ink-2); font-size: 0.95rem; }
+.demo-hint .link { font-size: inherit; padding: 0; display: inline-flex; align-items: center; }
+.you-wrote { display: flex; flex-direction: column; gap: var(--s1); background: var(--magenta-tint); border-radius: var(--radius-sm); padding: var(--s3); margin-bottom: var(--s3); }
+.you-wrote small { color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem; }
+.you-wrote q { font-style: italic; color: var(--ink); }
+.you-wrote .link { align-self: flex-start; }
+.ledger-what { color: var(--ink-2); font-size: 0.92rem; }
+.safety .call + .call { margin-top: var(--s2); }

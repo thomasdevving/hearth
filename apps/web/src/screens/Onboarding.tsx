@@ -18,6 +18,7 @@ export function Onboarding() {
         <li>It compares you only with yourself, never with other people.</li>
         <li>When something changes for a few days, it asks how you are and opens your plan.</li>
       </ul>
+      <p className="muted">In this demo you are Sam, a made-up person, over 150 days. Sam's sensor data is simulated; everything else is the real app.</p>
     </>,
     <>
       <h2>Your words stay on this device</h2>
@@ -47,7 +48,7 @@ export function Onboarding() {
           }}
         />
       </label>
-      <p className="muted">In this demo you follow Sam, a made-up person, for 150 days. On iPhone, Hearth would ask for Health and location access here.</p>
+      <p className="muted">On iPhone, Hearth would ask for Health and location access here.</p>
     </>,
   ];
   return (
