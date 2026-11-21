@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { WeekAggregate } from "@hearth/engine";
 import { loadShare } from "../cloud/client";
 import { Screen } from "../ui/kit";
+import { CONTEXT_LABEL, featureLabel, weekLabel } from "../app/labels";
 
 type Rep = { summary: string; timeline: { iso_week: string; note: string }[]; questions_to_bring: string[] };
 
@@ -49,7 +50,7 @@ export function Report({ params }: { params: Record<string, string> }) {
         <table>
           <thead>
             <tr>
-              <th>Week</th>
+              <th>Week of</th>
               <th>Days</th>
               <th>Index</th>
               <th>Changed days</th>
@@ -63,15 +64,15 @@ export function Report({ params }: { params: Record<string, string> }) {
           <tbody>
             {data.weeks.map((w) => (
               <tr key={w.isoWeek}>
-                <td>{w.isoWeek}</td>
+                <td>{weekLabel(w.isoWeek).replace("the week of ", "")}</td>
                 <td>{w.daysWithData}</td>
                 <td>{w.indexMean ?? "–"}</td>
                 <td>{w.daysElevated}</td>
-                <td>{w.topContributors.join(", ") || "–"}</td>
+                <td>{w.topContributors.map((f) => featureLabel(f)).join(", ") || "–"}</td>
                 <td>{w.ema.mood_low ?? "–"}</td>
                 <td>{w.phq2 ?? "–"}</td>
                 <td>{w.phq9 ?? "–"}{w.phq9Flagged ? " ⚑" : ""}</td>
-                <td>{w.contexts.join(", ") || "–"}</td>
+                <td>{w.contexts.map((c) => CONTEXT_LABEL[c] ?? c).join(", ") || "–"}</td>
               </tr>
             ))}
           </tbody>
