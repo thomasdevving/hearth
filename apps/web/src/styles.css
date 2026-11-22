@@ -513,7 +513,7 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .person-text small { color: var(--muted); }
 .person-text q { color: var(--ink-2); font-style: italic; font-size: 0.92rem; }
 .person-actions { display: flex; gap: var(--s2); }
-.person-actions .call { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--s4); border-radius: 999px; background: var(--magenta); color: var(--white); font-weight: 600; text-decoration: none; }
+.person-actions .call { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 var(--s4); border: 2px solid var(--magenta); border-radius: 999px; background: var(--magenta); color: var(--white); font-weight: 600; line-height: 1; text-decoration: none; }
 .person-actions .call.secondary { background: var(--white); color: var(--magenta-deep); border: 2px solid var(--magenta-line); }
 .person-form { border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s4); margin: 0 0 var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
 .person-form legend { font-weight: 600; padding: 0 var(--s2); }
