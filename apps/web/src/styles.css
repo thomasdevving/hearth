@@ -503,3 +503,18 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .you-wrote .link { align-self: flex-start; }
 .ledger-what { color: var(--ink-2); font-size: 0.92rem; }
 .safety .call + .call { margin-top: var(--s2); }
+
+/* Call a friend (2026-11-22) */
+.call-friend { margin: var(--s5) 0; }
+.call-friend h2 { margin-top: 0; }
+.people-list { list-style: none; padding: 0; margin: var(--s3) 0; display: flex; flex-direction: column; gap: var(--s3); }
+.people-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
+.person-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.person-text small { color: var(--muted); }
+.person-text q { color: var(--ink-2); font-style: italic; font-size: 0.92rem; }
+.person-actions { display: flex; gap: var(--s2); }
+.person-actions .call { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--s4); border-radius: 999px; background: var(--magenta); color: var(--white); font-weight: 600; text-decoration: none; }
+.person-actions .call.secondary { background: var(--white); color: var(--magenta-deep); border: 2px solid var(--magenta-line); }
+.person-form { border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s4); margin: 0 0 var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
+.person-form legend { font-weight: 600; padding: 0 var(--s2); }
+.person-form label { display: flex; flex-direction: column; gap: var(--s1); }

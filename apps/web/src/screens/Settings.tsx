@@ -23,13 +23,11 @@ async function exportAll(): Promise<void> {
 }
 
 export function Settings() {
-  const s = useData(async () => ({ settings: await getSettings(), contact: await getSingleton(db.trusted_contact), plan: await getSingleton(db.safety_plan) }));
+  const s = useData(async () => ({ settings: await getSettings(), plan: await getSingleton(db.safety_plan) }));
   const status = useSyncExternalStore(onModelStatus, getModelStatus);
   const [msg, setMsg] = useState<string | null>(null);
-  const [contact, setContact] = useState<{ name: string; phone: string } | null>(null);
   if (!s) return <Screen title="Settings">Loading…</Screen>;
   const { settings } = s;
-  const c = contact ?? s.contact ?? { name: "", phone: "" };
   const set = async (patch: Parameters<typeof updateSettings>[0]) => {
     await updateSettings(patch);
     emitChange();
@@ -124,25 +122,9 @@ export function Settings() {
           <option value="other">Other</option>
         </select>
       </label>
-      <form
-        className="stack"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          await putSingleton(db.trusted_contact, c);
-          setMsg("Trusted contact saved on this device.");
-          emitChange();
-        }}
-      >
-        <label>
-          Trusted contact name
-          <input type="text" value={c.name} onChange={(e) => setContact({ ...c, name: e.target.value })} />
-        </label>
-        <label>
-          Phone
-          <input type="tel" value={c.phone} onChange={(e) => setContact({ ...c, phone: e.target.value })} />
-        </label>
-        <button className="secondary">Save contact</button>
-      </form>
+      <button className="link" onClick={() => navigate("people")}>
+        My people (call a friend) ›
+      </button>
       <button className="link" onClick={() => navigate("safety", { edit: "1" })}>
         My safety plan ›
       </button>

@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { CallAFriend } from "../ui/CallAFriend";
+import { getPeople } from "../app/people";
+import type { Person } from "../store/db";
 import crisisLines from "../../../../shared/safety/crisis_lines.json";
 import { db, getSettings, getSingleton, putSingleton } from "../store/db";
 import { navigate } from "../app/events";
@@ -11,14 +14,14 @@ type Line = { name: string; phone: string | null; alt_phone?: string; sms?: stri
  */
 export function Safety({ params }: { params: Record<string, string> }) {
   const [country, setCountry] = useState("NL");
-  const [contact, setContact] = useState<{ name: string; phone: string } | null>(null);
+  const [people, setPeople] = useState<Person[]>([]);
   const [plan, setPlan] = useState<{ warningSigns: string; helps: string; whoToCall: string } | null>(null);
   const [canLeave, setCanLeave] = useState(false);
   const [editing, setEditing] = useState(params.edit === "1");
   useEffect(() => {
     (async () => {
       setCountry((await getSettings()).country);
-      setContact(await getSingleton(db.trusted_contact));
+      setPeople(await getPeople());
       setPlan(await getSingleton(db.safety_plan));
     })();
     const t = setTimeout(() => setCanLeave(true), 3000);
@@ -71,21 +74,7 @@ export function Safety({ params }: { params: Record<string, string> }) {
             )}
           </strong>
         </p>
-        {contact?.phone && (
-          <div>
-            <p>
-              <strong>{contact.name || "Your trusted contact"}</strong>
-            </p>
-            <div className="row">
-              <a className="call secondary" style={{ flex: 1 }} href={`tel:${contact.phone.replace(/\s/g, "")}`}>
-                Call
-              </a>
-              <a className="call secondary" style={{ flex: 1 }} href={`sms:${contact.phone.replace(/\s/g, "")}`}>
-                Message
-              </a>
-            </div>
-          </div>
-        )}
+        {people.length > 0 && <CallAFriend people={people} compact />}
         <section>
           <h2>My safety plan</h2>
           {!editing && plan && (plan.warningSigns || plan.helps || plan.whoToCall) ? (

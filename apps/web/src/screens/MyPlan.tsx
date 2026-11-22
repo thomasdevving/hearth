@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { router } from "../inference";
 import { ModelBadge } from "../ui/kit";
 import { HelpedCard } from "../ui/HelpedCard";
+import { CallAFriend } from "../ui/CallAFriend";
+import { getPeople } from "../app/people";
 
 export function MyPlan() {
   const d = useData(async () => ({
@@ -20,6 +22,7 @@ export function MyPlan() {
     source: await getSingleton(db.plan_source),
     last: (await db.day_records.orderBy("date").last()) ?? null,
     helped: (await db.helped_notes.toArray()).filter((n) => !n.archived).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
+    people: await getPeople(),
   }));
   const [fit, setFit] = useState<{ ids: string[]; ranOn: "on_device" | "cloud" } | null>(null);
   // Task K: which of the user's own actions fit today. The model returns ids only; the user's
@@ -96,6 +99,7 @@ export function MyPlan() {
           </button>
         </Card>
       )}
+      <CallAFriend people={d.people} />
       <h2 className="plan-group">What helped you before</h2>
       {d.helped.length === 0 && <p className="muted">After a hard stretch, save what helped. Hearth brings it back when the same sign shows up.</p>}
       {d.helped.map((n) => (

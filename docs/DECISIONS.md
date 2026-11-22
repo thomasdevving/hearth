@@ -716,3 +716,17 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   repeats keys verbatim. Prompts: D v4, E v2.
 - **The old Vercel address redirects** to https://hearth-9de01.web.app with the same path, so
   links and the QR code in the first video keep working.
+
+## Call a friend (2026-11-22)
+
+- **"My people"**: one to three people (name, phone, optional "good for", and a message in
+  the user's own words), stored locally only (S3, Dexie table `people`, version 3). The old
+  single trusted contact becomes the first person on upgrade.
+- The **Call a friend** card shows on the support screen (offline), on Today while the state
+  is ELEVATED or CONFIRMED, and on the plan. "Call" opens the phone; "Message" opens Messages
+  with the text filled in (`sms:<n>?&body=`). Hearth never calls or sends anything itself
+  (docs/06 §4.3); no model is involved.
+- Names of the user's people are blocked in shared weekly notes like place labels.
+- Inspired by the Virtual Hope Box's "Call a friend" and by the Dutch depression guideline's
+  advice to involve people close to the person in the relapse prevention plan.
+- Demo: Sam has "My sister" and "Maya", with fictional 555-01xx numbers.

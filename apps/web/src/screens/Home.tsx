@@ -3,6 +3,8 @@ import { db, getSettings, getSingleton, updateSettings, type HelpedNote, type Se
 import type { DayRecord } from "@hearth/engine";
 import { closeInbox, getEngineState, getMeta, openInbox } from "../app/runtime";
 import { SupportCard } from "../ui/SupportCard";
+import { CallAFriend } from "../ui/CallAFriend";
+import { getPeople } from "../app/people";
 import { useData } from "../ui/hooks";
 import { Card, Screen, Sparkline } from "../ui/kit";
 import { STATE_LABEL, STATE_TEXT, featureLabel, formatValue, ruleFeature, CONTEXT_LABEL, prettyDate } from "../app/labels";
@@ -173,7 +175,8 @@ export function Home() {
     const plan = await getSingleton(db.plan_source);
     const settings = await getSettings();
     const helped = await db.helped_notes.toArray();
-    return { meta, state, inbox, rules, records, contexts, plan, settings, helped };
+    const people = await getPeople();
+    return { meta, state, inbox, rules, records, contexts, plan, settings, helped, people };
   });
   const [why, setWhy] = useState(false);
   if (!data || !data.meta) return <Screen title="Today">Loading…</Screen>;
@@ -219,6 +222,7 @@ export function Home() {
         </div>
       )}
       <HelpedPrompt records={records} settings={data.settings} helped={data.helped} />
+      {(st === "ELEVATED" || st === "CONFIRMED") && <CallAFriend people={data.people} compact />}
       {inbox.length === 0 && st === "WARM_UP" && (
         <Card tone="plain">
           <strong>Demo: Sam's first two weeks</strong>

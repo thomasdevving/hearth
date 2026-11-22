@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import crisisLines from "../../../../shared/safety/crisis_lines.json";
-import { db, getSettings, getSingleton } from "../store/db";
+import { getSettings, type Person } from "../store/db";
+import { getPeople, telHref } from "../app/people";
 import { navigate } from "../app/events";
 import { openSafety } from "../app/actions";
 
@@ -13,14 +14,14 @@ type Line = { name: string; phone: string | null; alt_phone?: string; sms?: stri
  */
 export function SupportCard({ onClose }: { onClose?: () => void }) {
   const [line, setLine] = useState<Line | null>(null);
-  const [contact, setContact] = useState<{ name: string; phone: string } | null>(null);
+  const [contact, setContact] = useState<Person | null>(null);
   const [canClose, setCanClose] = useState(false);
   useEffect(() => {
     (async () => {
       const country = (await getSettings()).country;
       const countries = crisisLines.countries as Record<string, Line>;
       setLine(countries[country] ?? (crisisLines.default as Line));
-      setContact(await getSingleton(db.trusted_contact));
+      setContact((await getPeople())[0] ?? null);
     })();
     const t = setTimeout(() => setCanClose(true), 3000);
     return () => clearTimeout(t);
@@ -42,7 +43,7 @@ export function SupportCard({ onClose }: { onClose?: () => void }) {
               </a>
             )}
             {contact?.phone && (
-              <a className="call secondary" href={`tel:${contact.phone.replace(/\s/g, "")}`}>
+              <a className="call secondary" href={telHref(contact)}>
                 Call {contact.name || "my contact"}
               </a>
             )}

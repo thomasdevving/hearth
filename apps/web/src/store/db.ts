@@ -155,6 +155,7 @@ export class HearthDB extends Dexie {
   network_log!: Table<NetworkLogEntry, number>;
   day_actions!: Table<{ date: string; actions: Action[] }, string>;
   helped_notes!: Table<HelpedNote, string>;
+  people!: Table<Person, string>;
 
   constructor(name = "hearth") {
     super(name);
@@ -183,8 +184,26 @@ export class HearthDB extends Dexie {
       day_actions: "date",
     });
     this.version(2).stores({ helped_notes: "id, signQuote, createdAt" });
+    // "My people" (call a friend): the trusted contact becomes the first person.
+    this.version(3)
+      .stores({ people: "id, order" })
+      .upgrade(async (tx) => {
+        const c = (await tx.table("trusted_contact").get("singleton"))?.value as { name: string; phone: string } | undefined;
+        if (c?.phone) await tx.table("people").put({ id: "person_1", order: 0, name: c.name || "", phone: c.phone, goodFor: "", message: DEFAULT_MESSAGE });
+      });
   }
 }
+
+/** Someone the user can reach out to (S3: stays on this device; Hearth never contacts them). */
+export interface Person {
+  id: string;
+  order: number;
+  name: string;
+  phone: string;
+  goodFor: string; // optional, in the user's words: "a walk", "a chat"
+  message: string; // the text that opens in Messages; the user presses send
+}
+export const DEFAULT_MESSAGE = "Hey, I'm having a bit of a hard time. Fancy a call or a walk soon?";
 
 export const db = new HearthDB();
 

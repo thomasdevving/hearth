@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { getPeople } from "../app/people";
 import { Screen } from "../ui/kit";
 import { navigate } from "../app/events";
 import { saveNote, userSigns, type Sign } from "../app/helped";
@@ -23,7 +24,7 @@ export function HelpedNew({ params }: { params: Record<string, string> }) {
       const s = await userSigns();
       setSigns(s);
       if (!params.sign && s[0]) setSign(s[0].quote);
-      setContact((await getSingleton(db.trusted_contact))?.name ?? "");
+      setContact((await getPeople())[0]?.name ?? "");
     })();
     return () => { if (timer.current) clearInterval(timer.current); };
   }, [params.sign]);

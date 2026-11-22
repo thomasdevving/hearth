@@ -21,6 +21,7 @@ import {
 } from "./engine-extra";
 import { db, getSettings, getSingleton, newId, putSingleton, updateSettings, clearAll, type InboxItem, type ReplayMeta } from "../store/db";
 import { setToday, stampAt } from "./clock";
+import { DEMO_PEOPLE, savePeople } from "./people";
 import { emitChange } from "./events";
 
 // The web replay always uses the bundled defaults so that it is reproducible (docs/07 §5).
@@ -54,6 +55,7 @@ export async function loadPersona(scenario: Scenario, seed: number): Promise<voi
   await putSingleton(db.engine_state, initialState(seed));
   // Sam saved one note after an earlier hard week, before the replay starts.
   await db.helped_notes.put({ id: "seed-sam-1", signQuote: SAM_HELPED_NOTE.signQuote, text: SAM_HELPED_NOTE.text, audio: null, message: SAM_HELPED_NOTE.message, contactName: SAM_HELPED_NOTE.contactName, createdAt: SAM_HELPED_NOTE.savedOn, source: "seed", archived: false });
+  await savePeople(DEMO_PEOPLE);
   setToday(data.startDate);
   emitChange();
 }

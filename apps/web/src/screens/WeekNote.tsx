@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getPeople } from "../app/people";
 import { weekLabel } from "../app/labels";
 import { datesOfIsoWeek, piiCheck } from "@hearth/engine";
 import { db, getSingleton } from "../store/db";
@@ -21,9 +22,10 @@ export function WeekNote({ isoWeek, existing }: { isoWeek: string; existing: { t
   const checkOpts = async () => {
     const st = await getEngineState();
     const data = await currentReplay();
-    const contact = await getSingleton(db.trusted_contact);
+    const people = await getPeople();
     const labels = [...(st?.places.map((p) => p.label).filter((x): x is string => !!x) ?? []), ...(data?.places.map((p) => p.label) ?? [])];
-    return { placeLabels: labels, contactName: contact?.name ?? null };
+    // Names of the user's people are blocked like place labels (piiCheck takes one contact name).
+    return { placeLabels: [...labels, ...people.map((p) => p.name).filter(Boolean)], contactName: null };
   };
 
   const write = async () => {
