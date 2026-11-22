@@ -17,7 +17,6 @@ struct SafetyView: View {
     let _ = app.revision
     let lines = Shared.crisisLines
     let line = lines.countries[app.settings.country] ?? lines.default
-    let contact = app.store.all(TrustedContact.self).first
     let plan = app.store.all(SafetyPlan.self).first
     ScrollView {
       VStack(alignment: .leading, spacing: 16) {
@@ -47,15 +46,8 @@ struct SafetyView: View {
         }
         .font(HearthFont.body(17, weight: "SemiBold"))
 
-        if let c = contact, !c.phone.isEmpty {
-          VStack(alignment: .leading, spacing: 8) {
-            Text(c.name.isEmpty ? "Your trusted contact" : c.name).font(HearthFont.body(17, weight: "SemiBold"))
-            HStack(spacing: 12) {
-              if let tel = URL(string: "tel:\(c.phone.filter { !$0.isWhitespace })") { Link(destination: tel) { Text("Call") }.buttonStyle(.secondary) }
-              if let sms = URL(string: "sms:\(c.phone.filter { !$0.isWhitespace })") { Link(destination: sms) { Text("Message") }.buttonStyle(.secondary) }
-            }
-          }
-        }
+        let people = People.all(app.store)
+        if !people.isEmpty { CallAFriendCard(people: people, compact: true) }
 
         SectionTitle(text: "My safety plan")
         if editing {

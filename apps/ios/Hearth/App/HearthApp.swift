@@ -20,6 +20,7 @@ struct HearthApp: App {
     }
     if UserDefaults.standard.string(forKey: "HearthTab") == "trends" { model.selectedTab = .trends }
     #endif
+    People.migrateTrustedContact(model.store)
     Self.startCollectors(model)
     // Daily update by background refresh (docs/02 §7); also on every open (below).
     BackgroundRefresh.register { @MainActor in await model.runDaily(reason: "background") }
@@ -105,6 +106,7 @@ struct RootView: View {
     case .myPlan: MyPlanView()
     case .baselinePhq: BaselinePhqView()
     case .weekly: WeeklyView()
+    case .people: PeopleView()
     }
   }
 }

@@ -137,6 +137,20 @@ import SwiftData
   init(name: String, phone: String) { self.name = name; self.phone = phone }
 }
 
+/// "My people" (call a friend): 1–3 people with a message in the user's own words. Class S3,
+/// local only; Hearth never contacts them. Replaces the single trusted contact.
+@Model final class Person {
+  @Attribute(.unique) var id: String
+  var order: Int
+  var name: String
+  var phone: String
+  var goodFor: String
+  var message: String
+  init(id: String, order: Int, name: String, phone: String, goodFor: String, message: String) {
+    self.id = id; self.order = order; self.name = name; self.phone = phone; self.goodFor = goodFor; self.message = message
+  }
+}
+
 /// 2.12 `safety_events`, key `id`. Never uploaded.
 @Model final class SafetyEvent {
   @Attribute(.unique) var id: String
@@ -195,6 +209,6 @@ enum HearthSchema {
     DayRaw.self, DayRecord.self, EngineState.self, PlanSource.self, PlanRule.self, PersonalItem.self,
     PlanAction.self, ContextLabel.self, CheckinRecord.self, DiaryEntry.self, LedgerEntry.self,
     QuestionnaireRecord.self, SafetyPlan.self, TrustedContact.self, SafetyEvent.self, HearthSettings.self,
-    WeekAggregate.self, InboxItem.self,
+    WeekAggregate.self, InboxItem.self, Person.self,
   ]
 }

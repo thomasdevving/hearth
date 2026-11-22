@@ -29,6 +29,8 @@ struct HomeView: View {
 
       inbox
 
+      if st == .ELEVATED || st == .CONFIRMED { CallAFriendCard(people: People.all(app.store), compact: true) }
+
       SectionTitle(text: "Your signals")
       let rules = app.store.activeRules()
       if rules.isEmpty {

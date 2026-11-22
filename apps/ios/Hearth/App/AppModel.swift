@@ -283,4 +283,5 @@ enum Route: Hashable {
   case myPlan
   case baselinePhq
   case weekly
+  case people
 }

@@ -4,8 +4,6 @@ import SwiftUI
 /// delete everything.
 struct SettingsView: View {
   @Environment(AppModel.self) private var app
-  @State private var name = ""
-  @State private var phone = ""
   @State private var msg: String?
   @State private var confirmDelete = false
 
@@ -71,16 +69,7 @@ struct SettingsView: View {
         Text("Other").tag("other")
       }
       .tint(Theme.magenta)
-      TextField("Trusted contact name", text: $name).textFieldStyle(.roundedBorder).textContentType(.name)
-      TextField("Phone", text: $phone).textFieldStyle(.roundedBorder).keyboardType(.phonePad)
-      Button("Save contact") {
-        if let c = app.store.all(TrustedContact.self).first { c.name = name; c.phone = phone } else {
-          app.store.context.insert(TrustedContact(name: name, phone: phone))
-        }
-        app.changed()
-        msg = "Trusted contact saved on this device."
-      }
-      .buttonStyle(.secondary)
+      Button("My people (call a friend) ›") { app.path.append(.people) }.buttonStyle(.link)
       Button("My safety plan ›") { app.safetyEntry = "edit" }.buttonStyle(.link)
 
       SectionTitle(text: "Your data")
@@ -89,9 +78,6 @@ struct SettingsView: View {
         .foregroundStyle(Theme.danger)
       if let msg { Text(msg).foregroundStyle(Theme.steady) }
       HelpButton()
-    }
-    .onAppear {
-      if let c = app.store.all(TrustedContact.self).first { name = c.name; phone = c.phone }
     }
     .confirmationDialog("Delete everything on this iPhone? This cannot be undone.", isPresented: $confirmDelete, titleVisibility: .visible) {
       Button("Delete everything", role: .destructive) {

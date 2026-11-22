@@ -147,3 +147,41 @@ final class AppFlowTests: XCTestCase {
     }
   }
 }
+
+@MainActor
+final class PeopleTests: XCTestCase {
+  func testSaveKeepsThreeWithNumbersAndDefaultMessage() throws {
+    let container = try Store.makeContainer(inMemory: true)
+    let store = Store(context: container.mainContext)
+    People.save([
+      .init(name: "A", phone: "+31 6 1234 5678", goodFor: "", message: ""),
+      .init(name: "No number", phone: " ", goodFor: "", message: "x"),
+      .init(name: "B", phone: "06-1", goodFor: "a walk", message: "Walk?"),
+      .init(name: "C", phone: "06-2", goodFor: "", message: "Hi"),
+      .init(name: "D", phone: "06-3", goodFor: "", message: "Hi"),
+    ], store: store)
+    let ps = People.all(store)
+    XCTAssertEqual(ps.map(\.name), ["A", "B", "C"])
+    XCTAssertEqual(ps[0].message, People.defaultMessage)
+  }
+
+  func testLinksOpenPhoneAndMessagesWithTheText() throws {
+    let container = try Store.makeContainer(inMemory: true)
+    let store = Store(context: container.mainContext)
+    People.save([.init(name: "Maya", phone: "+1 555 0187", goodFor: "", message: "Walk tomorrow?")], store: store)
+    let p = try XCTUnwrap(People.all(store).first)
+    XCTAssertEqual(People.telURL(p)?.absoluteString, "tel:+15550187")
+    XCTAssertEqual(People.smsURL(p)?.absoluteString, "sms:+15550187&body=Walk%20tomorrow%3F")
+  }
+
+  func testTrustedContactBecomesFirstPerson() throws {
+    let container = try Store.makeContainer(inMemory: true)
+    let store = Store(context: container.mainContext)
+    store.context.insert(TrustedContact(name: "Jo", phone: "0612345678"))
+    store.save()
+    People.migrateTrustedContact(store)
+    let ps = People.all(store)
+    XCTAssertEqual(ps.map(\.name), ["Jo"])
+    XCTAssertTrue(store.all(TrustedContact.self).isEmpty)
+  }
+}

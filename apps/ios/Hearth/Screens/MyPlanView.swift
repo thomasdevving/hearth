@@ -40,6 +40,7 @@ struct MyPlanView: View {
             Text("You could bring your trends to your GP or clinician.")
           }
         }
+        CallAFriendCard(people: People.all(app.store))
         SectionTitle(text: "Signs you watch for")
         ForEach(rules, id: \.id) { r in
           (Text("\(Copy.feature(Copy.ruleFeature(r), places: places)) \(Copy.direction[r.direction] ?? r.direction) ") + Text("(“\(r.quote)”)").foregroundColor(Theme.muted))
