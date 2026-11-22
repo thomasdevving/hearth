@@ -183,7 +183,7 @@ struct WeeklyView: View {
       let res = await app.router.run("D", input: [:], options: .init(variantInput: { v in
         let ws = v == "lite" ? Array(last12.suffix(2)) : last12
         // The number of weeks is a fact from code, so the model may say "12 weeks" (R2).
-        return ["variant": v, "weekCount": ws.count, "weeks": ws.map { RawJSON($0.json) }]
+        return ["variant": v, "number of weeks": ws.count, "weeks": ws.map { RawJSON($0.json) }]
       }))
       if res.ok, let o = JSONText.object(res.json ?? "") as? [String: Any], let r = o["reflection"] as? String, let q = o["open_question"] as? String {
         text = (r, q, res.ranOn)

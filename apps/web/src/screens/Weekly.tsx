@@ -52,12 +52,12 @@ export function Weekly({ params }: { params: Record<string, string> }) {
   const write = async () => {
     if (!weeks.length) return;
     setBusy(true);
-    const res = await router().run<{ reflection: string; open_question: string }>("D", { variant: "full", weekCount: weeks.length, weeks: weeks.map(readableWeek) }, {
+    const res = await router().run<{ reflection: string; open_question: string }>("D", { variant: "full", "number of weeks": weeks.length, weeks: weeks.map((w) => readableWeek(w)) }, {
       // The number of weeks is a fact from code, so the model may say "12 weeks" (R2, number
       // check). Weeks go in plain words (readableWeek), oldest first.
       variantInput: (v) => {
         const ws = v === "lite" ? weeks.slice(-2) : weeks;
-        return { variant: v, weekCount: ws.length, weeks: ws.map(readableWeek) };
+        return { variant: v, "number of weeks": ws.length, weeks: ws.map((w) => readableWeek(w)) };
       },
     });
     const variant = res.ok ? (res.ranOn === "on_device" ? "lite" : "full") : null;

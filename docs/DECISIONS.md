@@ -705,8 +705,14 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   failing silently; the choice is kept and Hearth keeps working on the device.
 - **Task D input in plain words.** The weekly reflection gets each week through
   `readableWeek` (labels.ts): the same numbers and nothing more (S1), but with the app's own
-  words instead of field names and ISO weeks, plus `weekCount` from code. Prompt D is v3.
+  words instead of field names and ISO weeks, plus the number of weeks from code. Prompt D is v3.
   Task E (clinician report) still gets the raw aggregates; to do.
 - **Rejected model output is logged with its reason only** (`output rejected (unknown_number;
   finish STOP; …)`, and the numbers that were not in the input), never the text, so problems
   can be found without exposing the user's words.
+- **Task E (clinician overview) in plain words too.** It gets `readableWeek(w, "clinician")`
+  ("Middle of the night", not "your") and the watched signs as plain sentences, never quotes.
+  Input keys are plain English ("number of weeks", "feeling down (out of 7)") because the model
+  repeats keys verbatim. Prompts: D v4, E v2.
+- **The old Vercel address redirects** to https://hearth-9de01.web.app with the same path, so
+  links and the QR code in the first video keep working.

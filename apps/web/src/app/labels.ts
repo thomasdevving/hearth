@@ -121,20 +121,25 @@ const DOMAIN_WORD: Record<string, string> = { activity: "activity", rhythm: "dai
  * same data (S1, nothing added): only field names, ids and week codes become plain words, so
  * the model does not repeat "indexMean" or "2026-W40" back to the person.
  */
-export function readableWeek(w: WeekAggregate): Record<string, unknown> {
-  const domains: Record<string, number> = {};
-  for (const [k, v] of Object.entries(w.domainMeans)) if (v !== undefined) domains[DOMAIN_WORD[k] ?? k] = v;
+export function readableWeek(w: WeekAggregate, reader: "person" | "clinician" = "person"): Record<string, unknown> {
+  // Keys are plain English on purpose: the model repeats keys it is given.
+  const label = (f: string) => {
+    const l = featureLabel(f).replace(/^Visits to a place$/, "Visits to a named place");
+    return reader === "clinician" ? l.replace(/\byour\b/g, "the") : l;
+  };
+  const areas: Record<string, number> = {};
+  for (const [k, v] of Object.entries(w.domainMeans)) if (v !== undefined) areas[DOMAIN_WORD[k] ?? k] = v;
   return {
     week: weekLabel(w.isoWeek),
-    daysWithData: w.daysWithData,
-    changeFromUsual: w.indexMean,
-    daysThatLookedDifferentFromUsual: w.daysElevated,
-    howDifferentByArea: domains,
-    signalsThatMovedMost: [...new Set(w.topContributors.map((f) => featureLabel(f).replace(/^Visits to a place$/, "Visits to a named place")))],
-    checkins: w.ema.n === 0 ? null : { answered: w.ema.n, feelingDownOutOf7: w.ema.mood_low, enjoymentOutOf7: w.ema.enjoyment, energyOutOf7: w.ema.energy },
-    phq2: w.phq2,
-    phq9: w.phq9,
-    whatWasGoingOn: w.contexts.map((c) => CONTEXT_LABEL[c] ?? c),
-    noteInOwnWords: w.note?.text ?? null,
+    "days with data": w.daysWithData,
+    "change from usual": w.indexMean,
+    "days that looked different from usual": w.daysElevated,
+    "change from usual by area": areas,
+    "signals that moved most": [...new Set(w.topContributors.map(label))],
+    "check-ins": w.ema.n === 0 ? null : { answered: w.ema.n, "feeling down (out of 7)": w.ema.mood_low, "enjoyment (out of 7)": w.ema.enjoyment, "energy (out of 7)": w.ema.energy },
+    "PHQ-2 score": w.phq2,
+    "PHQ-9 score": w.phq9,
+    "what was going on": w.contexts.map((c) => CONTEXT_LABEL[c] ?? c),
+    "note in the person's own words": w.note?.text ?? null,
   };
 }

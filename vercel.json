@@ -1,3 +1,5 @@
 {
-  "rewrites": [{ "source": "/science", "destination": "/index.html" }]
+  "redirects": [
+    { "source": "/(.*)", "destination": "https://hearth-9de01.web.app/$1", "permanent": false }
+  ]
 }

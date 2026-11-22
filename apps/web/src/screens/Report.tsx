@@ -28,7 +28,7 @@ export function Report({ params }: { params: Record<string, string> }) {
             <ul className="plain-list">
               {data.report.timeline.map((t) => (
                 <li key={t.iso_week}>
-                  <strong>{t.iso_week}</strong>: {t.note}
+                  <strong>{t.iso_week.charAt(0).toUpperCase() + t.iso_week.slice(1)}</strong>: {t.note}
                 </li>
               ))}
             </ul>
