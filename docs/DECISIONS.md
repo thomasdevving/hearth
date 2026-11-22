@@ -730,3 +730,15 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
 - Inspired by the Virtual Hope Box's "Call a friend" and by the Dutch depression guideline's
   advice to involve people close to the person in the relapse prevention plan.
 - Demo: Sam has "My sister" and "Maya", with fictional 555-01xx numbers.
+
+## Provable privacy (2026-11-22)
+
+- **Content-Security-Policy on Firebase Hosting.** `connect-src` allows only the app itself and
+  the nine Firebase/reCAPTCHA origins the app needs (`apps/web/src/privacy/policy.ts`, the single
+  list). The browser refuses every other destination before a request leaves, whatever the code
+  tries. `script-src` keeps `'unsafe-eval'` because Ajv compiles the output schemas (R8);
+  precompiling them would allow removing it. Also `object-src 'none'`, `frame-ancestors 'none'`,
+  `Referrer-Policy: no-referrer`. A test checks that firebase.json matches the list exactly.
+- **"Don't take our word for it"** on the Privacy screen: Hearth tries to send a harmless test
+  string (no user data) to another website and shows the browser's block. Verified on the live
+  site: blocked by `connect-src`, while Gemini, Firestore and App Check keep working.

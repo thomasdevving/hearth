@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PrivacyProof } from "../privacy/PrivacyProof";
 import type { LedgerEntry } from "@hearth/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
@@ -45,6 +46,7 @@ export function Ledger() {
   return (
     <Screen title="Privacy ledger">
       <p className="muted">Every model call: which task, where it ran and exactly what was sent.</p>
+      <PrivacyProof />
       <p>
         {counts.device} on this device · {counts.cloud} in the cloud · {counts.none} without a model
       </p>
