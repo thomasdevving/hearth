@@ -757,3 +757,22 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   Observation with the total (44261-6 / 55758-7). The people the user listed are not included.
   Built and saved on the device; Hearth sends nothing. LOINC codes to be re-checked against
   loinc.org before real clinical use.
+
+### GP page as a clinical document (2026-11-23)
+
+- **Layout by phase**, as in GGZ signaleringsplannen (GGZ Delfland, the GMAP model crisis plan,
+  zib Signalering): rows Stable / Early signs / Crisis, columns Signs / What I do / What others
+  can do. Above it a short header block (name and date of birth left blank to write by hand,
+  date) as in primary-care letters (NHG HASP: envelope, then the core), and a "Current status"
+  section: since when Hearth noticed a change, the engine's own phrases for what changed, and
+  the latest questionnaire. All numbers come from the engine (`export/gpSummary.ts`, R2).
+- **Arial**, not the app's fonts: NHS identity guidance names Arial for letters and reports, and
+  it is on every computer, so no font has to load. 10.5 pt body, A4 with `@page`. Fits one page
+  for the demo person; very long plans can still run over.
+- **Wording**: first person throughout ("middle of my night"), the PHQ-2 note gives the cut-off
+  from config, the PHQ-9 note the standard range name. "Written in my own words" was removed;
+  the footer says that quoted text is the patient's own. The footer also says when the sensor
+  data is simulated.
+- **Not a letter from a clinician.** Letters between the therapist and the GP are written by
+  them (NHG guideline on information exchange GP–GGZ); this page is what the patient chooses to
+  bring. The clinician report with weekly numbers stays on the share link (task E).

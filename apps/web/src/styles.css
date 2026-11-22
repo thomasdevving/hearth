@@ -528,16 +528,47 @@ legend { padding: 0; margin-bottom: var(--s2); }
 
 /* Plan for the GP (print) and FHIR export (2026-11-22) */
 .for-clinician { margin: var(--s5) 0; }
-.print-page { max-width: 720px; margin: 0 auto; padding: var(--s5) var(--s4) 120px; color: var(--ink); }
-.print-page h1 { font-size: 1.8rem; margin-bottom: var(--s1); }
-.print-page h2 { font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: var(--s1); }
-.print-page ul { padding-left: 1.2em; }
-.print-page .quote { color: var(--muted); font-style: italic; }
-.print-page .small { font-size: 0.85rem; }
-.print-page table { width: 100%; border-collapse: collapse; }
-.print-page th, .print-page td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+/* The page for the GP or therapist (screens/PlanPrint.tsx): a clinical document, so a plain
+   document font (Arial, as in NHS and most practice letters) and A4 proportions, not the app's style. */
+.column:has(.gp-wrap) { max-width: none; padding: 0; }
+.gp-wrap { padding: var(--s4) var(--s3) 140px; }
+.gp-tools { max-width: 210mm; margin: 0 auto var(--s4); }
+.gp-doc { box-sizing: border-box; max-width: 210mm; margin: 0 auto; padding: 14mm 15mm; background: #fff; color: #111;
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif; font-size: 10.5pt; line-height: 1.4;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.06); }
+.gp-doc h1, .gp-doc h2, .gp-doc th { font-family: inherit; letter-spacing: 0; color: #111; }
+.gp-doc h1 { font-size: 17pt; font-weight: 700; margin: 0 0 2pt; }
+.gp-doc h2 { font-size: 11.5pt; font-weight: 700; margin: 12pt 0 4pt; padding-bottom: 2pt; border-bottom: 1px solid #999; }
+.gp-doc p { margin: 0 0 4pt; }
+.gp-doc ul { margin: 0; padding-left: 1.1em; }
+.gp-doc li { margin: 0 0 2pt; }
+.gp-head { display: flex; justify-content: space-between; gap: 12pt; padding-bottom: 8pt; border-bottom: 2px solid #111; }
+.gp-sub { color: #444; font-size: 9.5pt; }
+.gp-meta { display: grid; grid-template-columns: max-content 45mm; flex: none; gap: 3pt 8pt; margin: 0; font-size: 9.5pt; align-content: start; }
+.gp-meta dt { color: #444; }
+.gp-meta dd { margin: 0; }
+.gp-fill { border-bottom: 1px solid #777; min-height: 1.2em; }
+.gp-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+.gp-table th, .gp-table td { text-align: left; vertical-align: top; padding: 4pt 6pt; border: 1px solid #bbb; }
+.gp-table thead th { background: #f0f0f0; font-weight: 700; }
+.gp-phases tbody th { width: 13%; font-weight: 700; border-left-width: 5px; background: #fff; }
+.gp-phases td:nth-child(2) { width: 40%; }
+.gp-phases .phase-green th { border-left-color: #2f7d4f; }
+.gp-phases .phase-orange th { border-left-color: #c77700; }
+.gp-phases .phase-red th { border-left-color: #b3261e; }
+.gp-how { color: #555; font-size: 8.5pt; }
+.gp-phases li .gp-how { display: block; }
+.gp-foot { margin-top: 12pt; padding-top: 6pt; border-top: 1px solid #999; color: #444; font-size: 8.5pt; }
+@media (max-width: 640px) {
+  .gp-doc { padding: 6mm 5mm; }
+  .gp-head { flex-direction: column; }
+}
+@page { size: A4; margin: 12mm 14mm; }
 @media print {
   .no-print, .timemachine, .demo-banner, nav.tabs, .model-banner, .app-header, .grecaptcha-badge { display: none !important; }
-  .print-page { padding: 0; max-width: none; }
+  .gp-wrap { padding: 0; }
+  .gp-doc { max-width: none; padding: 0; box-shadow: none; }
+  .gp-doc tr, .gp-foot { break-inside: avoid; }
+  .gp-table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { background: #fff; }
 }
