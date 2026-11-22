@@ -1,4 +1,4 @@
-import { datesOfIsoWeek, type FeatureId, type PlanRule, type Place, type State } from "@hearth/engine";
+import { datesOfIsoWeek, type FeatureId, type PlanRule, type Place, type State, type WeekAggregate } from "@hearth/engine";
 
 export const STATE_LABEL: Record<State, string> = {
   WARM_UP: "Learning your pattern",
@@ -112,4 +112,29 @@ export function weekLabel(isoWeek: string): string {
   const monday = datesOfIsoWeek(isoWeek)[0];
   const d = new Date(`${monday}T12:00:00Z`);
   return `the week of ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}`;
+}
+
+const DOMAIN_WORD: Record<string, string> = { activity: "activity", rhythm: "daily rhythm", sleep: "rest", body: "heart", mobility: "places", phone: "phone use" };
+
+/**
+ * A weekly aggregate in the words the person sees in the app, for task D and E. Same numbers,
+ * same data (S1, nothing added): only field names, ids and week codes become plain words, so
+ * the model does not repeat "indexMean" or "2026-W40" back to the person.
+ */
+export function readableWeek(w: WeekAggregate): Record<string, unknown> {
+  const domains: Record<string, number> = {};
+  for (const [k, v] of Object.entries(w.domainMeans)) if (v !== undefined) domains[DOMAIN_WORD[k] ?? k] = v;
+  return {
+    week: weekLabel(w.isoWeek),
+    daysWithData: w.daysWithData,
+    changeFromUsual: w.indexMean,
+    daysThatLookedDifferentFromUsual: w.daysElevated,
+    howDifferentByArea: domains,
+    signalsThatMovedMost: [...new Set(w.topContributors.map((f) => featureLabel(f).replace(/^Visits to a place$/, "Visits to a named place")))],
+    checkins: w.ema.n === 0 ? null : { answered: w.ema.n, feelingDownOutOf7: w.ema.mood_low, enjoymentOutOf7: w.ema.enjoyment, energyOutOf7: w.ema.energy },
+    phq2: w.phq2,
+    phq9: w.phq9,
+    whatWasGoingOn: w.contexts.map((c) => CONTEXT_LABEL[c] ?? c),
+    noteInOwnWords: w.note?.text ?? null,
+  };
 }

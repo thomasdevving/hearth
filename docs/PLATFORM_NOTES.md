@@ -127,3 +127,14 @@ and forbids deriving that data another way.
 | `HKCategoryValueSleepAnalysis.allAsleepValues` gives the asleep categories (core, deep, REM, unspecified) | verified | "In bed" is excluded. |
 | Free provisioning works for this app, including `com.apple.developer.healthkit.background-delivery` | verified 2026-11-18 | After signing in again in Xcode → Settings → Accounts, Xcode 26.1 created an Apple Development certificate and a 7-day profile for the owner's iPhone with all three HealthKit entitlements. |
 | Xcode 26.1 cannot install on an iPhone19,2 running iOS 27.0.1 | verified 2026-11-18 | Pairing and Developer Mode work, but the developer disk image cannot be mounted (`Failed to find image for variant DeveloperDiskImage, chipID 0x8160`), so neither `xcodebuild` nor `devicectl device install` can install. The DDIs on the Mac are from Xcode 26. Installing on this phone needs Xcode 27. |
+
+## 10. Firebase AI Logic on the live web app (verified 2026-11-22, project hearth-9de01)
+
+| Fact | Status | Note |
+|---|---|---|
+| The AI service reads App Check once, when it is created (`appCheckProvider.getImmediate({ optional: true })` in `@firebase/ai`) | verified in SDK source | An AI instance created before `initializeAppCheck` never sends a token: with enforcement every cloud call fails with `401 Firebase App Check token is invalid`. The router now starts App Check before it creates the cloud AI instance, and on-device-only calls use a separate app instance (`deviceApp()`). App Check still starts only after consent (R4). |
+| With default thinking, `gemini-3.5-flash` spends almost all of `maxOutputTokens: 1024` on thinking | verified | Finish reason `MAX_TOKENS` with 81–88 characters of JSON. Now `thinkingLevel: "LOW"` (Gemini 3; `thinkingBudget: 0` for 2.5) and `maxOutputTokens: 4096`. |
+| Gemini counts and calculates when asked for a reflection ("12 weeks", "in 11 of the weeks"), which the number check rejects | verified | Code now passes `weekCount`; prompt D v2/v3 forbids counting and asks for the plain words of the input. |
+| Given raw aggregates, Gemini repeats field names ("indexMean", "daysElevated", "2026-W40") | verified | Task D now gets `readableWeek(...)`: the same numbers with the labels the app shows. |
+| Firebase Hosting serves `index.html` with `max-age=3600` by default | verified | After a deploy, browsers kept the old bundle for an hour. `firebase.json` now sends `no-cache` for `/`, `/science` and `*.html`; hashed assets stay immutable. |
+| Setup errors and their meaning (`auth/configuration-not-found`, AI Logic 403, `genai config not found`) | verified | See `docs/FIREBASE_SETUP.md`. |

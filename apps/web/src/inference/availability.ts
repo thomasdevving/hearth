@@ -1,6 +1,6 @@
 // On-device availability through Chrome's Prompt API, which Firebase AI Logic uses on web.
 import { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode } from "firebase/ai";
-import { firebaseApp } from "../firebase";
+import { deviceApp } from "../firebase";
 import { setModelStatus, type OnDeviceState } from "./status";
 
 export const CREATE_OPTIONS = {
@@ -35,7 +35,7 @@ export function lastOnDeviceState(): OnDeviceState {
 
 /** Start the model download. Must be called from a click (Chrome requires a user gesture). */
 export async function downloadOnDeviceModel(): Promise<void> {
-  const model = getGenerativeModel(getAI(firebaseApp(), { backend: new GoogleAIBackend() }), {
+  const model = getGenerativeModel(getAI(deviceApp(), { backend: new GoogleAIBackend() }), {
     mode: InferenceMode.ONLY_ON_DEVICE,
     onDeviceParams: { createOptions: CREATE_OPTIONS },
   });

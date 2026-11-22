@@ -703,3 +703,10 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   for the old address.
 - Cloud consent that cannot reach the cloud now says so in Settings and onboarding instead of
   failing silently; the choice is kept and Hearth keeps working on the device.
+- **Task D input in plain words.** The weekly reflection gets each week through
+  `readableWeek` (labels.ts): the same numbers and nothing more (S1), but with the app's own
+  words instead of field names and ISO weeks, plus `weekCount` from code. Prompt D is v3.
+  Task E (clinician report) still gets the raw aggregates; to do.
+- **Rejected model output is logged with its reason only** (`output rejected (unknown_number;
+  finish STOP; …)`, and the numbers that were not in the input), never the text, so problems
+  can be found without exposing the user's words.

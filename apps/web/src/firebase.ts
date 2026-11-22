@@ -30,3 +30,18 @@ export function firebaseApp(): FirebaseApp {
     : initializeApp({ apiKey: "local-only", projectId: "local-only", appId: "local-only" }, "local-only");
   return app;
 }
+
+let device: FirebaseApp | null = null;
+
+/**
+ * A second app instance for on-device-only inference. It never starts App Check or any
+ * cloud service, so an on-device call made before consent cannot leave behind an AI service
+ * on the main app that lacks App Check (see InferenceRouter).
+ */
+export function deviceApp(): FirebaseApp {
+  if (device) return device;
+  device = cloudConfigured
+    ? initializeApp(firebaseConfig, "on-device")
+    : initializeApp({ apiKey: "local-only", projectId: "local-only", appId: "local-only" }, "on-device");
+  return device;
+}

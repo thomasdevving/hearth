@@ -5,7 +5,7 @@ import { useData } from "../ui/hooks";
 import { ModelBadge, Screen } from "../ui/kit";
 import { router } from "../inference";
 import { weeklyTemplate } from "../app/templates";
-import { weekLabel } from "../app/labels";
+import { readableWeek, weekLabel } from "../app/labels";
 import { confirmFirstUpload, saveReport } from "../cloud/sync";
 import { navigate } from "../app/events";
 import { promptFor } from "../inference/prompts";
@@ -52,8 +52,13 @@ export function Weekly({ params }: { params: Record<string, string> }) {
   const write = async () => {
     if (!weeks.length) return;
     setBusy(true);
-    const res = await router().run<{ reflection: string; open_question: string }>("D", { variant: "full", weeks }, {
-      variantInput: (v) => ({ variant: v, weeks: v === "lite" ? weeks.slice(-2) : weeks }),
+    const res = await router().run<{ reflection: string; open_question: string }>("D", { variant: "full", weekCount: weeks.length, weeks: weeks.map(readableWeek) }, {
+      // The number of weeks is a fact from code, so the model may say "12 weeks" (R2, number
+      // check). Weeks go in plain words (readableWeek), oldest first.
+      variantInput: (v) => {
+        const ws = v === "lite" ? weeks.slice(-2) : weeks;
+        return { variant: v, weekCount: ws.length, weeks: ws.map(readableWeek) };
+      },
     });
     const variant = res.ok ? (res.ranOn === "on_device" ? "lite" : "full") : null;
     const r: Reflection = res.ok ? { ...res.value, ranOn: res.ranOn, variant } : { ...weeklyTemplate(weeks), ranOn: "template", variant: null };

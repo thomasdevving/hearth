@@ -1,7 +1,7 @@
 // The InferenceRouter for web (docs/02 §5) on the Firebase JS SDK's hybrid inference.
 import { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode, type AI } from "firebase/ai";
-import { mayReachCloud, parseJsonLoose, Q_CLASSIFY_CLASS, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@hearth/engine";
-import { cloudConfigured, firebaseApp, GEMINI_MODEL } from "../firebase";
+import { mayReachCloud, numberCheck, parseJsonLoose, Q_CLASSIFY_CLASS, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@hearth/engine";
+import { cloudConfigured, deviceApp, firebaseApp, GEMINI_MODEL } from "../firebase";
 import { db, getSettings, newId } from "../store/db";
 import { nowStamp } from "../app/clock";
 import { emitChange } from "../app/events";
@@ -49,13 +49,33 @@ export function buildUserMessage(task: AnyTask, input: Record<string, unknown>):
   return `Input:\n${JSON.stringify(input)}\n\nReturn only JSON that matches the schema.`;
 }
 
+/**
+ * Thinking counts against `maxOutputTokens`. With the model's default thinking, a 1024-token
+ * limit left 80 characters of JSON (finish reason MAX_TOKENS, PLATFORM_NOTES). These tasks are
+ * short structured answers: little thinking is needed. Gemini 2.5 takes a budget, Gemini 3 a level.
+ */
+export function thinkingFor(model: string): { thinkingBudget: number } | { thinkingLevel: "LOW" } {
+  return /gemini-2\.5/.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: "LOW" };
+}
+
 let queue: Promise<unknown> = Promise.resolve();
 
 export class WebInferenceRouter implements InferenceRouter {
   private ai: AI | null = null;
-  private aiInstance(): AI {
-    if (!this.ai) this.ai = getAI(firebaseApp(), { backend: new GoogleAIBackend() });
-    return this.ai;
+  private deviceAi: AI | null = null;
+  /**
+   * The AI service reads App Check once, when it is created (@firebase/ai `getImmediate`).
+   * Calls that may reach the cloud therefore use the main app, created only after App Check
+   * has started (after consent, R4). On-device-only calls use a separate app instance, so they
+   * never leave behind a main-app AI service without App Check.
+   */
+  private aiInstance(cloud: boolean): AI {
+    if (cloud) {
+      if (!this.ai) this.ai = getAI(firebaseApp(), { backend: new GoogleAIBackend() });
+      return this.ai;
+    }
+    if (!this.deviceAi) this.deviceAi = getAI(deviceApp(), { backend: new GoogleAIBackend() });
+    return this.deviceAi;
   }
 
   run<T>(task: AnyTask, input: object, opts: RunOptions = {}): Promise<TaskResult<T>> {
@@ -95,7 +115,19 @@ export class WebInferenceRouter implements InferenceRouter {
     const finalInput = (opts.variantInput ? opts.variantInput(variant) : input) as Record<string, unknown>;
     const schema = schemas[schemaId] as object;
     const liteNote = def.hasLiteVariant ? "\n\nIf this runs on the device, always write the lite variant (at most 60 words), whatever the input says." : "";
-    const model = getGenerativeModel(this.aiInstance(), {
+    // App Check (and the anonymous user) must be running before a request that may go to the
+    // cloud, also after a reload with consent already given. Only reached with consent (R4):
+    // routing never returns a cloud mode without it.
+    const mayCloud = cloudConfigured && settings.cloudConsent && mayReachCloud(decision);
+    if (mayCloud) {
+      try {
+        const { startCloud } = await import("../cloud/client");
+        await startCloud();
+      } catch (e) {
+        console.warn("cloud start", e);
+      }
+    }
+    const model = getGenerativeModel(this.aiInstance(mayCloud), {
       mode: MODE[decision.mode],
       onDeviceParams: {
         createOptions: { ...CREATE_OPTIONS, ...(opts.image ? { expectedInputs: [...CREATE_OPTIONS.expectedInputs, { type: "image" as const }] } : {}), initialPrompts: [{ role: "system", content: [{ type: "text", value: prompt.text + liteNote }] }] },
@@ -104,20 +136,9 @@ export class WebInferenceRouter implements InferenceRouter {
       inCloudParams: {
         model: GEMINI_MODEL,
         systemInstruction: prompt.text,
-        generationConfig: { responseMimeType: "application/json", responseJsonSchema: cloudSchema(schema) as { [k: string]: unknown }, temperature: 0.2, maxOutputTokens: 1024 },
+        generationConfig: { responseMimeType: "application/json", responseJsonSchema: cloudSchema(schema) as { [k: string]: unknown }, temperature: 0.2, maxOutputTokens: 4096, thinkingConfig: thinkingFor(GEMINI_MODEL) },
       },
     });
-    // App Check (and the anonymous user) must be running before a request that may go to the
-    // cloud, also after a reload with consent already given. Only reached with consent (R4):
-    // routing never returns a cloud mode without it.
-    if (cloudConfigured && settings.cloudConsent && mayReachCloud(decision)) {
-      try {
-        const { startCloud } = await import("../cloud/client");
-        await startCloud();
-      } catch (e) {
-        console.warn("cloud start", e);
-      }
-    }
     const message = buildUserMessage(task, finalInput);
     const blockAi = decision.mode === "ONLY_ON_DEVICE";
 
@@ -147,6 +168,10 @@ export class WebInferenceRouter implements InferenceRouter {
       const usedVariant = ranOn === "on_device" && def.hasLiteVariant ? "lite" : variant;
       const v = verifyTask(task, raw, { ...opts.verify, sourceText: opts.sourceText ?? opts.verify?.sourceText, facts: opts.verify?.facts ?? finalInput, variant: usedVariant });
       if (!v.ok) {
+        // The reason only, never the content (the text may be the user's own words).
+        const finish = res.result.response.candidates?.[0]?.finishReason ?? "?";
+        const extra = v.reason === "unknown_number" ? `; numbers not in the input: ${numberCheck(text, opts.verify?.facts ?? finalInput).unknown.join(", ")}` : "";
+        console.warn(`task ${task}: output rejected (${v.reason}; finish ${finish}; ${text.length} chars${extra})`);
         lastId = await this.ledger({ ...base, ranOn, outcome: "invalid_output", attempts: attempt, latencyMs, ...cloudFields });
         if (attempt === 2) return { ok: false, reason: "invalid_output", fallbackUsed: true, ledgerId: lastId };
         continue;
