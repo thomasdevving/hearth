@@ -525,3 +525,19 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .proof-ok { color: var(--steady); font-weight: 600; }
 .proof-warn { color: var(--changed); }
 .allowed-hosts code { font-size: 0.85rem; }
+
+/* Plan for the GP (print) and FHIR export (2026-11-22) */
+.for-clinician { margin: var(--s5) 0; }
+.print-page { max-width: 720px; margin: 0 auto; padding: var(--s5) var(--s4) 120px; color: var(--ink); }
+.print-page h1 { font-size: 1.8rem; margin-bottom: var(--s1); }
+.print-page h2 { font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: var(--s1); }
+.print-page ul { padding-left: 1.2em; }
+.print-page .quote { color: var(--muted); font-style: italic; }
+.print-page .small { font-size: 0.85rem; }
+.print-page table { width: 100%; border-collapse: collapse; }
+.print-page th, .print-page td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+@media print {
+  .no-print, .timemachine, .demo-banner, nav.tabs, .model-banner, .app-header, .grecaptcha-badge { display: none !important; }
+  .print-page { padding: 0; max-width: none; }
+  body { background: #fff; }
+}

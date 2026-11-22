@@ -18,6 +18,7 @@ import { Report } from "./Report";
 import { EvalG } from "./EvalG";
 import { HelpedNew } from "./HelpedNew";
 import { People } from "./People";
+import { PlanPrint } from "./PlanPrint";
 
 export const SCREENS: Record<string, ComponentType<{ params: Record<string, string> }>> = {
   home: Home,
@@ -40,4 +41,5 @@ export const SCREENS: Record<string, ComponentType<{ params: Record<string, stri
   eval_g: EvalG,
   helped_new: HelpedNew,
   people: People,
+  plan_print: PlanPrint,
 };

@@ -742,3 +742,18 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
 - **"Don't take our word for it"** on the Privacy screen: Hearth tries to send a harmless test
   string (no user data) to another website and shows the browser's block. Verified on the live
   site: blocked by `connect-src`, while Gemini, Firestore and App Check keep working.
+
+## Plan for the GP and FHIR export (2026-11-22)
+
+- **"For your GP or clinician"** on the plan screen. The Dutch depression guideline asks that the
+  relapse prevention plan is known to the GP; until now Hearth only shared weekly numbers.
+- **My plan on one page** (`#/plan_print`): signs, check-in questions, what helps, people (names
+  only), own safety plan, the last four questionnaires and the crisis line. The browser prints it
+  or saves a PDF; the app chrome is hidden in print.
+- **FHIR R4 export** (`apps/web/src/export/fhir.ts`): a `collection` Bundle with an empty Patient
+  (no identity; the clinician matches it), a CarePlan (signs as notes, what helps as activities,
+  in the person's words), and per PHQ-2/PHQ-9 a QuestionnaireResponse (LOINC panel 44249-1 /
+  55757-9, item codes 44250-9…, answers LA6568-5…LA6571-9, item texts verbatim, R1) plus an
+  Observation with the total (44261-6 / 55758-7). The people the user listed are not included.
+  Built and saved on the device; Hearth sends nothing. LOINC codes to be re-checked against
+  loinc.org before real clinical use.

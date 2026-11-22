@@ -1,4 +1,5 @@
 import { db, getSingleton } from "../store/db";
+import { buildFhirBundle, downloadJson } from "../export/fhir";
 import { useData } from "../ui/hooks";
 import { Card, Screen } from "../ui/kit";
 import { navigate } from "../app/events";
@@ -12,6 +13,12 @@ import { ModelBadge } from "../ui/kit";
 import { HelpedCard } from "../ui/HelpedCard";
 import { CallAFriend } from "../ui/CallAFriend";
 import { getPeople } from "../app/people";
+
+async function exportFhir(): Promise<void> {
+  const [rules, items, actions, questionnaires] = await Promise.all([db.plan_rules.toArray(), db.personal_items.toArray(), db.plan_actions.toArray(), db.questionnaires.toArray()]);
+  const now = new Date().toISOString();
+  downloadJson(buildFhirBundle({ rules, items, actions, questionnaires, now }), `hearth-plan-fhir-${now.slice(0, 10)}.json`);
+}
 
 export function MyPlan() {
   const d = useData(async () => ({
@@ -100,6 +107,18 @@ export function MyPlan() {
         </Card>
       )}
       <CallAFriend people={d.people} />
+      <section className="for-clinician" aria-labelledby="for-clinician-title">
+        <h2 id="for-clinician-title" className="plan-group">For your GP or clinician</h2>
+        <p className="muted">Your plan on one page, or as a file their system can read (FHIR). Made on this device; you decide whether to hand it over.</p>
+        <div className="row">
+          <button className="secondary" onClick={() => navigate("plan_print")}>
+            My plan on one page
+          </button>
+          <button className="secondary" onClick={exportFhir}>
+            Download for their system
+          </button>
+        </div>
+      </section>
       <h2 className="plan-group">What helped you before</h2>
       {d.helped.length === 0 && <p className="muted">After a hard stretch, save what helped. Hearth brings it back when the same sign shows up.</p>}
       {d.helped.map((n) => (
