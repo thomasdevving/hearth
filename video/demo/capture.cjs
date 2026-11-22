@@ -30,7 +30,11 @@ const TOUCH = `
   fs.mkdirSync(OUT, { recursive: true });
   const real = !!process.env.CHROME_PROFILE;
   const opts = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
-  const browser = real ? null : await chromium.launch({ args: ["--force-device-scale-factor=2"] });
+  // Google Chrome's window must match the phone viewport, or the screencast captures the
+  // window (default about 500×757) and the app does not fill the phone in the video.
+  const WINDOW = "--window-size=390,844";
+  // PW_CHANNEL=chrome uses the installed Google Chrome (a fresh, empty profile) instead of Playwright's Chromium.
+  const browser = real ? null : await chromium.launch({ args: ["--force-device-scale-factor=2", WINDOW], ...(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {}) });
   // Real mode: your own Google Chrome profile, where Gemini Nano is already downloaded (check
   // chrome://on-device-internals first). Close Chrome before running: a profile can be open once.
   const ctx = real
@@ -38,7 +42,7 @@ const TOUCH = `
         ...opts,
         channel: "chrome",
         headless: false,
-        args: ["--enable-features=OptimizationGuideOnDeviceModel,PromptAPIForGeminiNano,PromptAPIForGeminiNanoMultimodalInput"],
+        args: [WINDOW, "--enable-features=OptimizationGuideOnDeviceModel,PromptAPIForGeminiNano,PromptAPIForGeminiNanoMultimodalInput"],
         ignoreDefaultArgs: ["--disable-component-update", "--disable-background-networking"],
       })
     : await browser.newContext(opts);
@@ -95,13 +99,13 @@ const TOUCH = `
   // 1. The plan, in Sam's own words.
   mark("plan");
   await tap(page.locator("textarea").first(), { hold: 200 });
-  await page.keyboard.type(SAM, { delay: 14 });
+  await page.keyboard.type(SAM, { delay: 45 }); // ~22 characters a second: a quick typist, no fast-forward
   await pause(500);
   await tap("button:has-text('Make cards')", { hold: 300 });
   await page.waitForSelector("text=Save these cards", { timeout: 60000 });
   await page.evaluate(() => scrollTo(0, 0));
   mark("cards");
-  await pause(3600); // the "removed" line is visible here
+  await pause(5000); // the "removed" line is visible here (VO: Nano makes the plan)
   mark("cards_scroll");
   await scrollBy(520, 1600);
   await pause(1200);
@@ -124,7 +128,7 @@ const TOUCH = `
   await tap('button[aria-label="Confirm what is going on"]', { hold: 300 });
   await page.waitForSelector("text=One quick check");
   mark("holiday_check");
-  await pause(2600);
+  await pause(4500);
   await tap("button:has-text('Yes')", { hold: 800 });
 
   // 3. Day 109: Hearth notices.
@@ -153,7 +157,7 @@ const TOUCH = `
   for (let i = 1; i < count; i++) await tap(personal.nth(i).locator("button").nth(2), { hold: 150 });
   mark("checkin_text");
   await tap(page.locator("textarea").first(), { hold: 200 });
-  await page.keyboard.type("Yeah, I've started avoiding people again. Haven't answered anyone in days.", { delay: 22 });
+  await page.keyboard.type("Yeah, I've started avoiding people again. Haven't answered anyone in days.", { delay: 55 });
   await pause(500);
   await tap("button:has-text('Save')", { hold: 300 });
 
@@ -161,20 +165,21 @@ const TOUCH = `
   await page.waitForSelector("text=That sounds like one of your signs", { timeout: 60000 });
   await page.evaluate(() => scrollTo(0, 0));
   mark("recall_ask");
-  await pause(3200);
+  await pause(6000);
   await tap("text=Yes, that's it", { hold: 300 });
   mark("recall_card");
-  await pause(3000);
+  await pause(4800);
   await tap("text=Draft that text", { hold: 300 });
   await page.waitForSelector("text=Open in Messages");
   mark("draft");
-  await pause(3200);
+  await pause(5200);
 
-  // 6. Sam's own plan.
-  await tap("nav.tabs a:has-text('Plan')", { hold: 300 });
-  await page.evaluate(() => scrollTo(0, 0));
-  mark("myplan");
-  await pause(2600);
+  // 6. Call a friend: Sam's people on Today while the days look different.
+  await tap("nav.tabs a:has-text('Today')", { hold: 300 });
+  await page.evaluate(() => document.querySelector(".call-friend")?.scrollIntoView({ block: "center", behavior: "smooth" }));
+  await pause(700);
+  mark("friend");
+  await pause(7500);
 
   // 7. The privacy ledger.
   await tap("nav.tabs a:has-text('Privacy')", { hold: 300 });

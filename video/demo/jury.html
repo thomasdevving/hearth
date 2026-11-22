@@ -80,20 +80,20 @@ function timecode(t) { const m = Math.floor(t / 60), s = Math.floor(t % 60); ret
 // Live demo: ranges of the recording, given as [mark, offset in s] from frames.json (capture.cjs),
 // so the timeline follows any new recording. `hold` freezes one frame for `dur` seconds.
 const DEMO = [
-  { from: ["plan", -0.3], to: ["cards", 0], n: 1, title: "Sam adds their own early signs", sub: "Hearth already watches research-based signals for everyone. Sam\u2019s own signs make it sharper." },
-  { from: ["cards", 0], to: ["cards", 1.5], n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
-  { hold: ["cards", 1.5], dur: 4.2, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", callout: "catch" },
-  { from: ["cards", 1.5], to: ["phq", -0.1], speed: 1.3, n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
+  // Everything at 1× (no fast-forward); only the time machine's own jumps skip simulated days.
+  { from: ["plan", 1.5], to: ["cards", 0], n: 1, title: "Sam adds their own early signs", sub: "Hearth already watches research-based signals for everyone. Sam\u2019s own signs make it sharper." },
+  { from: ["cards", 0], to: ["cards", 4.0], n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps." },
+  { hold: ["cards", 4.0], dur: 6.0, n: 2, title: "Gemini Nano turns it into a plan, on the device", sub: "Signs to watch, check-in questions, what helps.", callout: "catch" },
+  { from: ["cards", 4.0], to: ["cards_scroll", 3.4], n: 3, title: "Sam stays in control", sub: "Untick anything that is not right. Then save." },
   { from: ["jump_holiday", 0], to: ["holiday_check", 0], n: 4, title: "Day 61: \u201cI\u2019m in Spain this week\u201d", sub: "The time machine replays Sam\u2019s simulated sensor data." },
-  { from: ["holiday_check", 0], to: ["jump_change", 0], n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
-  { from: ["jump_change", 0], to: ["changed", 0], speed: 1.5, n: 5, title: "Day 109", sub: "Sam\u2019s days have been drifting for six days." },
+  { from: ["holiday_check", 0], to: ["holiday_check", 5.3], n: 4, title: "One question, and Sam decides", sub: "Gemini Nano reads the note; nothing changes until Sam says yes." },
+  { from: ["jump_change", 0], to: ["changed", 0], n: 5, title: "Day 109", sub: "Sam\u2019s days have been drifting for six days." },
   { from: ["changed", 0], to: ["checkin", 0], n: 5, title: "Hearth notices", sub: "Later sleep, higher resting heart rate: computed by the engine, not the model." },
-  { from: ["checkin", 0], to: ["checkin_text", 0], speed: 2.2, n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
-  { from: ["checkin_text", 0], to: ["recall_ask", 0], n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
+  { from: ["checkin", 0], to: ["recall_ask", 0], n: 6, title: "A 20-second check-in", sub: "Three taps, Sam\u2019s own questions, and a line in Sam\u2019s own words." },
   { from: ["recall_ask", 0], to: ["recall_card", 0], n: 7, title: "Gemini Nano recognises one of Sam\u2019s signs", sub: "By meaning, on the device. Sam confirms it.", callout: "recall" },
   { from: ["recall_card", 0], to: ["draft", 0], n: 7, title: "What helped last time", sub: "A note Sam saved after an earlier hard week, in Sam\u2019s own words." },
-  { from: ["draft", 0], to: ["myplan", 0], n: 7, title: "Draft that text", sub: "Written on the device. Sam edits it and sends it, or not.", callout: "draft" },
-  { from: ["myplan", 0], to: ["ledger", 0], speed: 1.3, n: 8, title: "Sam\u2019s own plan opens", sub: "What Sam said helps, with what fits today on top." },
+  { from: ["draft", 0], to: ["draft", 5.4], n: 7, title: "Draft that text", sub: "Written on the device. Sam edits it and sends it, or not.", callout: "draft" },
+  { from: ["friend", 0], to: ["friend", 7.4], n: 8, title: "Call a friend", sub: "One tap to call or message Sam\u2019s people. Hearth itself never contacts anyone." },
   { from: ["ledger", 0], to: ["end", -0.1], n: 9, title: "Nothing private left the device", sub: "Every model call is in the privacy ledger, with exactly what was sent." },
 ];
 const T = {};
@@ -112,7 +112,7 @@ function layout(marks) {
   }
   let cur = 0;
   const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-  seg("hook", 22); seg("problem", 8); seg("oneliner", 8); seg("demo", demoLen); seg("watches", 12); seg("theory", 14); seg("arch", 13); seg("control", 11); seg("numbers", 12); seg("close", 11);
+  seg("hook", 16); seg("problem", 8); seg("oneliner", 7); seg("demo", demoLen); seg("watches", 10); seg("theory", 11.5); seg("arch", 11); seg("control", 8); seg("numbers", 9); seg("close", 8);
   TOTAL = cur;
 }
 

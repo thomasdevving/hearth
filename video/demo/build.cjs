@@ -13,7 +13,7 @@ const OUT = path.join(__dirname, "hearth-jury-draft.mp4");
 const testArg = process.argv.indexOf("--test");
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {});
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   const errs = []; page.on("pageerror", (e) => errs.push(e.message));
   await page.goto("http://127.0.0.1:8090/video/demo/jury.html");
