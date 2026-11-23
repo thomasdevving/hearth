@@ -79,7 +79,7 @@ struct ActionItemView: View {
       }
       if smaller != nil && !editing {
         Button("Change the smaller step") { draft = smaller ?? ""; editing = true }
-          .buttonStyle(.plain).font(HearthFont.body(14, weight: "Medium")).foregroundStyle(Theme.magenta)
+          .buttonStyle(.bare).font(HearthFont.body(14, weight: "Medium")).foregroundStyle(Theme.magenta)
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)

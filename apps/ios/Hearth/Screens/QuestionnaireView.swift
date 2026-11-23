@@ -34,7 +34,7 @@ struct QuestionnairePages: View {
               .background(RoundedRectangle(cornerRadius: 12).fill(selected ? Theme.magenta : .white))
               .overlay(RoundedRectangle(cornerRadius: 12).stroke(selected ? Theme.magenta : Theme.line, lineWidth: 1.5))
           }
-          .buttonStyle(.plain)
+          .buttonStyle(.bare)
           .accessibilityAddTraits(selected ? [.isSelected] : [])
         }
       }

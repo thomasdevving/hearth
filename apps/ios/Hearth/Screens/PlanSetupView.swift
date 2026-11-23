@@ -232,7 +232,7 @@ struct PlanLine<Content: View>: View {
           .background(Circle().fill(kept ? Theme.magenta : .white))
           .overlay(Circle().stroke(kept ? Theme.magenta : Theme.line, lineWidth: 1.5))
       }
-      .buttonStyle(.plain)
+      .buttonStyle(.bare)
       .accessibilityLabel("Keep: \(title)")
       .accessibilityValue(kept ? "on" : "off")
     }

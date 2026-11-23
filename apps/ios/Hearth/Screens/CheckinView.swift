@@ -64,7 +64,7 @@ struct CheckinView: View {
                     .background(RoundedRectangle(cornerRadius: 10).fill(sel ? Theme.magenta : .white))
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(sel ? Theme.magenta : Theme.line, lineWidth: 1.5))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.bare)
                 .accessibilityLabel("\(v)")
                 .accessibilityAddTraits(sel ? [.isSelected] : [])
               }

@@ -155,9 +155,20 @@ struct CompactButtonStyle: ButtonStyle {
   }
 }
 
+/// A button that draws only its own label: no system highlight (iOS 26+ tints `.plain` buttons
+/// while pressed, which flashed light blue on the questionnaire options), just a slight fade.
+struct BareButtonStyle: ButtonStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .contentShape(Rectangle())
+      .opacity(configuration.isPressed ? 0.85 : 1)
+  }
+}
+
 extension ButtonStyle where Self == PrimaryButtonStyle { static var primary: PrimaryButtonStyle { .init() } }
 extension ButtonStyle where Self == SecondaryButtonStyle { static var secondary: SecondaryButtonStyle { .init() } }
 extension ButtonStyle where Self == LinkButtonStyle { static var link: LinkButtonStyle { .init() } }
+extension ButtonStyle where Self == BareButtonStyle { static var bare: BareButtonStyle { .init() } }
 extension ButtonStyle where Self == CompactButtonStyle { static var compact: CompactButtonStyle { .init() } }
 
 struct Card<Content: View>: View {
@@ -190,7 +201,7 @@ struct Chip: View {
         .background(Capsule().fill(selected ? Theme.magenta : .white))
         .overlay(Capsule().stroke(selected ? Theme.magenta : Theme.line, lineWidth: 1.5))
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.bare)
     .accessibilityAddTraits(selected ? [.isSelected] : [])
   }
 }
@@ -260,7 +271,7 @@ struct HelpButton: View {
         .frame(maxWidth: .infinity, minHeight: 48)
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.danger, lineWidth: 1.5))
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.bare)
     .padding(.top, 16)
   }
 }
@@ -311,7 +322,7 @@ struct Fold<Content: View>: View {
         .frame(minHeight: 52)
         .contentShape(Rectangle())
       }
-      .buttonStyle(.plain)
+      .buttonStyle(.bare)
       .accessibilityAddTraits(.isHeader)
       .accessibilityValue(open ? "open" : "closed")
       if open { VStack(alignment: .leading, spacing: 10) { content }.padding(.bottom, 16) }

@@ -102,7 +102,7 @@ struct WhatCameFirstFold: View {
           Text(label).font(HearthFont.body(16, weight: "SemiBold")).fixedSize(horizontal: false, vertical: true)
           Spacer(minLength: 0)
           Button("See it ›") { app.path.append(.why(o.feature)) }
-            .buttonStyle(.plain).font(HearthFont.body(14, weight: "Medium")).foregroundStyle(Theme.magenta)
+            .buttonStyle(.bare).font(HearthFont.body(14, weight: "Medium")).foregroundStyle(Theme.magenta)
             .accessibilityLabel("See \(label)")
         }
         Text(OnsetData.when(o)).font(HearthFont.body(14, weight: "SemiBold")).foregroundStyle(Theme.changed)
@@ -114,7 +114,7 @@ struct WhatCameFirstFold: View {
           HStack(spacing: 6) {
             Text("Not in your plan.").font(HearthFont.body(14)).foregroundStyle(Theme.muted)
             Button("Watch for this too") { quote = ""; adding = o.feature }
-              .buttonStyle(.plain).font(HearthFont.body(14, weight: "Medium")).foregroundStyle(Theme.magenta)
+              .buttonStyle(.bare).font(HearthFont.body(14, weight: "Medium")).foregroundStyle(Theme.magenta)
           }
         }
       }
