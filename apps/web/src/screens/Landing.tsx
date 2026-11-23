@@ -272,7 +272,7 @@ export function Landing({ section }: { section?: string }) {
         <div>
           <p className="eyebrow">Your own early-warning plan</p>
           <h1>
-            When your days drift, <em>Hearth notices</em> and reminds you what helps.
+            When your days drift, <em>Hearth notices</em>.
           </h1>
           <p className="lead">
             Hearth learns your usual days. When they change, it checks in and shows the plan you wrote, in your own words. What you write stays on your device.
