@@ -1,21 +1,92 @@
 # Hearth
 
-**Hybrid, privacy-first relapse prevention for depression.**
-Entry for #BuildHybridAI 2026 (Firebase AI Logic hybrid inference). Deadline: **30 November 2026, 2 PM PT**.
+**When your days drift, Hearth notices.**
+A hybrid, privacy-first early-warning app for people who have had depression. Built for
+#BuildHybridAI 2026 with Firebase AI Logic.
 
-**Try it:** https://hearth-9de01.web.app (Firebase Hosting; Chrome desktop, no install).
+**Try it:** https://hearth-9de01.web.app · Chrome on a computer, no install, no account.
 
-> Your phone notices your daily rhythm shifting before you do. Hearth turns your own
-> description of how a relapse starts into measurement rules, watches for exactly those
-> signs, and asks a validated question at the right moment. Your raw data never leaves
-> your phone.
+Hearth learns your usual days from your phone and watch: sleep, steps, daily rhythm, heart
+rate and the places you go. When they drift from *your own* pattern for a few days, it checks
+in gently and brings back the plan you wrote yourself, in your own words. The model that reads
+your words runs on your device. The cloud only sees weekly numbers, and only if you allow it.
 
-Hearth is a wellbeing and self-insight tool. It is not a medical device and never gives
-a diagnosis or treatment advice.
+Hearth is a wellbeing and self-insight tool. It is not a medical device and never gives a
+diagnosis or treatment advice.
 
-## Run it
+## The problem
 
-Requirements: Node 22, npm 10. For the on-device model: Chrome desktop 139+ (see below).
+Depression affects an estimated 332 million people worldwide
+([WHO, 2025](https://www.who.int/news-room/fact-sheets/detail/depression)), and for many it
+comes back. Clinicians help people write a relapse-prevention plan: the early signs they
+know from experience and what helps them. The plan works when someone notices those signs in
+time, which is exactly when it is hardest to notice them.
+
+Hearth watches for those signs quietly, compares you only with yourself, and opens your own
+plan at the moment it matters. Because the data is this personal, it has to work without
+sending your words anywhere.
+
+## How it works
+
+1. **Your plan, in your own words.** Write what you or people close to you notice first ("I go
+   to bed later, I skip the gym, calling my sister helps"). Gemini Nano on your device turns it
+   into plan cards, each with the exact quote it came from. Anything you did not write is
+   removed in code.
+2. **It learns your usual days.** For about two weeks Hearth only learns. After that each day
+   is compared with your own usual range, never with anyone else. The signs you named weigh more.
+3. **A change gets a gentle check-in.** When your days stay outside your range for a few days,
+   Hearth asks how you are (three taps and your own questions), shows *why* it asked, and opens
+   your plan with what fits today on top. A holiday you confirm is set aside, not counted.
+4. **Help, your people and your GP.** "What helped last time" comes back by meaning, on the
+   device. Your people are one tap away. Your plan prints on one page for your GP, or exports
+   as FHIR. "I need help now" works offline.
+
+## How it uses Firebase AI Logic hybrid inference
+
+Every model call goes through one router, and the route depends on how personal the data is,
+not on which task it is:
+
+| Data | Examples | Firebase AI Logic mode |
+|---|---|---|
+| **S3**: your own words and places | plan text, notes, check-in text, speech, a photo of a paper plan | `ONLY_ON_DEVICE` (Gemini Nano). No model? A plain fallback in code. Never the cloud. |
+| **S2**: single numbers about you | a check-in's reasons, a questionnaire total | `ONLY_ON_DEVICE`, or `PREFER_ON_DEVICE` with consent; `ONLY_IN_CLOUD` only with consent and no on-device model |
+| **S1**: weekly summaries you approved | weekly reflection, clinician overview | With consent: `PREFER_IN_CLOUD` / `ONLY_IN_CLOUD` (Gemini), after a preview of the exact JSON; offline, a short version on the device. Without consent: a plain summary in code. |
+
+Where to see it in the code:
+
+- `apps/web/src/inference/webRouter.ts`: `getAI`, `getGenerativeModel` and all four
+  `InferenceMode`s from `firebase/ai`, with structured output per task.
+- `packages/engine/src/routing.ts`: the routing table above, in one place.
+- `apps/web/src/inference/availability.ts`: Gemini Nano availability and download.
+- `apps/web/src/cloud/client.ts`: App Check (reCAPTCHA Enterprise), anonymous Auth, Firestore
+  for weekly summaries and Remote Config.
+
+The model never decides on its own. Every output is validated against a JSON schema, every
+quote is checked against the user's own words, and every number (scores, thresholds, the
+moment to ask) comes from the deterministic engine in `packages/engine`. The privacy ledger
+in the app lists every model call: the task, where it ran and, for the cloud, the exact
+payload. A strict Content-Security-Policy only lets the page reach the listed Firebase
+services, and "Test it" on the Privacy screen shows another website being refused.
+
+## Testing it (for judges)
+
+**Fastest: the hosted demo.** Open https://hearth-9de01.web.app in Chrome on a computer and
+choose "Try the demo". You follow Sam, a made-up person, through 150 days:
+
+1. Start with Hearth → Set up my plan → "use Sam's words" → **Turn into my plan**.
+2. Answer the starting questionnaire with "Demo: Sam's answers", then **Start**.
+3. In the dark demo bar at the bottom: **Jump to… → Holiday**, send Sam's note and confirm the
+   holiday. Then **Jump to… → First change**.
+4. On Today, tap **Why?**, then the check-in. Afterwards, look at **Plan** and **Privacy**
+   (the ledger and "Test it").
+
+**To use Gemini Nano on your machine** (Chrome desktop 139+): set
+`chrome://flags/#optimization-guide-on-device-model` to "Enabled BypassPerfRequirement" and
+`chrome://flags/#prompt-api-for-gemini-nano` to "Enabled", restart Chrome, then Settings →
+"Download on-device model". Without it, every private task uses its plain fallback and the
+app stays fully usable.
+
+**Run it locally** (Node 22, npm 10):
 
 ```bash
 npm install
@@ -24,10 +95,9 @@ npm install
 npm run dev -w apps/web
 ```
 
-Open http://localhost:5173 and follow onboarding. The **time machine** bar at the bottom
-moves Sam's simulated days: `+1 day`, `▶ Play` (pauses when something needs you; tick
-"Answer with Sam's script" to let it run to day 150), `Jump to…` holiday / first change /
-PHQ-9, an Online/Offline switch, and the model status.
+Open http://localhost:5173. Without a Firebase project the app runs entirely on the device.
+For the cloud part, fill `apps/web/.env.local` from `apps/web/.env.example`
+(`docs/FIREBASE_SETUP.md`); an App Check debug token can be set there.
 
 ```bash
 npm test
@@ -35,91 +105,65 @@ npm test
 ```bash
 npm run build
 ```
-```bash
-npm run test:rules
-```
-```bash
-npm run eval
-```
 
-- **On-device model (Gemini Nano):** in Chrome set `chrome://flags/#optimization-guide-on-device-model`
-  to "Enabled BypassPerfRequirement" and `chrome://flags/#prompt-api-for-gemini-nano` to
-  "Enabled", restart, then Settings → "Download on-device model". Without it every private
-  task uses a non-model fallback and the app stays fully usable.
-- **Cloud (Gemini, Firestore):** create a Firebase project and fill `apps/web/.env.local`
-  from `apps/web/.env.example` (`docs/FIREBASE_SETUP.md`). Without it the app runs entirely
-  on the device. Deploy: `npm run build && firebase deploy --only firestore:rules,hosting`.
+`npm run test:rules` tests the Firestore rules on the emulator, and `npm run eval` runs the
+evaluation scripts.
 
 ## What is simulated and what is real
 
 | Simulated | Real |
 |---|---|
-| Sam's sensor data (steps, rest, walking pace, places) for 150 days, from a seeded generator (`docs/08`) | The detection engine, check-ins, questionnaires, the safety flow |
-| Sam's scripted answers, offered with "Use scripted answer" | Every model call (Gemini Nano on-device, Gemini in the cloud) and its ledger entry |
-| | Weekly uploads to Firestore, share links, the clinician report |
+| Sam's sensor data for 150 days, from a seeded generator (`docs/08_DEMO_REPLAY.md`) | The detection engine, check-ins, questionnaires and the safety flow |
+| Sam's scripted answers, offered as dashed "Demo:" buttons | Every model call (Gemini Nano on the device, Gemini in the cloud) and its ledger entry |
+| | Weekly uploads to Firestore, share links and the clinician report |
 
-## Privacy in one table
+## Results so far
 
-| Data | Where it goes |
-|---|---|
-| Your words: plan, notes, check-in text, speech, photos of a plan, questions you ask (S3) | Only to the on-device model. With no on-device model, a non-model fallback is used. Never to a server. |
-| Single values: a check-in's reasons, a questionnaire total (S2) | On-device model; the cloud model only with your consent and when no on-device model exists |
-| Weekly summaries (S1) | Firestore and the cloud model, only after consent and a preview of the exact JSON |
+From `docs/10_EVALUATION.md`, on simulated people; every number is reported, including the
+ones that missed their target:
 
-Every model call is in the privacy ledger (Privacy tab) with where it ran and the exact
-payload of anything that left the device, plus a log of every network request.
-Routing is decided in one place, `packages/engine/src/routing.ts`.
-
-## Limitations
-
-- The detection thresholds are untested on real relapses; the replay persona is synthetic.
-- Step-based rest is a rough proxy for sleep.
-- Without an Apple Watch or location permission, only the activity, rhythm and sleep-proxy
-  domains are available (iOS).
-- English only.
-- The on-device model can misread a plan or a context; the quote check and user
-  confirmation catch invented entries but not every missed one.
-- Once a change is detected the reference is frozen; a lasting harmless change can keep the
-  state "changed" until it returns (`docs/DECISIONS.md`, M2).
-- Model quality (task G and H accuracy, latency) has not been measured with Gemini Nano yet;
-  see `docs/10_EVALUATION.md`.
-- The iOS app is not built yet.
-
-## Evaluation
-
-Numbers and how they were produced: `docs/10_EVALUATION.md`. In short: the engine passes all
-tests; on 50 stable synthetic people it flags 1.0 days per 100; the persona's gradual change
-is caught after a median of 7 days (slow version: 12); confirming a holiday removes all
-holiday alarms; with consent off nothing leaves the browser.
-
-## What is in this repository
-
-| Path | What it is |
-|---|---|
-| `AGENTS.md` | Rules for the build. |
-| `docs/01_PRODUCT.md` … `docs/10_EVALUATION.md` | The specification |
-| `docs/DECISIONS.md` | Every choice made where the spec was open |
-| `docs/PLATFORM_NOTES.md` | Platform facts, verified and not |
-| `packages/engine` | The deterministic engine (TypeScript, no I/O), with golden fixtures for iOS |
-| `apps/web` | The web app (Vite, React, Dexie, Firebase JS SDK) |
-| `shared/` | Schemas, prompts, questionnaires, safety data, config |
-| `firebase/` | Firestore rules and their tests, Remote Config template |
-| `eval/` | Evaluation sets, scripts and results |
+- **0** requests left the browser with the cloud off, over a full 150-day run.
+- **7 days** median to notice the gradual change (range 3–8; slow version 12), none missed.
+- **1.0** false "changed" days per 100 on 50 stable people.
+- **0 vs 92** holiday alarm days with and without confirming the holiday, across 20 people.
+- Task accuracy with Gemini Nano (plan reading, context, crisis wording) is not measured yet;
+  the sets and an in-app scorer are ready (Settings → "Test how Hearth reads a plan").
 
 ## Platforms
 
-| Platform | Role | Sensors |
-|---|---|---|
-| **Web (Chrome)** | Full product on a simulated person, plus the clinician report. Judges can test it without any hardware. | Simulated (`docs/08_DEMO_REPLAY.md`) |
-| **iOS** | The real product on the user's own data. | HealthKit, CoreLocation, optional Screen Time |
+| Platform | Status |
+|---|---|
+| **Web (Chrome)**, submitted | The full product on a simulated person, hosted on Firebase Hosting. Gemini Nano through Firebase AI Logic, Gemini in the cloud with consent. |
+| **iOS** | SwiftUI app on the user's own HealthKit data, running the same engine in JavaScriptCore, with Apple's on-device model. The Firebase SDK is not linked on iOS yet, so it is not part of this entry. See `apps/ios` and its README. |
 
-Both run the same detection engine (`packages/engine`, TypeScript). Android is not built.
+## Built during the submission period
 
-## Core pattern
+Everything in this repository was built during the submission period; the first commit is
+from 16 November 2026. It uses standard frameworks and libraries (React, Vite, Dexie, the
+Firebase JS SDK) and AI coding assistants.
 
-*Sensors measure → code computes → the baseline decides when → a validated question
-measures → the LLM explains.* The LLM never changes a validated item and never computes a
-clinical score.
+## Limitations
+
+- The detection thresholds are untested on real relapses; the demo person is synthetic.
+- Without a watch, rest is estimated from steps, which is a rough proxy for sleep.
+- English only.
+- The on-device model can misread a plan or a note. The quote check and the user's own
+  confirmation catch invented entries, but not every missed one.
+- Once a change is detected, the reference is frozen; a lasting harmless change can keep the
+  state "changed" until it returns (`docs/DECISIONS.md`).
+
+## Repository
+
+| Path | What it is |
+|---|---|
+| `apps/web` | The web app (React, Vite, Dexie, Firebase JS SDK) |
+| `packages/engine` | The deterministic engine (TypeScript, no I/O) with golden fixtures |
+| `apps/ios` | The iOS app (SwiftUI, HealthKit, the engine in JavaScriptCore) |
+| `shared/` | Schemas, prompts, questionnaires, safety data and config |
+| `firebase/` | Firestore rules and their tests, Remote Config template |
+| `eval/` | Evaluation sets, scripts and results |
+| `docs/` | The specification (`01_PRODUCT` … `10_EVALUATION`), decisions and platform notes |
+| `video/` | The demo video and the scripts that render it |
 
 ## License
 
