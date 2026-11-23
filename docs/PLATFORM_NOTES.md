@@ -138,3 +138,13 @@ and forbids deriving that data another way.
 | Given raw aggregates, Gemini repeats field names ("indexMean", "daysElevated", "2026-W40") | verified | Task D now gets `readableWeek(...)`: the same numbers with the labels the app shows. |
 | Firebase Hosting serves `index.html` with `max-age=3600` by default | verified | After a deploy, browsers kept the old bundle for an hour. `firebase.json` now sends `no-cache` for `/`, `/science` and `*.html`; hashed assets stay immutable. |
 | Setup errors and their meaning (`auth/configuration-not-found`, AI Logic 403, `genai config not found`) | verified | See `docs/FIREBASE_SETUP.md`. |
+
+## 10. Firebase AI Logic on iOS (verified 2026-11-23, Xcode 27.3 beta, iOS 27.3 Simulator)
+
+| Fact | Status | Source / how checked |
+|---|---|---|
+| Firebase Apple SDK 13.2.0 builds in the app with Xcode 27.3 (Swift 6.4); products FirebaseAILogic, FirebaseAppCheck, FirebaseCore | verified | `xcodebuild test`, 20/20 tests pass |
+| `geminiLanguageModel(name:)` is available from iOS 27 and only compiles with Swift 6.4 and FoundationModels (`#if compiler(>=6.4)`); the `GeminiLanguageModel` module is a target inside the Firebase package | verified | `FirebaseAI+GeminiLanguageModel.swift` and `Package.swift` in the 13.2.0 checkout |
+| A request through `LanguageModelSession(model: ai.geminiLanguageModel(name: "gemini-3.5-flash"))` with a `GenerationSchema` returns schema-shaped JSON | verified | Debug build with `-HearthCloudCheck YES`: answer in 2.9 s |
+| Without a registered App Check debug token the call is refused: "UNAUTHENTICATED, HTTP 401: Firebase App Check token is invalid" | verified | Same check, before registering the token |
+| The debug token can be fixed per run with the `FIRAAppCheckDebugToken` environment variable (`SIMCTL_CHILD_` prefix for `simctl launch`) | verified | Same check |

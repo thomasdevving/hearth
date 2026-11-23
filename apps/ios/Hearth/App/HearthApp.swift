@@ -21,6 +21,7 @@ struct HearthApp: App {
       if UserDefaults.standard.bool(forKey: "HearthDemoPlanned") { model.settings.planDone = true; model.settings.baselineDone = true }
     }
     if UserDefaults.standard.string(forKey: "HearthTab") == "trends" { model.selectedTab = .trends }
+    if CloudCheck.requested { Task { await CloudCheck.run() } }
     #endif
     People.migrateTrustedContact(model.store)
     Self.startCollectors(model)

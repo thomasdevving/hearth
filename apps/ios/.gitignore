@@ -1,3 +1,5 @@
 build/
 # Your own Firebase config (R10); the app runs on the device without it.
 Hearth/GoogleService-Info.plist
+# Your App Check debug token for the Simulator (never commit it).
+Config/AppCheckDebugToken.local.txt

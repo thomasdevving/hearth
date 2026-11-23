@@ -90,6 +90,11 @@ To switch the cloud on:
 
 Without the plist, or below iOS 27, the app runs entirely on the device.
 
+To check the setup without tapping through the app, launch a debug build with
+`-HearthCloudCheck YES`: it sends one fixed test prompt (no user data) through `CloudModel` and
+logs `HEARTH_CLOUD_CHECK ok …` or the error. In the Simulator you can fix the debug token per
+run with the `FIRAAppCheckDebugToken` environment variable.
+
 ## Not in this build
 
 - **Cloud uploads:** anonymous auth, the weekly Firestore upload and share links are web only
