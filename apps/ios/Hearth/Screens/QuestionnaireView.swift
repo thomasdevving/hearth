@@ -103,7 +103,8 @@ struct ResultView: View {
         if r.flagged && !baseline {
           Card(tone: .warm) {
             Text("Consider sharing this with your GP or clinician").font(HearthFont.body(16, weight: "SemiBold"))
-            Text("You could bring this result to your next appointment.")
+            Text("You can create a summary to bring along or send.")
+            Button("Share a summary ›") { app.path.append(.share) }.buttonStyle(.link)
           }
         }
         let phq9Open = app.store.openInbox().contains { $0.type == "questionnaire" && $0.instrument == "PHQ9" }

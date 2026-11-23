@@ -55,14 +55,16 @@ struct MyPlanView: View {
         if st == .CONFIRMED {
           Card(tone: .plain) {
             Text("Talk it through with someone").font(HearthFont.body(16, weight: "SemiBold"))
-            Text("You could bring your trends to your GP or clinician.")
+            Text("You could share a summary with your GP or clinician.")
+            Button("Share a summary ›") { app.path.append(.share) }.buttonStyle(.link)
           }
         }
         CallAFriendCard(people: People.all(app.store))
-        // Folds, as on the web. "For your GP or clinician" comes between the first two in a
-        // later phase.
+        // Folds, in the web's order.
         VStack(alignment: .leading, spacing: 0) {
           WhatCameFirstFold()
+          ClinicianFold(startsOpen: Self.foldsOpen || Self.openFold == "clinician")
+            .padding(.top, -1)  // one line between two folds, not two
           helpedFold(helped)
             .padding(.top, -1)  // one line between two folds, not two
           Fold(title: "Your signs and questions", hint: "\(rules.count) sign\(rules.count == 1 ? "" : "s") · \(items.count) question\(items.count == 1 ? "" : "s")") {
@@ -117,10 +119,13 @@ struct MyPlanView: View {
   }
 
   #if DEBUG
-  /// `-HearthFoldsOpen YES` starts with the folds open (for screenshots).
+  /// `-HearthFoldsOpen YES` starts with the folds open (for screenshots); `-HearthOpenFold
+  /// clinician` only "For your GP or clinician".
   private static var foldsOpen: Bool { UserDefaults.standard.bool(forKey: "HearthFoldsOpen") }
+  private static var openFold: String? { UserDefaults.standard.string(forKey: "HearthOpenFold") }
   #else
   private static let foldsOpen = false
+  private static let openFold: String? = nil
   #endif
 
   private func forToday(_ picked: [PlanActionValue], ranOn: String, choices: [ActionChoiceValue], today: String) -> some View {

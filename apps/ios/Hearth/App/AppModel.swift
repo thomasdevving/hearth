@@ -288,4 +288,8 @@ enum Route: Hashable {
   case why(String)
   /// "What helped": save a note for a sign (by its words; nil: the first sign).
   case helpedNew(String?)
+  /// The plan on one page for the GP (`plan_print` on the web).
+  case planPrint
+  /// A summary for a clinician (`share` on the web).
+  case share
 }

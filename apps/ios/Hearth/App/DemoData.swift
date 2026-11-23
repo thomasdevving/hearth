@@ -121,6 +121,35 @@ enum DemoData {
     }
     store.save()
   }
+  /// `-HearthDemoGP YES`: what the page for the GP shows besides the plan: a person, a safety
+  /// plan and three questionnaires (scored by the engine), so "For your GP or clinician", the
+  /// one-page plan and the FHIR file can be checked.
+  static var gp: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoGP") }
+
+  @MainActor
+  static func addGP(store: Store) {
+    if store.all(Person.self).isEmpty {
+      store.context.insert(Person(id: "person_demo", order: 0, name: "Maya", phone: "+31 6 1234 5678", goodFor: "a walk and a talk", message: People.defaultMessage))
+    }
+    if store.all(SafetyPlan.self).isEmpty {
+      store.context.insert(SafetyPlan(warningSigns: "I stop eating and stay in bed all day", helps: "Go to my sister's place; no big decisions", whoToCall: "My sister Anna, then my GP"))
+    }
+    if store.all(QuestionnaireRecord.self).isEmpty {
+      let today = Clock.today
+      for (days, inst, answers) in [(40, "PHQ9", [1, 0, 1, 0, 1, 0, 0, 0, 0]), (5, "PHQ2", [2, 1]), (4, "PHQ9", [2, 1, 2, 1, 1, 1, 1, 0, 0])] {
+        let qs = store.all(QuestionnaireRecord.self).map { RawJSON($0.json) }
+        let date = Clock.addDays(today, -days)
+        guard let ref = try? Engine.shared.call("remissionScore", qs, date),
+              let result = try? Engine.shared.call("scoreQuestionnaire", inst, answers, RawJSON(ref), Shared.config) else { continue }
+        let id = "q_demo_\(days)"
+        let takenAt = "\(date)T19:30:00\(String(Clock.stamp(.now).suffix(6)))"
+        let rec: [String: Any] = ["id": id, "instrument": inst, "takenAt": takenAt, "answers": answers, "result": RawJSON(result)]
+        store.context.insert(QuestionnaireRecord(id: id, takenAt: takenAt, json: JSONText.encode(rec)))
+        store.save()
+      }
+    }
+    store.save()
+  }
   #else
   static let enabled = false
   #endif

@@ -76,6 +76,7 @@ struct SettingsView: View {
       Button("My safety plan ›") { app.safetyEntry = "edit" }.buttonStyle(.link)
 
       SectionTitle(text: "Your data")
+      Button("Share with your clinician ›") { app.path.append(.share) }.buttonStyle(.link)
       Button("Delete everything") { confirmDelete = true }
         .buttonStyle(.secondary)
         .foregroundStyle(Theme.danger)
@@ -85,6 +86,7 @@ struct SettingsView: View {
     .confirmationDialog("Delete everything on this iPhone? This cannot be undone.", isPresented: $confirmDelete, titleVisibility: .visible) {
       Button("Delete everything", role: .destructive) {
         app.store.deleteEverything()
+        ExportFiles.clear()
         app.path.removeAll()
         app.changed()
       }
