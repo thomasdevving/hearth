@@ -876,3 +876,14 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
 - **Explanations are plain text**, not tinted boxes: the demo hints, the privacy test, the
   plan note and the holiday line. Boxes stay for things you act on.
 - The jury-video capture script and the plan-setup test use the new button names.
+
+## Landing: numbers under the hero and a short FAQ (2026-11-23)
+
+- After looking at how MindDoc, Daylio, Bearable, How We Feel, Wysa, Headspace and Oura build
+  their homepages: the evaluation numbers (0 requests left the browser, 7 days median to notice,
+  0 vs 92 holiday alarm days) moved from the privacy section to straight under the hero, with a
+  footnote on how they were measured (simulated people: 50 and 20). Numbers are set in Outfit,
+  because Syne's zero reads like an "o", and the row stays left of the hero flower's petals.
+- A short FAQ ("Before you start") before the final call to action: data, medical device,
+  crisis, smartwatch, how long before it notices, trying it without your own data. Answers
+  follow the README and the docs; plain rows with a +/– and no boxes.

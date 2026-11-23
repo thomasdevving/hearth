@@ -238,6 +238,16 @@ const privacySteps: WorkflowStep[] = [
   },
 ];
 
+/** Short answers to the doubts people bring to a mental-health app; facts as in the README and docs. */
+const FAQ = [
+  { q: "Is my data sent anywhere?", a: "Your own words, notes and places are read only by the model on your device. Only weekly numbers can go to the cloud, and only if you turn that on. The privacy ledger lists every model call." },
+  { q: "Is Hearth a medical device?", a: "No. It is a wellbeing and self-insight tool. It shows a change from your usual pattern and the plan you wrote, and never gives a diagnosis or treatment advice." },
+  { q: "What if I'm in crisis?", a: "Hearth is not a crisis service. “I need help now” is always one tap away and works offline. In the US, call or text 988. If you are in immediate danger, call 911." },
+  { q: "Do I need a smartwatch?", a: "No. Steps and daily rhythm from your phone are enough to start. A watch adds sleep and heart rate, and with your permission, location adds the places you go." },
+  { q: "How long before it notices anything?", a: "It first learns your usual days, which takes about two weeks. After that it compares each day with your own usual range." },
+  { q: "Can I try it without my own data?", a: "Yes. The demo follows Sam, a made-up person, through 150 days in a few minutes. The sensor data is simulated; everything else is the real app." },
+];
+
 /** Tells CSS how tall the plan intro is, so the first walkthrough can continue its flower exactly. */
 function usePlanIntroHeight(root: React.RefObject<HTMLDivElement | null>) {
   useEffect(() => {
@@ -292,6 +302,31 @@ export function Landing({ section }: { section?: string }) {
       </header>
       </div>
 
+      <section className="land-proof" aria-label="What the demo shows">
+        <div className="facts">
+          <div className="fact reveal">
+            <div className="n">
+              <CountUp to={0} />
+            </div>
+            <p>requests left the browser with the cloud off, over a full 150-day demo.</p>
+          </div>
+          <div className="fact reveal" style={{ ["--d" as string]: "120ms" }}>
+            <div className="n">
+              <CountUp to={7} suffix=" days" />
+            </div>
+            <p>median time to notice a gradual change.</p>
+          </div>
+          <div className="fact reveal" style={{ ["--d" as string]: "240ms" }}>
+            <div className="n">
+              0<span className="vs"> vs </span>
+              <CountUp to={92} />
+            </div>
+            <p>alarm days on holiday, with and without confirming the holiday.</p>
+          </div>
+        </div>
+        <p className="proof-note">Measured in the demo on simulated people: 50 for noticing a change, 20 for holidays.</p>
+      </section>
+
       <section id="how" aria-labelledby="how-title">
         <div className="flow-head flow-text-right plan-intro" style={{ ["--bg" as string]: `url(${flowerPlan})` }}>
           <div className="flow-head-inner reveal">
@@ -337,28 +372,18 @@ export function Landing({ section }: { section?: string }) {
           </div>
         </div>
         <Workflow eyebrow="Privacy you can check" title="See what left your device, and get help even without internet" steps={privacySteps} />
-        <div className="land-section facts-section">
-          <div className="facts">
-            <div className="fact reveal">
-              <div className="n">
-                <CountUp to={0} />
-              </div>
-              <p>requests left the browser with the cloud off, in a full 150-day demo run.</p>
-            </div>
-            <div className="fact reveal" style={{ ["--d" as string]: "120ms" }}>
-              <div className="n">
-                <CountUp to={7} suffix=" days" />
-              </div>
-              <p>median time to notice the demo person's gradual change, on 50 simulated people.</p>
-            </div>
-            <div className="fact reveal" style={{ ["--d" as string]: "240ms" }}>
-              <div className="n">
-                0<span className="vs"> vs </span>
-                <CountUp to={92} />
-              </div>
-              <p>holiday alarm days with the holiday confirmed, and without, across 20 simulated people.</p>
-            </div>
-          </div>
+      </section>
+
+      <section className="land-faq" id="faq" aria-labelledby="faq-title">
+        <p className="eyebrow">Questions</p>
+        <h2 id="faq-title">Before you start</h2>
+        <div className="faq-list">
+          {FAQ.map((f) => (
+            <details key={f.q}>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
