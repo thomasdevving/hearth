@@ -69,7 +69,7 @@ struct BaselinePhqView: View {
   @Environment(AppModel.self) private var app
   var body: some View {
     ScreenScroll(title: "Your starting point") {
-      Muted("Nine questions about the last two weeks. Your answers become your own reference: later, Hearth compares with this, not with other people.")
+      Muted("Nine questions about the last two weeks. Later answers are compared with these.")
       QuestionnairePages(instrument: "PHQ9") { rec in app.path.append(.result(rec.id, baseline: true)) }
     }
   }

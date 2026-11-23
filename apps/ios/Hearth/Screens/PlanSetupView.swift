@@ -41,22 +41,27 @@ struct PlanSetupView: View {
 
   private var writeView: some View {
     ScreenScroll(title: "Your plan") {
-      Muted("Hearth already watches signals research links to harder periods. Your own signs make it sharper: write them, tick them, or both. It all stays on this device.")
+      Muted("Your own signs make Hearth sharper.")
       TextArea(label: "When things start to slip, what do you, or the people close to you, notice first?", text: $warning, placeholder: "For example: I go to bed later and stop going to the gym…", minHeight: 110)
-      SectionTitle(text: "Signs many people notice early")
-      Muted("Research links these changes to harder periods. Tick any that fit you.")
+      Text("Signs many people notice early").font(HearthFont.body(16, weight: "SemiBold")).padding(.top, 12)
+        .accessibilityAddTraits(.isHeader)
+      Muted("Tick any that fit you.")
       SuggestionPicker(picked: $picked)
       TextArea(label: "What helps when that happens?", text: $helps, placeholder: "For example: calling my sister…")
       let working: Bool = { if case .working = mode { return true } else { return false } }()
-      Button(working ? "Reading on this device…" : "Make cards") { Task { await makeCards() } }
+      let empty = warning.trimmed.isEmpty && helps.trimmed.isEmpty && picked.isEmpty
+      Button(working ? "Reading on this device…" : "Turn into my plan") { Task { await makeCards() } }
         .buttonStyle(.primary)
-        .disabled(working || (warning.trimmed.isEmpty && helps.trimmed.isEmpty && picked.isEmpty))
-      HStack {
-        Button("Fill it in by hand instead") { mode = .fallback }.buttonStyle(.link)
-        Spacer()
-        Button("I don't know my signs yet") { save(.empty, rules: [], items: [], actions: []) }.buttonStyle(.link)
+        .disabled(working || empty)
+      Muted(empty ? "Write your signs or tick one above first." : "The model on this iPhone turns your words into cards. You check each one.")
+      Divider().padding(.top, 8)
+      FlowLayout(spacing: 4) {
+        Text("Not sure yet?").foregroundStyle(Theme.ink2)
+        Button("Skip for now") { save(.empty, rules: [], items: [], actions: []) }.buttonStyle(.link)
+        Text("or").foregroundStyle(Theme.ink2)
+        Button("fill it in by hand") { mode = .fallback }.buttonStyle(.link)
       }
-      Muted("Not sure? That's fine. Hearth notices changes from your usual days on its own, and you can add your signs later, ideally together with your GP or therapist.")
+      .font(HearthFont.body(16))
     }
   }
 
@@ -102,7 +107,7 @@ struct PlanSetupView: View {
 
   private func cardsView(_ plan: VerifiedPlan, ranOn: String) -> some View {
     ScreenScroll(title: "Your plan as cards", badge: ranOn) {
-      Muted("Each card shows where it came from: your own words, or a sign you ticked. Untick anything that is not right.")
+      Muted("Each card shows where it came from. Untick anything that is not right.")
       if plan.dropped > 0 {
         Text("Hearth left out \(plan.dropped == 1 ? "1 suggestion" : "\(plan.dropped) suggestions") from the model that \(plan.dropped == 1 ? "was" : "were") not in your own words.")
           .font(HearthFont.body(14)).foregroundStyle(Theme.magentaDeep)
@@ -167,7 +172,7 @@ struct PlanSetupView: View {
 
   private var fallbackView: some View {
     ScreenScroll(title: "Your plan") {
-      Text("The on-device model is not available, so let's do this by hand. Nothing you type leaves this device.")
+      Text("The on-device model is not available, so fill this in by hand. It stays on this iPhone.")
       SectionTitle(text: "Which of these happen when things start to slip?")
       SuggestionPicker(picked: $picked)
       ForEach(Array(Copy.placeSigns.enumerated()), id: \.offset) { i, m in

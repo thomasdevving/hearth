@@ -32,7 +32,7 @@ struct CheckinView: View {
         Text(intro?.text ?? "…").font(HearthFont.body(20, weight: "Medium")).fixedSize(horizontal: false, vertical: true)
         Button("Why am I being asked?") { why.toggle() }.buttonStyle(.link)
         if why {
-          Muted("Sometimes I ask at random, sometimes because your pattern changed. I'll tell you which one after you answer, so it doesn't colour your answer.")
+          Muted("Some check-ins are random, some come because your pattern changed. You'll hear which after you answer.")
         }
         ForEach(scales, id: \.id) { s in
           VStack(alignment: .leading, spacing: 8) {

@@ -41,14 +41,26 @@ struct MyPlanView: View {
           }
         }
         CallAFriendCard(people: People.all(app.store))
-        SectionTitle(text: "Signs you watch for")
-        ForEach(rules, id: \.id) { r in
-          (Text("\(Copy.feature(Copy.ruleFeature(r), places: places)) \(Copy.direction[r.direction] ?? r.direction) ") + Text("(“\(r.quote)”)").foregroundColor(Theme.muted))
+        Fold(title: "Your signs and questions", hint: "\(rules.count) signs · \(items.count) questions") {
+          Text("SIGNS YOU WATCH FOR").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.muted)
+          ForEach(rules, id: \.id) { r in
+            VStack(alignment: .leading, spacing: 2) {
+              Text("\(Copy.feature(Copy.ruleFeature(r), places: places)) \(Copy.direction[r.direction] ?? r.direction)").font(HearthFont.body(16, weight: "SemiBold"))
+              Text("“\(r.quote)”").font(HearthFont.body(14)).italic().foregroundStyle(Theme.ink2)
+            }
+          }
+          if !items.isEmpty {
+            Text("QUESTIONS IN YOUR CHECK-INS").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.muted).padding(.top, 6)
+            ForEach(items, id: \.id) { i in
+              VStack(alignment: .leading, spacing: 2) {
+                Text(i.question).font(HearthFont.body(16, weight: "SemiBold"))
+                Text("“\(i.quote)”").font(HearthFont.body(14)).italic().foregroundStyle(Theme.ink2)
+              }
+            }
+          }
+          Button("Edit my plan") { app.path.append(.planSetup(first: false)) }.buttonStyle(.secondary).padding(.top, 4)
         }
-        ForEach(items, id: \.id) { i in
-          (Text("\(i.question) ") + Text("(“\(i.quote)”)").foregroundColor(Theme.muted))
-        }
-        Button("Edit my plan") { app.path.append(.planSetup(first: false)) }.buttonStyle(.secondary).padding(.top, 8)
+        .padding(.top, 12)
       }
       HelpButton()
     }
@@ -65,6 +77,7 @@ struct LedgerView: View {
   @Environment(AppModel.self) private var app
   @State private var leftOnly = false
   @State private var open: String?
+  @State private var all6 = false
 
   var body: some View {
     let _ = app.revision
@@ -76,7 +89,7 @@ struct LedgerView: View {
       Text("\(device) on this device · \(cloud) in the cloud · \(none) without a model").font(HearthFont.body(16, weight: "Medium"))
       Toggle("Only show what left this device", isOn: $leftOnly).tint(Theme.magenta)
       if rows.isEmpty { Muted("Nothing yet.") }
-      ForEach(rows, id: \.id) { e in
+      ForEach(all6 ? rows : Array(rows.prefix(6)), id: \.id) { e in
         VStack(alignment: .leading, spacing: 4) {
           (Text(Copy.taskName[e.task] ?? e.task).font(HearthFont.body(16, weight: "SemiBold")) + Text(" · \(Self.where(e))"))
           Text(Self.detail(e)).font(HearthFont.body(13)).foregroundStyle(Theme.muted)
@@ -89,6 +102,7 @@ struct LedgerView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .bottom) { Rectangle().fill(Theme.line).frame(height: 1) }
       }
+      if !all6 && rows.count > 6 { Button("Show all \(rows.count)") { all6 = true }.buttonStyle(.secondary) }
     }
   }
 
@@ -96,13 +110,10 @@ struct LedgerView: View {
     e.ranOn == "on_device" ? "on this device" : e.ranOn == "cloud" ? "cloud (left this device)" : "no model (fallback)"
   }
 
+  /// Readable date and time; the technical details stay in the stored entry.
   static func detail(_ e: LedgerEntryValue) -> String {
-    let d = e.decision
-    let decision = d.run == "model" ? "\((d.mode ?? "").lowercased().replacingOccurrences(of: "_", with: " "))\(d.variant == "lite" ? " (lite)" : "")" : "fallback: \((d.reason ?? "").replacingOccurrences(of: "_", with: " "))"
-    var parts = [String(e.at.prefix(16)).replacingOccurrences(of: "T", with: " "), e.dataClass, decision, e.outcome]
-    if let ms = e.latencyMs { parts.append("\(ms) ms") }
-    parts.append(e.promptVersion)
-    return parts.joined(separator: " · ")
+    let day = String(e.at.prefix(10)), time = String(e.at.dropFirst(11).prefix(5))
+    return "\(Clock.pretty(day)), \(time)" + (e.decision.run == "model" ? "" : " · simple rules, no model")
   }
 }
 

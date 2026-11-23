@@ -90,14 +90,14 @@ struct SectionTitle: View {
 struct ModelBadge: View {
   let ranOn: String
   var body: some View {
-    let text = ranOn == "on_device" ? "on-device" : ranOn == "cloud" ? "cloud" : "template"
+    let text = ranOn == "on_device" ? "on-device" : ranOn == "cloud" ? "cloud" : "standard text"
     Text(text)
       .font(HearthFont.body(12, weight: "SemiBold"))
       .padding(.horizontal, 8).padding(.vertical, 3)
       .foregroundStyle(ranOn == "cloud" ? Theme.changed : ranOn == "on_device" ? Theme.magentaDeep : Theme.muted)
       .background(Capsule().fill(ranOn == "on_device" ? Theme.magentaTint : Theme.surface2))
       .overlay(Capsule().stroke(ranOn == "on_device" ? Theme.magentaLine : Theme.line))
-      .accessibilityLabel(ranOn == "cloud" ? "Written by the cloud model" : ranOn == "on_device" ? "Written by the model on this device" : "Fixed text, no model")
+      .accessibilityLabel(ranOn == "cloud" ? "Written by the cloud model" : ranOn == "on_device" ? "Written by the model on this device" : "Standard text written by Hearth, no model")
   }
 }
 
@@ -260,5 +260,36 @@ struct TextArea: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.line))
         .accessibilityLabel(label.isEmpty ? placeholder : label)
     }
+  }
+}
+
+/// A section that starts closed, for the parts of a long screen you only need now and then
+/// (as `Fold` on the web).
+struct Fold<Content: View>: View {
+  let title: String
+  var hint: String? = nil
+  @ViewBuilder var content: Content
+  @State private var open = false
+  var body: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      Button { withAnimation(.easeInOut(duration: 0.2)) { open.toggle() } } label: {
+        HStack(alignment: .center, spacing: 12) {
+          VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(HearthFont.display(17)).foregroundStyle(Theme.ink)
+            if let hint { Text(hint).font(HearthFont.body(14)).foregroundStyle(Theme.muted) }
+          }
+          Spacer(minLength: 0)
+          Image(systemName: open ? "minus" : "plus").foregroundStyle(Theme.magenta).font(.system(size: 17, weight: .medium))
+        }
+        .frame(minHeight: 52)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+      .accessibilityAddTraits(.isHeader)
+      .accessibilityValue(open ? "open" : "closed")
+      if open { VStack(alignment: .leading, spacing: 10) { content }.padding(.bottom, 16) }
+    }
+    .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 1) }
+    .overlay(alignment: .bottom) { Rectangle().fill(Theme.line).frame(height: 1) }
   }
 }

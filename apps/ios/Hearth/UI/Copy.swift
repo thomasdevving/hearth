@@ -16,7 +16,7 @@ enum Copy {
 
   static let featureLabel: [String: String] = [
     "steps": "Steps", "active_hours": "Active hours", "walking_speed": "Walking pace",
-    "rhythm_stability": "Daily rhythm", "fragmentation": "Stop-and-start activity", "relative_amplitude": "Day–night difference",
+    "rhythm_stability": "Daily rhythm", "fragmentation": "Activity in short bursts", "relative_amplitude": "Day–night difference",
     "rest_duration": "Rest length", "rest_midpoint": "Rest time (midpoint)", "rest_regularity": "Regular rest times",
     "hrv": "Heart rate variability", "resting_hr": "Resting heart rate",
     "home_stay": "Time at home", "location_entropy": "Variety of places", "places_visited": "Places visited",

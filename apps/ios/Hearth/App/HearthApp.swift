@@ -20,7 +20,13 @@ struct HearthApp: App {
       model.settings.onboarded = true
       if UserDefaults.standard.bool(forKey: "HearthDemoPlanned") { model.settings.planDone = true; model.settings.baselineDone = true }
     }
-    if UserDefaults.standard.string(forKey: "HearthTab") == "trends" { model.selectedTab = .trends }
+    switch UserDefaults.standard.string(forKey: "HearthTab") {
+    case "trends": model.selectedTab = .trends
+    case "plan": model.selectedTab = .plan
+    case "ledger": model.selectedTab = .ledger
+    case "settings": model.selectedTab = .settings
+    default: break
+    }
     if CloudCheck.requested { Task { await CloudCheck.run() } }
     #endif
     People.migrateTrustedContact(model.store)
@@ -80,7 +86,7 @@ struct RootView: View {
           stack { HomeView() }.tabItem { Label("Today", systemImage: "sun.max") }.tag(AppModel.Tab.today)
           stack { TrendsView() }.tabItem { Label("Trends", systemImage: "chart.xyaxis.line") }.tag(AppModel.Tab.trends)
           stack { MyPlanView() }.tabItem { Label("Plan", systemImage: "list.bullet.rectangle") }.tag(AppModel.Tab.plan)
-          stack { LedgerView() }.tabItem { Label("Ledger", systemImage: "lock.shield") }.tag(AppModel.Tab.ledger)
+          stack { LedgerView() }.tabItem { Label("Privacy", systemImage: "lock.shield") }.tag(AppModel.Tab.ledger)
           stack { SettingsView() }.tabItem { Label("Settings", systemImage: "gearshape") }.tag(AppModel.Tab.settings)
         }
         .onChange(of: app.selectedTab) { _, _ in app.path.removeAll() }

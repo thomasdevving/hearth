@@ -19,7 +19,7 @@ struct TrendsView: View {
       } else if records.isEmpty {
         Muted("Hearth is still learning your usual range (about two weeks of data). \(all.count) days so far.")
       } else {
-        Muted("Each day is compared with your own usual days. The smoothed line crossing your usual range is what Hearth calls a change.")
+        Muted("How far your days are from your usual pattern. When the smoothed line stays above your usual range, Hearth calls it a change.")
         SectionTitle(text: "Change index")
         indexChart(records, contexts: contexts)
         legend([("Daily index", Color(hex: 0x8B8A85)), ("Smoothed", Theme.magenta), ("Your usual range (limit)", Theme.ink)])

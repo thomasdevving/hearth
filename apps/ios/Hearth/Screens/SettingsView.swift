@@ -25,7 +25,7 @@ struct SettingsView: View {
       Toggle(isOn: Binding(get: { s.onDeviceEnabled }, set: { s.onDeviceEnabled = $0; app.changed() })) {
         VStack(alignment: .leading, spacing: 2) {
           Text("Use the on-device model").font(HearthFont.body(16, weight: "SemiBold"))
-          Muted("Apple Intelligence: \(OnDeviceModel.availability.rawValue). When off, private tasks use simple fallbacks.")
+          Muted("Apple Intelligence: \(OnDeviceModel.availability.rawValue). When off, private tasks use simple rules.")
         }
       }
       .tint(Theme.magenta)
