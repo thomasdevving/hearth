@@ -255,7 +255,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
             </button>
           </div>
         )}
-        <h2>Which of these happen when things start to slip?</h2>
+        <h2 className="plan-q">Which of these happen when things start to slip?</h2>
         <SuggestionPicker picked={picked} onChange={setPicked} />
         {PLACE_SIGNS.map((m, i) => (
           <label className="toggle" key={m.text}>
@@ -308,7 +308,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
         <textarea rows={4} value={warning} onChange={(e) => setWarning(e.target.value)} placeholder="For example: I go to bed later and stop going to the gym…" />
       </label>
       <MicButton onText={(t) => setWarning((w) => (w ? `${w} ${t}` : t))} />
-      <h2>Signs many people notice early</h2>
+      <h2 className="plan-q">Signs many people notice early</h2>
       <p className="muted">Tick any that fit you.</p>
       <SuggestionPicker picked={picked} onChange={setPicked} />
       <label className="stack">
