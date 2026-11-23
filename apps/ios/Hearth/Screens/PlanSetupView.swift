@@ -58,13 +58,14 @@ struct PlanSetupView: View {
         .disabled(working || empty)
       Muted(empty ? "Write your signs or tick one above first." : "The model on this iPhone turns your words into cards. You check each one.")
       Divider().padding(.top, 8)
-      FlowLayout(spacing: 4) {
-        Text("Not sure yet?").foregroundStyle(Theme.ink2)
-        Button("Skip for now") { save(.empty, rules: [], items: [], actions: []) }.buttonStyle(.link)
-        Text("or").foregroundStyle(Theme.ink2)
-        Button("fill it in by hand") { mode = .fallback }.buttonStyle(.link)
-      }
-      .font(HearthFont.body(16))
+      // One sentence with two inline links, so the words and links share a baseline and wrap together.
+      Text("Not sure yet? [Skip for now](hearth-setup://skip) or [fill it in by hand](hearth-setup://hand)")
+        .font(HearthFont.body(16)).foregroundStyle(Theme.ink2).tint(Theme.magentaDeep)
+        .fixedSize(horizontal: false, vertical: true)
+        .environment(\.openURL, OpenURLAction { url in
+          if url.host == "skip" { save(.empty, rules: [], items: [], actions: []) } else { mode = .fallback }
+          return .handled
+        })
     }
   }
 
