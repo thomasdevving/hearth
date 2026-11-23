@@ -139,9 +139,15 @@ const TOUCH = `
   await page.evaluate(() => scrollTo(0, 0));
   mark("changed");
   await pause(1600);
-  await tap("button:has-text('Why?')", { hold: 2200 });
-  await scrollBy(360, 1100); // show "Your signals" above the demo bar
-  await pause(1800);
+  await tap("button:has-text('Why?')", { hold: 1600 });
+  // The interactive Why?: one signal against Sam's own usual range, and why the trend counted.
+  await tap(page.locator("button.why-link").first(), { hold: 300 });
+  await page.evaluate(() => scrollTo(0, 0));
+  mark("why");
+  await pause(3200);
+  await scrollBy(420, 1400);
+  await pause(1600);
+  await tap("nav.tabs a:has-text('Today')", { hold: 300 });
   await page.evaluate(() => scrollTo(0, 0));
 
   // 4. The check-in, in Sam's own words.
