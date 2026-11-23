@@ -25,6 +25,7 @@ struct MyPlanView: View {
     let today = Clock.today
     let picked = fit.map { f in f.ids.compactMap { id in actions.first { $0.id == id } } } ?? []
     let rest = actions.filter { a in !picked.contains { $0.id == a.id } }
+    let helped = app.store.helpedNotes()
     ScreenScroll(title: "Your plan", anchor: WhyView.debugAnchor) {
       if !app.settings.planDone && rules.isEmpty && actions.isEmpty {
         Muted("You have not written your plan yet.")
@@ -58,10 +59,12 @@ struct MyPlanView: View {
           }
         }
         CallAFriendCard(people: People.all(app.store))
-        // Folds, as on the web. "For your GP or clinician" and "What helped you before" come
-        // between these two in later phases.
+        // Folds, as on the web. "For your GP or clinician" comes between the first two in a
+        // later phase.
         VStack(alignment: .leading, spacing: 0) {
           WhatCameFirstFold()
+          helpedFold(helped)
+            .padding(.top, -1)  // one line between two folds, not two
           Fold(title: "Your signs and questions", hint: "\(rules.count) sign\(rules.count == 1 ? "" : "s") · \(items.count) question\(items.count == 1 ? "" : "s")") {
             Text("SIGNS YOU WATCH FOR").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.muted)
             ForEach(rules, id: \.id) { r in
@@ -98,6 +101,27 @@ struct MyPlanView: View {
       if let r = await app.pickForToday(actions: actions, today: contributors) { fit = Pick(ids: r.ids, ranOn: r.ranOn) }
     }
   }
+
+  /// "What helped you before": the user's saved notes, newest first (web: MyPlan.tsx).
+  private func helpedFold(_ notes: [HelpedNote]) -> some View {
+    Fold(title: "What helped you before", hint: notes.count == 1 ? "1 saved" : "\(notes.count) saved", startsOpen: Self.foldsOpen) {
+      if notes.isEmpty { Muted("After a hard stretch, save what helped. Hearth brings it back next time.") }
+      ForEach(notes, id: \.id) { n in
+        VStack(alignment: .leading, spacing: 6) {
+          Text("For “\(n.signQuote)”").font(HearthFont.body(14)).foregroundStyle(Theme.muted)
+          HelpedCardView(note: n, compact: true)
+        }
+      }
+      Button("Save what helped") { app.path.append(.helpedNew(nil)) }.buttonStyle(.secondary)
+    }
+  }
+
+  #if DEBUG
+  /// `-HearthFoldsOpen YES` starts with the folds open (for screenshots).
+  private static var foldsOpen: Bool { UserDefaults.standard.bool(forKey: "HearthFoldsOpen") }
+  #else
+  private static let foldsOpen = false
+  #endif
 
   private func forToday(_ picked: [PlanActionValue], ranOn: String, choices: [ActionChoiceValue], today: String) -> some View {
     VStack(alignment: .leading, spacing: 12) {

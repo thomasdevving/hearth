@@ -31,7 +31,7 @@ final class InferenceRouter {
   private let store: Store
   private static let tasks: [String: TaskDef] = (try? JSONText.decode([String: TaskDef].self, Engine.shared.value("TASKS"))) ?? [:]
   /// Tasks whose input is the user's own text: it goes between delimiters, never as instructions.
-  private static let textTasks: Set<String> = ["G", "G2", "H", "I", "B", "P", "Q_classify"]
+  private static let textTasks: Set<String> = ["G", "G2", "H", "I", "B", "P", "Q_classify", "R", "T"]
   private var busy = false
 
   init(store: Store) { self.store = store }
@@ -56,7 +56,7 @@ final class InferenceRouter {
     let dataClass = (task == "Q" || task == "Q_classify") ? "S3" : def.dataClass
     let settings = store.settings
     #if DEBUG
-    let stub = DemoData.pick && task == "K"
+    let stub = DemoData.stubs(task)
     #else
     let stub = false
     #endif
@@ -106,7 +106,7 @@ final class InferenceRouter {
         do {
           if target == "on_device" && stub {
             #if DEBUG
-            text = DemoData.stubK(finalInput)
+            text = DemoData.stub(task, finalInput)
             #endif
           } else if target == "on_device" {
             text = try await OnDeviceModel.generate(instructions: prompt.text + liteNote, prompt: message, schema: schema, name: "Task\(schemaId)")

@@ -129,7 +129,7 @@ enum Copy {
 
   static let taskName: [String: String] = [
     "G": "Plan → cards", "G2": "Scan a paper plan", "H": "Context from a note", "I": "Spoken check-in",
-    "A": "Check-in introduction", "B": "Diary markers", "C": "Explain a result", "K": "Pick your own actions",
+    "A": "Check-in introduction", "B": "Diary markers", "C": "Explain a result", "K": "Pick your own actions", "R": "Recall what helped", "T": "Draft a text",
     "Q": "Ask your data", "P": "Shareable weekly note", "D": "Weekly reflection", "E": "Clinician report",
   ]
 

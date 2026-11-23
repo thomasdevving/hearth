@@ -27,10 +27,19 @@ struct HearthApp: App {
     case "settings": model.selectedTab = .settings
     default: break
     }
-    // `-HearthRoute why:rest_midpoint` opens that screen on top of the tab.
-    if let r = UserDefaults.standard.string(forKey: "HearthRoute"), r.hasPrefix("why:") { model.path = [.why(String(r.dropFirst(4)))] }
     if DemoData.change { DemoData.addRule(store: model.store) }
     if DemoData.enabled && UserDefaults.standard.bool(forKey: "HearthDemoActions") { DemoData.addActions(store: model.store) }
+    if DemoData.helped { DemoData.addHelped(store: model.store) }
+    // `-HearthRoute why:rest_midpoint` opens that screen on top of the tab; `helped_new` the
+    // "What helped" screen; `checkin` a new random check-in.
+    switch UserDefaults.standard.string(forKey: "HearthRoute") {
+    case let r? where r.hasPrefix("why:"): model.path = [.why(String(r.dropFirst(4)))]
+    case "helped_new": model.path = [.helpedNew(nil)]
+    case "checkin":
+      model.createCheckin(kind: "random", reasons: [], date: Clock.today)
+      if let id = model.store.openInbox().last(where: { $0.type == "checkin" })?.checkinId { model.path = [.checkin(id)] }
+    default: break
+    }
     if CloudCheck.requested { Task { await CloudCheck.run() } }
     #endif
     People.migrateTrustedContact(model.store)
@@ -121,6 +130,7 @@ struct RootView: View {
     case .weekly: WeeklyView()
     case .people: PeopleView()
     case .why(let feature): WhyView(feature: feature)
+    case .helpedNew(let sign): HelpedNewView(sign: sign)
     }
   }
 }

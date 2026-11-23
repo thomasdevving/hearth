@@ -14,6 +14,16 @@ struct CheckinView: View {
   @State private var why = false
   @State private var busy = false
   @State private var done: String?
+  /// "What helped me last time": task R on what was just written (after saving).
+  @State private var recall: HelpedRecall?
+
+  #if DEBUG
+  /// `-HearthCheckinAnswer "<text>"` answers this check-in with that text and saves it (for
+  /// screenshots of what comes after a check-in).
+  private static var autoAnswer: String? { UserDefaults.standard.string(forKey: "HearthCheckinAnswer") }
+  #else
+  private static let autoAnswer: String? = nil
+  #endif
 
   var body: some View {
     let rec = app.store.first(CheckinRecord.self, where: #Predicate { $0.id == id })?.value
@@ -24,6 +34,7 @@ struct CheckinView: View {
     if let done {
       ScreenScroll(title: "Thanks") {
         Text(done).fixedSize(horizontal: false, vertical: true)
+        if let recall { HelpedRecallView(recall: recall) }
         Button("Back to today") { app.path.removeAll() }.buttonStyle(.primary)
       }
       .navigationBarBackButtonHidden(true)
@@ -77,7 +88,15 @@ struct CheckinView: View {
             .buttonStyle(.secondary).disabled(busy)
         }
       }
-      .task(id: id) { await loadIntro(rec) }
+      .task(id: id) {
+        await loadIntro(rec)
+        if let t = Self.autoAnswer, !busy {
+          for s in scales { vals[s.id] = 3 }
+          who = company?.options?.first ?? "Alone"
+          text = t
+          await save(rec)
+        }
+      }
     } else {
       ScreenScroll(title: "Check-in") { Muted("This check-in is no longer open.") }
     }
@@ -107,6 +126,9 @@ struct CheckinView: View {
     let res = await app.completeCheckin(id: id, sub)
     busy = false
     if res.safety { return }
+    // "What helped me last time": recall by meaning, on this device, from what was just written.
+    let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    recall = t.isEmpty ? HelpedRecall.none : await app.recallFromText(t)
     // After answering, the user is told why they were asked (docs/04 §7.1).
     let after: String
     switch rec.kind {

@@ -286,4 +286,6 @@ enum Route: Hashable {
   case people
   /// Why? for one signal (feature id), from the phrases under Why? on Today.
   case why(String)
+  /// "What helped": save a note for a sign (by its words; nil: the first sign).
+  case helpedNew(String?)
 }

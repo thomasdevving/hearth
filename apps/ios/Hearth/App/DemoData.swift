@@ -73,6 +73,54 @@ enum DemoData {
     let first = (input["actions"] as? [[String: Any]])?.first?["id"] as? String
     return JSONText.encode(["action_ids": first.map { [$0] } ?? []])
   }
+
+  /// `-HearthDemoRecall YES`: a stand-in for the on-device model for tasks R and T only. R
+  /// picks the first sign and quotes the text's first clause; T writes "Hi <name>, <saved
+  /// message>". Both still go through the router's verification and ledger, on this device.
+  static var recall: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoRecall") }
+
+  /// Whether a stand-in answers this task.
+  static func stubs(_ task: String) -> Bool { (pick && task == "K") || (recall && (task == "R" || task == "T")) }
+
+  static func stub(_ task: String, _ input: [String: Any]) -> String {
+    switch task {
+    case "R": return stubR(input)
+    case "T": return stubT(input)
+    default: return stubK(input)
+    }
+  }
+
+  static func stubR(_ input: [String: Any]) -> String {
+    let text = input["text"] as? String ?? ""
+    let clause = text.split(whereSeparator: { ".,;!?\n".contains($0) }).first.map { String($0).trimmingCharacters(in: .whitespaces) } ?? ""
+    let first = (input["signs"] as? [[String: Any]])?.first?["id"] as? String
+    guard let first, !clause.isEmpty else { return JSONText.encode(["matches": [Any]()]) }
+    return JSONText.encode(["matches": [["sign_id": first, "quote": String(clause.prefix(120))]]])
+  }
+
+  static func stubT(_ input: [String: Any]) -> String {
+    let name = input["name"] as? String ?? ""
+    let saved = (input["saved_message"] as? String ?? "").trimmingCharacters(in: .whitespaces)
+    let body = saved.isEmpty ? "Fancy a walk soon?" : saved.prefix(1).lowercased() + saved.dropFirst()
+    return JSONText.encode(["message": name.isEmpty ? String(body.prefix(1).uppercased() + body.dropFirst()) : "Hi \(name), \(body)"])
+  }
+
+  /// `-HearthDemoHelped YES`: one of Sam's check-in questions ("stop replying to messages")
+  /// and the note Sam saved for it (web: SAM_HELPED_NOTE), so the plan's "What helped you
+  /// before" and the recall after a check-in can be checked.
+  static var helped: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoHelped") }
+
+  @MainActor
+  static func addHelped(store: Store) {
+    if !store.all(PersonalItem.self).contains(where: { $0.value?.quote == "stop replying to messages" }) {
+      let obj: [String: Any] = ["id": "item_demo_reply", "question": "Did you reply to messages today?", "quote": "stop replying to messages", "active": true]
+      store.context.insert(PersonalItem(id: "item_demo_reply", json: JSONText.encode(obj)))
+    }
+    if store.all(HelpedNote.self).isEmpty {
+      store.context.insert(HelpedNote(id: "seed-sam-1", signQuote: "stop replying to messages", text: "Calling felt like too much. I texted Maya “walk tomorrow?” and that was easier.", audio: nil, message: "Walk tomorrow?", contactName: "Maya", createdAt: "2026-02-26", source: "seed"))
+    }
+    store.save()
+  }
   #else
   static let enabled = false
   #endif

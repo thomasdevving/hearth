@@ -358,6 +358,7 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hearth does not write to Health.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Hearth notes which places you visit (not your route) to learn your usual days. Locations never leave this iPhone.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Hearth uses your location to name a place in your plan, such as the gym. Locations never leave this iPhone.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "If you choose, Hearth records a short voice note about what helped you. It stays on this iPhone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -391,6 +392,7 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hearth does not write to Health.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Hearth notes which places you visit (not your route) to learn your usual days. Locations never leave this iPhone.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Hearth uses your location to name a place in your plan, such as the gym. Locations never leave this iPhone.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "If you choose, Hearth records a short voice note about what helped you. It stays on this iPhone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
