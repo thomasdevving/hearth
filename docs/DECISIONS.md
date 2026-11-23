@@ -826,8 +826,8 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
 - **Plain headings**: whole sentences instead of short fragments with full stops and commas.
   The "How it works" intro links to the Science page.
 - **Hero drift card** (`screens/HeroDrift.tsx`) replaces the plan/signals tabs. Three moments
-  play in turn (usual activity, the drift, the check-in), with a pause button, a pause while out
-  of view, and the final state at once for reduced motion. The example is sleep: Sam's middle of
+  play in turn ("Hearth learns your usual activity", the drift, the check-in), with a pause button, a pause while out
+  of view, and the final state at once for reduced motion. The example is sleep, noted in a small caption under the chart: Sam's middle of
   the night against Sam's usual range for the 21 days up to the day Hearth noticed. The numbers
   come from `usualRangeSeries` and `whyTimeline` over the real app loop (the Why? screen's
   functions), stored in `src/assets/hero-drift.json` because the landing page runs no app loop;

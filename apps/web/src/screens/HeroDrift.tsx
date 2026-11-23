@@ -102,7 +102,6 @@ export function HeroDrift() {
         ))}
       </div>
 
-      <p className="drift-example"><span>Example</span> Here we look at Sam's sleep</p>
       <svg className="drift-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={chartLabel}>
         <defs>
           <clipPath id="drift-reveal">
@@ -124,6 +123,7 @@ export function HeroDrift() {
         <text className="drift-axis" x={PAD.l} y={12}>{prettyDate(points[0].date)}</text>
         <text className="drift-axis drift-axis-end" x={W - PAD.r} y={12} textAnchor="end">{prettyDate(last.date)}</text>
       </svg>
+      <p className="drift-example">Example: Sam's sleep</p>
 
       <div className="drift-foot">
         <p className="drift-legend" aria-hidden={phase === 2}>

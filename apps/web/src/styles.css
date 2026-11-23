@@ -356,8 +356,7 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .drift-copy-view, .drift-foot > * { grid-area: 1 / 1; min-width: 0; transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .drift-copy-view[aria-hidden="true"], .drift-foot > [aria-hidden="true"] { opacity: 0; transform: translateY(6px); visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s; }
 .drift-copy h2 { font-size: 1.15rem; line-height: 1.2; letter-spacing: -0.025em; margin: 0 0 var(--s1); }
-.drift-example { display: flex; align-items: center; gap: var(--s2); margin: var(--s2) 0 var(--s2); font-size: 0.75rem; font-weight: 500; color: var(--ink-2); }
-.drift-example span { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--magenta-deep); background: var(--magenta-tint); border-radius: 999px; padding: 2px var(--s2); }
+.drift-example { margin: var(--s1) 0 0; text-align: right; font-size: 0.7rem; color: var(--muted); }
 .drift-chart { display: block; width: 100%; height: auto; overflow: visible; }
 .drift-band { fill: rgba(47, 125, 79, 0.14); }
 .drift-median { fill: none; stroke: #2f7d4f; stroke-width: 1.2; stroke-dasharray: 5 4; opacity: 0.8; }
