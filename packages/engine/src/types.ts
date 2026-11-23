@@ -72,6 +72,8 @@ export interface DayRecord {
   elevated: boolean;
   contributors: Contributor[];
   state: State;
+  /** Set only on days scored with `learnOnly` (history read at install): no detection ran. */
+  learnOnly?: true;
 }
 
 export interface Place {
@@ -170,6 +172,8 @@ export interface QuestionnaireRecord {
   takenAt: string;
   answers: number[];
   result: QuestionnaireResult;
+  /** The onboarding PHQ-9: the user's starting point. It never changes the state (docs/06 §3.4). */
+  baseline?: true;
 }
 
 export interface DiaryMarkers {
@@ -201,6 +205,11 @@ export interface DailyUpdateInput {
   checkins: CheckinRecord[]; // last 14 days
   questionnaires: QuestionnaireRecord[];
   cfg: Config;
+  /**
+   * A day from before the app was installed (the iOS HealthKit history): it builds the
+   * reference but is never flagged, and gives no actions (docs/04 §8.1).
+   */
+  learnOnly?: boolean;
 }
 export interface DailyUpdateOutput {
   record: DayRecord;

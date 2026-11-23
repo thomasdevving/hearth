@@ -49,8 +49,8 @@ export function initialState(seed = 1): EngineState {
  * not flagged while CONFIRMED → MONITOR. `dailyUpdate` applies the same rule the next day,
  * so calling this is optional; it lets the app show the right screen immediately.
  */
-export function applyQuestionnaireResult(state: EngineState, result: QuestionnaireResult): EngineState {
-  if (result.id !== "PHQ9") return state;
+export function applyQuestionnaireResult(state: EngineState, result: QuestionnaireResult, opts: { baseline?: boolean } = {}): EngineState {
+  if (result.id !== "PHQ9" || opts.baseline) return state;
   if (result.flagged) return { ...state, state: "CONFIRMED" };
   if (state.state === "CONFIRMED") {
     const defined = state.mu0 !== null;
@@ -164,6 +164,7 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
   const stored = new Map(history.map((r) => [r.date, r]));
   const byDate = indexRaws(input.raws);
   const prevRecord = history.length > 0 ? history[history.length - 1] : null;
+  const learnOnly = input.learnOnly === true;
 
   // A finished `moving` label clears the learned places (docs/04 §6).
   for (const c of contexts) {
@@ -236,6 +237,11 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
   let elevated = false;
   let UCL: number | null = null;
   if (state.mu0 !== null && state.sigma0 !== null) {
+    // Detection starts fresh on the first day after the learned history (docs/04 §8.1).
+    if (!learnOnly && prevRecord?.learnOnly) {
+      state.S = state.mu0;
+      state.C = 0;
+    }
     if (wasWarmUp) {
       state.S = state.mu0;
       state.C = 0;
@@ -243,7 +249,7 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     const next = updateControl({ S: state.S, C: state.C, elevated: prevRecord?.elevated ?? false }, scores.D, state.mu0, state.sigma0, cfg);
     state.S = next.S;
     state.C = next.C;
-    elevated = next.elevated;
+    elevated = next.elevated && !learnOnly;
     UCL = controlLimit(state.mu0, state.sigma0, cfg);
   }
 
@@ -254,7 +260,8 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     state.anchor = { date, stats: anchorStats(features, refs, cfg) };
     state.lastDriftCheck = date;
   }
-  const lastPhq9 = latestOf(questionnaires, "PHQ9", date);
+  // The onboarding PHQ-9 is a starting point, not a change (docs/06 §3.4).
+  const lastPhq9 = latestOf(questionnaires.filter((q) => !q.baseline), "PHQ9", date);
   if (lastPhq9?.result.flagged) {
     state.state = "CONFIRMED";
   } else if (state.state === "CONFIRMED") {
@@ -373,6 +380,11 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     contributors,
     state: state.state,
   };
+  if (learnOnly) {
+    record.learnOnly = true;
+    // Check-ins, questionnaires and plan prompts from before the install were never seen.
+    return { record, state, actions: [] };
+  }
   return { record, state, actions };
 }
 

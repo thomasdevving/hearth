@@ -212,6 +212,14 @@ The function is idempotent: calling it again for a date that already has a `DayR
 returns the stored record and no actions. The app calls it once for every unprocessed day,
 oldest first; this is also how the iOS backfill and the web replay run.
 
+### 8.1 History from before the install
+On iOS the first run reads up to 120 days of HealthKit history. Those days are scored with
+`learnOnly`: they build the reference (they count as normal `MONITOR` days), but they are
+never flagged and give no actions, and their record carries `learnOnly: true`. On the first
+day after them, `S` starts again at `μ0` and `C` at 0, so detection starts on the install
+day. Without this, a short or noisy history (a new phone, steps only) could show "changed"
+before the user had used the app once.
+
 ## 9. Self-audit
 
 Purpose: tell each user honestly whether the triggers are informative **for them**.

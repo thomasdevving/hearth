@@ -49,8 +49,11 @@ flagged = total ≥ phq9Cutoff (10)  OR  total − remissionScore ≥ phq9Reliab
 
 ### 3.4 Onboarding PHQ-9 at or above 10
 The app says plainly that it is built for people who are currently doing fairly well, that
-their answers suggest now may be a good moment to talk to their GP or clinician, and
-continues in state `CONFIRMED`. It does not block use.
+their answers suggest now may be a good moment to talk to their GP or clinician. It does not
+block use. The onboarding PHQ-9 is stored with `baseline: true` and is the user's starting
+point, not a change: it does not set `CONFIRMED` (there is no usual pattern yet to change
+from). It still counts for the reference score (§3.2) and for leaving days around it out of
+the reference (docs/04 §3.1).
 
 ### 3.5 `QuestionnaireResult`
 ```ts

@@ -193,10 +193,10 @@ export async function submitQuestionnaire(instrument: "PHQ2" | "PHQ9", answers: 
   const date = getToday();
   const qs = await db.questionnaires.toArray();
   const result = scoreQuestionnaire(instrument, answers, remissionScore(qs, date), cfg);
-  const rec: QuestionnaireRecord = { id: newId("q"), instrument, takenAt: opts.baseline ? stampAt(date, 9 * 60) : stampAt(date, 19 * 60 + qs.length % 50), answers, result };
+  const rec: QuestionnaireRecord = { id: newId("q"), instrument, takenAt: opts.baseline ? stampAt(date, 9 * 60) : stampAt(date, 19 * 60 + qs.length % 50), answers, result, ...(opts.baseline ? { baseline: true as const } : {}) };
   await db.questionnaires.put(rec);
   const state = await getEngineState();
-  if (state) await putSingleton(db.engine_state, applyQuestionnaireResult(state, result));
+  if (state) await putSingleton(db.engine_state, applyQuestionnaireResult(state, result, { baseline: opts.baseline }));
   for (const item of await openInbox()) if (item.type === "questionnaire" && item.instrument === instrument) await closeInbox(item.id, "done");
   // A positive PHQ-2 leads to the PHQ-9, unless one was taken in the last week.
   const recent9 = qs.some((q) => q.instrument === "PHQ9" && addDays(dateOfTimestamp(q.takenAt), cfg.phq2CooldownDays) > date);

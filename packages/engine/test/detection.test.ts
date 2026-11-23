@@ -5,7 +5,7 @@ import { maskedDomains } from "../src/context";
 import { controlLimit, updateControl } from "../src/control";
 import { contributorPhrase, riskFromZ, scoreFromZ } from "../src/index-score";
 import { selfAudit } from "../src/audit";
-import { dailyUpdate, initialState } from "../src/state";
+import { applyQuestionnaireResult, dailyUpdate, initialState } from "../src/state";
 import { addDays, dayTypeOf } from "../src/time";
 import type { CheckinRecord, ContextLabel, DayRecord, PlanRule, QuestionnaireRecord } from "../src/types";
 import { FAR, START, makeDays, runDays } from "./helpers";
@@ -402,5 +402,53 @@ describe("contributor wording (docs/03 §4)", () => {
     expect(contributorPhrase("rest_midpoint", 2, { restSource: "healthkit" })).toBe("later sleep time");
     expect(contributorPhrase("rest_regularity", 2, { restSource: "healthkit" })).toBe("less regular sleep times");
     expect(contributorPhrase("resting_hr", 2, { restSource: "healthkit" })).toBe("a higher resting heart rate than usual");
+  });
+});
+
+describe("first run on an existing history (docs/04 §8.1, docs/06 §3.4)", () => {
+  // Days 71–100 drift away, then stay at the new level.
+  const raws = makeDays(START, 110, 5, (day) => {
+    const k = Math.min(Math.max(0, day - 70), 30);
+    return { steps: 8000 * (1 - 0.012 * k), speed: 1.3 * (1 - 0.003 * k), restEnd: 420 + 3 * k, nextRestStart: 1380 + 3 * k };
+  });
+  const install = raws[100].date;
+
+  it("without learnOnly the drift in the history is flagged", () => {
+    expect(elevatedDays(runDays(raws).records.slice(0, 101)).length).toBeGreaterThan(0);
+  });
+
+  it("learnOnly days are never flagged, give no actions and are marked", () => {
+    const run = runDays(raws, { learnOnlyBefore: install });
+    const learned = run.records.slice(0, 100);
+    expect(learned.every((r) => r.learnOnly === true && !r.elevated && r.state !== "ELEVATED")).toBe(true);
+    expect(run.actions.slice(0, 100).every((a) => a.length === 0)).toBe(true);
+    expect(run.records[100].learnOnly).toBeUndefined();
+  });
+
+  it("detection starts fresh on the install day", () => {
+    const run = runDays(raws, { learnOnlyBefore: install });
+    const first = run.records[100];
+    expect(first.state).toBe("MONITOR");
+    expect(first.C).toBeLessThan(cfg.cusumH);
+    expect(first.S).toBeLessThan(first.UCL as number);
+  });
+
+  const phq9 = (date: string, baseline: boolean): QuestionnaireRecord => ({
+    id: date, instrument: "PHQ9", takenAt: `${date}T10:00:00+00:00`, answers: [],
+    result: { id: "PHQ9", total: 12, band: "moderate", positive: false, flagged: true, changeFromReference: null, safetyItemPositive: false, nextStep: "none" },
+    ...(baseline ? { baseline: true as const } : {}),
+  });
+
+  it("a flagged onboarding PHQ-9 does not give CONFIRMED; a later one does", () => {
+    const stable = makeDays(START, 60, 11);
+    const day = stable[40].date;
+    expect(runDays(stable, { questionnaires: [phq9(day, true)] }).records.some((r) => r.state === "CONFIRMED")).toBe(false);
+    expect(runDays(stable, { questionnaires: [phq9(day, false)] }).records[45].state).toBe("CONFIRMED");
+  });
+
+  it("applyQuestionnaireResult leaves the state alone for the onboarding PHQ-9", () => {
+    const s = { ...initialState(1), state: "MONITOR" as const, mu0: 0.2, sigma0: 0.1 };
+    expect(applyQuestionnaireResult(s, phq9(START, true).result, { baseline: true }).state).toBe("MONITOR");
+    expect(applyQuestionnaireResult(s, phq9(START, false).result).state).toBe("CONFIRMED");
   });
 });

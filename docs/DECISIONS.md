@@ -924,3 +924,19 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   lets the dates be changed and explains what confirming does for that kind of context.
 - **Science** page is linked from Settings → About Hearth (the web links it from its public
   site, which the app does not have).
+
+## First run no longer starts as "changed" (2026-11-23)
+
+Found on the first run on a real iPhone: the app said "changed" right after onboarding.
+
+- **The onboarding PHQ-9 is a starting point.** A score of 10 or more on the first PHQ-9 used
+  to set `CONFIRMED` straight away (old docs/06 §3.4), which shows as "Changed" before there
+  is any usual pattern to change from. It is now stored with `baseline: true` and does not
+  change the state; the result page still says plainly that now may be a good moment to talk
+  to a GP or clinician. Every later PHQ-9 works as before.
+- **The HealthKit history only teaches.** The phone had 30 days of steps and no sleep or
+  heart data; after 14 days of warm-up the history itself went `ELEVATED`, mostly on rest
+  estimated from steps. Days before the install are now scored with `learnOnly` (docs/04
+  §8.1): they build the reference, are never flagged, and detection starts on the install
+  day. iOS stores the install day as `liveFrom`. The web replay is unchanged.
+

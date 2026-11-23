@@ -98,6 +98,8 @@ export interface RunOptions {
   questionnaires?: QuestionnaireRecord[];
   answer?: (date: string, kind: string) => CheckinRecord["answers"] | null; // null = ignored
   state?: EngineState;
+  /** Days before this date are scored with `learnOnly` (history read at install). */
+  learnOnlyBefore?: string;
 }
 export interface RunResult {
   records: DayRecord[];
@@ -125,6 +127,7 @@ export function runDays(raws: DayRaw[], opts: RunOptions = {}): RunResult {
       checkins: checkins.filter((c) => c.scheduledAt.slice(0, 10) > addDays(date, -14)),
       questionnaires: opts.questionnaires ?? [],
       cfg,
+      ...(opts.learnOnlyBefore && date < opts.learnOnlyBefore ? { learnOnly: true } : {}),
     });
     state = out.state;
     records.push(out.record);
