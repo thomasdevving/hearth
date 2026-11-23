@@ -131,9 +131,12 @@ function problem(t, k) {
   fade(ease((t - T.problem[0] - 4.2) / 0.6), () => {
     rr(160, 640, 980, 170, 26, C.grey, C.line, 2);
     const n = Math.min(39, Math.floor(ease((t - T.problem[0] - 4.2) / 2.5) * 39));
-    text(String(n), 210, 760, font(800, 110, "Syne"), C.ink);
-    text("days since Sam’s days began to drift.", 380, 720, font(500, 34), C.ink2);
-    text("Nobody has noticed yet.", 380, 772, font(700, 34), C.amber);
+    const numFont = font(800, 100, "Syne");
+    g.font = numFont;
+    const tx = 205 + g.measureText("39").width + 44; // text starts after the widest number, never under it
+    text(String(n), 205, 760, numFont, C.ink);
+    text("days since Sam’s days began to drift.", tx, 720, font(500, 34), C.ink2);
+    text("Nobody has noticed yet.", tx, 772, font(700, 34), C.amber);
   });
   text("Sam is a simulated person from Hearth’s replay engine.", 160, 900, font(400, 22), C.muted);
 }
