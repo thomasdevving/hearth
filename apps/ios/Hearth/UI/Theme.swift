@@ -307,6 +307,7 @@ struct Fold<Content: View>: View {
           Spacer(minLength: 0)
           Image(systemName: open ? "minus" : "plus").foregroundStyle(Theme.magenta).font(.system(size: 17, weight: .medium))
         }
+        .padding(.top, 20).padding(.bottom, 16)
         .frame(minHeight: 52)
         .contentShape(Rectangle())
       }
