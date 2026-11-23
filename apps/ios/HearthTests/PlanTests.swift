@@ -148,6 +148,7 @@ final class PlanTests: XCTestCase {
   /// Hearth noticed, and the result decodes.
   func testOnsetFromTheEngine() async throws {
     DemoData.fill(store: app.store, days: 120, change: true)
+    app.settings.liveFrom = "2000-01-01" // score the demo days as live days
     DemoData.addRule(store: app.store)
     await app.processDays()
     let d = try XCTUnwrap(try OnsetData.load(store: app.store))

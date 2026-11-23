@@ -135,6 +135,58 @@ final class AppFlowTests: XCTestCase {
     XCTAssertLessThanOrEqual(app.store.all(CheckinRecord.self).count, 1)
   }
 
+  /// History that drifts away in its last month (fewer steps, later nights). Read at install,
+  /// it only builds the reference: never "changed", no check-ins (docs/04 §8.1).
+  private func insertDriftingHistory(days: Int = 90) {
+    for k in stride(from: days, through: 1, by: -1) {
+      let date = Clock.addDays(Clock.today, -k)
+      let drift = max(0, 30 - k)          // the last 30 days drift
+      var bins = [Double](repeating: 0, count: 96)
+      let wake = 28 + drift / 2, sleep = min(95, 92 + drift / 3)
+      for i in wake..<sleep { bins[i] = Double(max(5, 90 - drift * 2) + (i * 7 + k * 13) % 25) }
+      let obj: [String: Any] = ["date": date, "stepBins15": bins, "walkingSpeed": 1.3 - Double(drift) * 0.01, "sleep": NSNull(), "visits": NSNull(), "phone": NSNull(), "heart": NSNull()]
+      app.store.context.insert(DayRaw(date: date, json: JSONText.encode(obj), complete: true))
+    }
+  }
+
+  func testHistoryFromBeforeTheInstallOnlyTeaches() async {
+    insertDriftingHistory()
+    await app.processDays()
+    XCTAssertEqual(app.settings.liveFrom, Clock.today)
+    let records = app.store.records()
+    XCTAssertEqual(records.count, 90)
+    XCTAssertTrue(records.allSatisfy { $0.state != "ELEVATED" && $0.state != "CONFIRMED" })
+    XCTAssertTrue(records.allSatisfy { $0.json.contains("\"learnOnly\":true") })
+    XCTAssertNotEqual(app.currentState, .ELEVATED)
+    XCTAssertEqual(app.store.all(CheckinRecord.self).count, 0)
+  }
+
+  /// Builds from before `liveFrom` scored the history as live days. They are rescored once.
+  func testOldScoringIsRedoneOnce() async {
+    insertDriftingHistory()
+    let fake = #"{"date":"x","state":"ELEVATED","elevated":true}"#
+    for r in app.store.all(DayRaw.self) { app.store.context.insert(DayRecord(date: r.date, json: fake.replacingOccurrences(of: "\"x\"", with: "\"\(r.date)\""), state: "ELEVATED")) }
+    app.store.save()
+    // No engine state and no liveFrom, as on a phone updated from the earlier build.
+    await app.processDays()
+    XCTAssertEqual(app.settings.liveFrom, Clock.today)
+    XCTAssertTrue(app.store.records().allSatisfy { $0.state != "ELEVATED" })
+  }
+
+  /// The onboarding PHQ-9 is a starting point: a high score does not make the state CONFIRMED.
+  func testOnboardingPhq9IsAStartingPoint() async {
+    insertDriftingHistory()
+    await app.processDays()
+    let before = app.engineState?.state
+    let rec = app.submitQuestionnaire("PHQ9", answers: [2, 2, 1, 2, 1, 1, 1, 1, 0], baseline: true)
+    XCTAssertEqual(rec?.result.flagged, true)
+    XCTAssertEqual(app.engineState?.state, before)
+    XCTAssertTrue(app.store.all(QuestionnaireRecord.self).first?.json.contains("\"baseline\":true") == true)
+    // A later flagged PHQ-9 still does.
+    _ = app.submitQuestionnaire("PHQ9", answers: [2, 2, 1, 2, 1, 1, 1, 1, 0])
+    XCTAssertEqual(app.engineState?.state, .CONFIRMED)
+  }
+
   // Verbatim questionnaire text (R1) -------------------------------------------------------
 
   func testQuestionnaireTextIsTheJSONText() throws {

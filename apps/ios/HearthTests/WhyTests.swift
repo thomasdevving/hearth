@@ -31,6 +31,7 @@ final class WhyTests: XCTestCase {
   /// timeline that starts on the first changed day.
   func testSeriesAndTimelineFromTheEngine() async throws {
     DemoData.fill(store: app.store, days: 120, change: true)
+    app.settings.liveFrom = "2000-01-01" // score the demo days as live days
     await app.processDays()
     let records = app.store.records().compactMap(\.value)
     XCTAssertEqual(records.count, 120)

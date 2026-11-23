@@ -125,17 +125,18 @@ extension AppModel {
 
   // Questionnaires ------------------------------------------------------------------------
 
-  func submitQuestionnaire(_ instrument: String, answers: [Int]) -> QuestionnaireRecordValue? {
+  func submitQuestionnaire(_ instrument: String, answers: [Int], baseline: Bool = false) -> QuestionnaireRecordValue? {
     let today = Clock.today
     let qs = store.all(QuestionnaireRecord.self).map { RawJSON($0.json) }
     guard let ref = try? Engine.shared.call("remissionScore", qs, today),
           let result = try? Engine.shared.call("scoreQuestionnaire", instrument, answers, RawJSON(ref), Shared.config) else { return nil }
     let id = newId("q")
     let takenAt = Clock.nowStamp
-    let rec: [String: Any] = ["id": id, "instrument": instrument, "takenAt": takenAt, "answers": answers, "result": RawJSON(result)]
+    var rec: [String: Any] = ["id": id, "instrument": instrument, "takenAt": takenAt, "answers": answers, "result": RawJSON(result)]
+    if baseline { rec["baseline"] = true }
     let json = JSONText.encode(rec)
     store.context.insert(QuestionnaireRecord(id: id, takenAt: takenAt, json: json))
-    if let state = store.engineState, let next = try? Engine.shared.call("applyQuestionnaireResult", RawJSON(state.json), RawJSON(result)) {
+    if let state = store.engineState, let next = try? Engine.shared.call("applyQuestionnaireResult", RawJSON(state.json), RawJSON(result), ["baseline": baseline]) {
       state.json = next
     }
     for item in store.openInbox() where item.type == "questionnaire" && item.instrument == instrument { store.close(item) }

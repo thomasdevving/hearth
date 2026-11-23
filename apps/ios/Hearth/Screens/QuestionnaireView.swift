@@ -5,6 +5,8 @@ import SwiftUI
 struct QuestionnairePages: View {
   @Environment(AppModel.self) private var app
   let instrument: String
+  /// The onboarding PHQ-9: the user's starting point, never a change (docs/06 §3.4).
+  var baseline = false
   var onDone: (QuestionnaireRecordValue) -> Void
   @State private var page = 0
   @State private var answers: [Int?] = []
@@ -42,7 +44,7 @@ struct QuestionnairePages: View {
         if page > 0 { Button("Previous") { page -= 1 }.buttonStyle(.secondary) }
         if page == def.items.count - 1 {
           Button("Done") {
-            if let rec = app.submitQuestionnaire(instrument, answers: answers.compactMap { $0 }) { onDone(rec) }
+            if let rec = app.submitQuestionnaire(instrument, answers: answers.compactMap { $0 }, baseline: baseline) { onDone(rec) }
           }
           .buttonStyle(.primary)
           .disabled(answers.contains { $0 == nil })
@@ -70,7 +72,7 @@ struct BaselinePhqView: View {
   var body: some View {
     ScreenScroll(title: "Your starting point") {
       Muted("Nine questions about the last two weeks. Later answers are compared with these.")
-      QuestionnairePages(instrument: "PHQ9") { rec in app.path.append(.result(rec.id, baseline: true)) }
+      QuestionnairePages(instrument: "PHQ9", baseline: true) { rec in app.path.append(.result(rec.id, baseline: true)) }
     }
   }
 }

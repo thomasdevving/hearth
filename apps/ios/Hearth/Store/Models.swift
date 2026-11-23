@@ -178,6 +178,9 @@ import SwiftData
   var healthAuthorized: Bool = false
   /// The day of the hard stretch the "what helped?" prompt on Today was answered for.
   var helpedPromptDone: String? = nil
+  /// The first day Hearth watches for changes (the install day). Earlier HealthKit days are
+  /// scored with `learnOnly`: they only build the reference (docs/04 §8.1).
+  var liveFrom: String? = nil
   init() {}
 }
 

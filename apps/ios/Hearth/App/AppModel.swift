@@ -109,6 +109,7 @@ final class AppModel {
     let yesterday = Clock.addDays(today, -1)
     let raws = store.all(DayRaw.self, sort: [SortDescriptor(\.date)])
     guard let firstRaw = raws.first?.date else { return }
+    let liveFrom = ensureLiveFrom(today)
     if store.engineState == nil {
       let seed = Int.random(in: 1..<2_147_483_647)
       if let s = try? Engine.shared.call("initialState", seed) { store.putEngineState(s); store.save() }
@@ -143,6 +144,7 @@ final class AppModel {
       let input: [String: Any] = [
         "date": d, "raws": windowRaws, "history": history.map { RawJSON($0) }, "state": RawJSON(stateJSON),
         "rules": rules, "contexts": contexts, "checkins": checkins, "questionnaires": questionnaires, "cfg": cfg,
+        "learnOnly": !DemoData.enabled && d < liveFrom,
       ]
       let out: String
       do { out = try await Engine.shared.callAsync("dailyUpdate", argsJSON: JSONText.array([input])) } catch {
@@ -167,6 +169,27 @@ final class AppModel {
       if i % 10 == 9 { store.save(); revision += 1 }
     }
     store.save()
+  }
+
+  /// The install day (docs/04 §8.1). Set on the first run. Builds from before this rule scored
+  /// their HealthKit history as live days; they are rescored once: day records and the engine
+  /// state are rebuilt from the stored raws, open plan prompts from that scoring are closed,
+  /// and the first PHQ-9 (taken during onboarding) is marked as the starting point.
+  private func ensureLiveFrom(_ today: String) -> String {
+    if let d = settings.liveFrom { return d }
+    settings.liveFrom = today
+    if !store.records().isEmpty && !DemoData.enabled {
+      for r in store.records() { store.context.delete(r) }
+      if let s = store.engineState { store.context.delete(s) }
+      for item in store.openInbox() where item.type == "show_plan" { store.close(item, "dismissed") }
+      let phq9 = store.all(QuestionnaireRecord.self).filter { $0.value?.instrument == "PHQ9" }.sorted { $0.takenAt < $1.takenAt }
+      if let first = phq9.first, var obj = JSONText.object(first.json) as? [String: Any], obj["baseline"] == nil {
+        obj["baseline"] = true
+        first.json = JSONText.encode(obj)
+      }
+    }
+    store.save()
+    return today
   }
 
   /// Engine actions → inbox items for today (docs/04 §8, web runtime `processDay`).
