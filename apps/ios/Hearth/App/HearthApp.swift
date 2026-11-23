@@ -30,6 +30,7 @@ struct HearthApp: App {
     // `-HearthRoute why:rest_midpoint` opens that screen on top of the tab.
     if let r = UserDefaults.standard.string(forKey: "HearthRoute"), r.hasPrefix("why:") { model.path = [.why(String(r.dropFirst(4)))] }
     if DemoData.change { DemoData.addRule(store: model.store) }
+    if DemoData.enabled && UserDefaults.standard.bool(forKey: "HearthDemoActions") { DemoData.addActions(store: model.store) }
     if CloudCheck.requested { Task { await CloudCheck.run() } }
     #endif
     People.migrateTrustedContact(model.store)

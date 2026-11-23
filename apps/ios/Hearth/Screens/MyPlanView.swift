@@ -1,9 +1,15 @@
 import SwiftUI
 
-/// `my_plan`: the user's own plan, in their own words. Opens with "your days look different"
-/// when the state is ELEVATED or CONFIRMED.
+/// `my_plan`: the user's own plan, in their own words (web: MyPlan.tsx). When the state is
+/// ELEVATED or CONFIRMED it opens with "your days look different" and, with a model on the
+/// device, the actions picked for today (task K). Then the other actions with their smaller
+/// steps, what came first in the last stretch, and the signs and questions.
 struct MyPlanView: View {
   @Environment(AppModel.self) private var app
+  /// Task K's pick: action ids (checked against the plan) and where it ran.
+  @State private var fit: Pick?
+
+  struct Pick: Equatable { var ids: [String]; var ranOn: String }
 
   var body: some View {
     let _ = app.revision
@@ -13,26 +19,37 @@ struct MyPlanView: View {
     let rules = app.store.activeRules()
     let items = app.store.activeItems()
     let places = app.engineState?.places ?? []
-    let contributors = app.latestRecord?.contributors.map(\.phrase) ?? []
-    ScreenScroll(title: "Your plan") {
+    let last = app.latestRecord
+    let contributors = last?.contributors.map(\.phrase) ?? []
+    let choices = app.store.actionChoices()
+    let today = Clock.today
+    let picked = fit.map { f in f.ids.compactMap { id in actions.first { $0.id == id } } } ?? []
+    let rest = actions.filter { a in !picked.contains { $0.id == a.id } }
+    ScreenScroll(title: "Your plan", anchor: WhyView.debugAnchor) {
       if !app.settings.planDone && rules.isEmpty && actions.isEmpty {
         Muted("You have not written your plan yet.")
         Button("Set up my plan") { app.path.append(.planSetup(first: false)) }.buttonStyle(.primary)
       } else {
         if changed {
-          Card(tone: .warm) {
-            Text("Your days look different from usual\(contributors.isEmpty ? "" : ": " + contributors.joined(separator: ", ")).").font(HearthFont.body(16, weight: "SemiBold"))
-            Text("This is what you wrote down for a time like this.")
-          }
+          (Text("Your days look different from usual\(contributors.isEmpty ? "" : ": " + contributors.joined(separator: ", ")).")
+            .font(HearthFont.body(17, weight: "SemiBold")).foregroundStyle(Theme.ink)
+            + Text(" This is what you wrote down for a time like this."))
+            .foregroundStyle(Theme.ink2)
+            .fixedSize(horizontal: false, vertical: true)
         }
-        SectionTitle(text: "You said this helps")
+        if let fit, !picked.isEmpty { forToday(picked, ranOn: fit.ranOn, choices: choices, today: today) }
+        if picked.isEmpty || !rest.isEmpty { SectionTitle(text: picked.isEmpty ? "What helps you" : "Also on your list") }
         if actions.isEmpty { Muted("Nothing yet.") }
-        ForEach(actions, id: \.id) { a in
-          VStack(alignment: .leading, spacing: 2) {
-            Text(a.text).font(HearthFont.body(19, weight: "Medium"))
-            Text("in your words: “\(a.quote)”").font(HearthFont.body(14)).foregroundStyle(Theme.muted)
+        if !rest.isEmpty {
+          VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(rest.enumerated()), id: \.element.id) { i, a in
+              ActionItemView(action: a, choices: choices, today: today)
+                .padding(.horizontal, 16).padding(.vertical, 12)
+                .overlay(alignment: .top) { if i > 0 { Rectangle().fill(Theme.line).frame(height: 1) } }
+            }
           }
-          .padding(.vertical, 4)
+          .background(RoundedRectangle(cornerRadius: Theme.radius).fill(Color.white))
+          .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.line))
         }
         if st == .CONFIRMED {
           Card(tone: .plain) {
@@ -41,24 +58,30 @@ struct MyPlanView: View {
           }
         }
         CallAFriendCard(people: People.all(app.store))
-        Fold(title: "Your signs and questions", hint: "\(rules.count) signs · \(items.count) questions") {
-          Text("SIGNS YOU WATCH FOR").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.muted)
-          ForEach(rules, id: \.id) { r in
-            VStack(alignment: .leading, spacing: 2) {
-              Text("\(Copy.feature(Copy.ruleFeature(r), places: places)) \(Copy.direction[r.direction] ?? r.direction)").font(HearthFont.body(16, weight: "SemiBold"))
-              Text("“\(r.quote)”").font(HearthFont.body(14)).italic().foregroundStyle(Theme.ink2)
-            }
-          }
-          if !items.isEmpty {
-            Text("QUESTIONS IN YOUR CHECK-INS").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.muted).padding(.top, 6)
-            ForEach(items, id: \.id) { i in
+        // Folds, as on the web. "For your GP or clinician" and "What helped you before" come
+        // between these two in later phases.
+        VStack(alignment: .leading, spacing: 0) {
+          WhatCameFirstFold()
+          Fold(title: "Your signs and questions", hint: "\(rules.count) sign\(rules.count == 1 ? "" : "s") · \(items.count) question\(items.count == 1 ? "" : "s")") {
+            Text("SIGNS YOU WATCH FOR").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.muted)
+            ForEach(rules, id: \.id) { r in
               VStack(alignment: .leading, spacing: 2) {
-                Text(i.question).font(HearthFont.body(16, weight: "SemiBold"))
-                Text("“\(i.quote)”").font(HearthFont.body(14)).italic().foregroundStyle(Theme.ink2)
+                Text("\(Copy.feature(Copy.ruleFeature(r), places: places)) \(Copy.direction(Copy.ruleFeature(r), r.direction))").font(HearthFont.body(16, weight: "SemiBold"))
+                Text("“\(r.quote)”").font(HearthFont.body(14)).italic().foregroundStyle(Theme.ink2)
               }
             }
+            if !items.isEmpty {
+              Text("QUESTIONS IN YOUR CHECK-INS").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.muted).padding(.top, 6)
+              ForEach(items, id: \.id) { i in
+                VStack(alignment: .leading, spacing: 2) {
+                  Text(i.question).font(HearthFont.body(16, weight: "SemiBold"))
+                  Text("“\(i.quote)”").font(HearthFont.body(14)).italic().foregroundStyle(Theme.ink2)
+                }
+              }
+            }
+            Button("Edit my plan") { app.path.append(.planSetup(first: false)) }.buttonStyle(.secondary).padding(.top, 4)
           }
-          Button("Edit my plan") { app.path.append(.planSetup(first: false)) }.buttonStyle(.secondary).padding(.top, 4)
+          .padding(.top, -1)  // one line between two folds, not two
         }
         .padding(.top, 12)
       }
@@ -69,6 +92,31 @@ struct MyPlanView: View {
       for i in app.store.openInbox() where i.type == "show_plan" { app.store.close(i) }
       app.changed()
     }
+    // Task K once per changed day and set of actions; without a model all actions are shown.
+    .task(id: "\(changed)|\(last?.date ?? "")|\(actions.map(\.id).joined(separator: ","))") {
+      guard changed, actions.count >= 2, fit == nil else { return }
+      if let r = await app.pickForToday(actions: actions, today: contributors) { fit = Pick(ids: r.ids, ranOn: r.ranOn) }
+    }
+  }
+
+  private func forToday(_ picked: [PlanActionValue], ranOn: String, choices: [ActionChoiceValue], today: String) -> some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        Text("FOR TODAY").font(HearthFont.body(12, weight: "SemiBold")).tracking(1).foregroundStyle(Theme.magentaDeep)
+          .accessibilityAddTraits(.isHeader).accessibilityLabel("For today")
+        Spacer()
+        ModelBadge(ranOn: ranOn)
+      }
+      ForEach(picked, id: \.id) { a in
+        ActionItemView(action: a, choices: choices, today: today, showQuote: false, large: true)
+      }
+      Text("Picked from what you said helps.").font(HearthFont.body(14)).foregroundStyle(Theme.ink2)
+    }
+    .padding(16)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(RoundedRectangle(cornerRadius: Theme.radius).fill(Theme.magentaTint))
+    .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.magentaLine))
+    .padding(.top, 8)
   }
 }
 

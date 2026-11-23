@@ -17,7 +17,7 @@ enum Copy {
   static let featureLabel: [String: String] = [
     "steps": "Steps", "active_hours": "Active hours", "walking_speed": "Walking pace",
     "rhythm_stability": "Daily rhythm", "fragmentation": "Activity in short bursts", "relative_amplitude": "Day–night difference",
-    "rest_duration": "Rest length", "rest_midpoint": "Rest time (midpoint)", "rest_regularity": "Regular rest times",
+    "rest_duration": "Rest length", "rest_midpoint": "Middle of your night", "rest_regularity": "Regular rest times",
     "hrv": "Heart rate variability", "resting_hr": "Resting heart rate",
     "home_stay": "Time at home", "location_entropy": "Variety of places", "places_visited": "Places visited",
     "location_variance": "Area covered", "routine_regularity": "Usual routine", "place_visits": "Visits",
@@ -40,6 +40,15 @@ enum Copy {
   static let direction: [String: String] = [
     "higher": "goes up", "lower": "goes down", "later": "gets later", "earlier": "gets earlier", "less_regular": "gets less regular",
   ]
+  /// Plural labels ("Steps", "Visits to the gym") take a plural verb, as on the web.
+  private static let plural: Set<String> = ["steps", "active_hours", "rest_regularity", "places_visited", "place_visits"]
+  private static let pluralDirection: [String: String] = [
+    "higher": "go up", "lower": "go down", "later": "get later", "earlier": "get earlier", "less_regular": "get less regular",
+  ]
+  static func direction(_ feature: String, _ dir: String) -> String {
+    let base = String(feature.split(separator: ":").first ?? "")
+    return (plural.contains(base) ? pluralDirection : direction)[dir] ?? dir
+  }
 
   static let context: [String: String] = [
     "holiday": "On holiday", "travel": "Travelling", "visitors": "Visitors staying", "ill": "Ill", "moving": "Moving house",

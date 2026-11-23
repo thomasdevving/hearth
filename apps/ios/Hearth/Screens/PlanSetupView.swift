@@ -114,7 +114,7 @@ struct PlanSetupView: View {
       }
       if !plan.rules.isEmpty { SectionTitle(text: "Signs Hearth can watch") }
       ForEach(Array(plan.rules.enumerated()), id: \.offset) { i, r in
-        let title = "\(r.feature == "place_visits" ? "Visits to the \(r.place_label ?? "place")" : Copy.feature(r.feature)) \(Copy.direction[r.direction] ?? r.direction)"
+        let title = "\(r.feature == "place_visits" ? "Visits to the \(r.place_label ?? "place")" : Copy.feature(r.feature)) \(Copy.direction(r.feature, r.direction))"
         PlanLine(title: title, kept: $keepRules[i]) {
           Origin(quote: r.quote)
           if r.feature == "place_visits" { placePicker(i, label: r.place_label ?? "place") }

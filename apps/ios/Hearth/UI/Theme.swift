@@ -138,9 +138,27 @@ struct LinkButtonStyle: ButtonStyle {
   }
 }
 
+/// A secondary button that only takes the room it needs, for rows of small choices (web:
+/// `.action-buttons .secondary`).
+struct CompactButtonStyle: ButtonStyle {
+  @Environment(\.isEnabled) private var enabled
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .font(HearthFont.body(16, weight: "Medium"))
+      .foregroundStyle(enabled ? Theme.magentaDeep : Theme.muted)
+      .frame(minHeight: 40)
+      .padding(.horizontal, 14)
+      .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+      .overlay(RoundedRectangle(cornerRadius: 10).stroke(enabled ? Theme.magentaLine : Theme.line, lineWidth: 1.5))
+      .contentShape(Rectangle())
+      .opacity(configuration.isPressed ? 0.8 : 1)
+  }
+}
+
 extension ButtonStyle where Self == PrimaryButtonStyle { static var primary: PrimaryButtonStyle { .init() } }
 extension ButtonStyle where Self == SecondaryButtonStyle { static var secondary: SecondaryButtonStyle { .init() } }
 extension ButtonStyle where Self == LinkButtonStyle { static var link: LinkButtonStyle { .init() } }
+extension ButtonStyle where Self == CompactButtonStyle { static var compact: CompactButtonStyle { .init() } }
 
 struct Card<Content: View>: View {
   enum Tone { case accent, warm, plain }
@@ -273,7 +291,11 @@ struct Fold<Content: View>: View {
   let title: String
   var hint: String? = nil
   @ViewBuilder var content: Content
-  @State private var open = false
+  @State private var open: Bool
+  init(title: String, hint: String? = nil, startsOpen: Bool = false, @ViewBuilder content: () -> Content) {
+    self.title = title; self.hint = hint; self.content = content()
+    _open = State(initialValue: startsOpen)
+  }
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       Button { withAnimation(.easeInOut(duration: 0.2)) { open.toggle() } } label: {

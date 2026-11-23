@@ -45,6 +45,34 @@ enum DemoData {
     store.context.insert(PlanRule(id: "rule_demo", json: JSONText.encode(obj)))
     store.save()
   }
+
+  /// `-HearthDemoActions YES`: three actions, two with a smaller step, and earlier choices, so
+  /// the plan's smaller steps can be checked.
+  @MainActor
+  static func addActions(store: Store) {
+    guard store.all(PlanAction.self).isEmpty else { return }
+    let today = Clock.today
+    let actions: [[String: Any]] = [
+      ["id": "action_walk", "text": "Go for a walk before lunch", "quote": "a walk at lunch clears my head", "active": true, "smaller": "Step outside for five minutes"],
+      ["id": "action_call", "text": "Call my sister", "quote": "talking to my sister helps", "active": true],
+      ["id": "action_cook", "text": "Cook a proper meal", "quote": "cooking a real meal grounds me", "active": true, "smaller": "Make toast and eat it at the table"],
+    ]
+    for a in actions { store.context.insert(PlanAction(id: a["id"] as! String, json: JSONText.encode(a))) }
+    store.chooseVersion(actionId: "action_walk", date: Clock.addDays(today, -3), choice: .full)
+    store.chooseVersion(actionId: "action_walk", date: Clock.addDays(today, -1), choice: .smaller)
+    store.chooseVersion(actionId: "action_cook", date: today, choice: .smaller)
+    store.save()
+  }
+
+  /// `-HearthDemoPick YES`: a stand-in for the on-device model for task K only (the Simulator
+  /// has none). It picks the first action; the output still goes through the router's
+  /// verification and ledger.
+  static var pick: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoPick") }
+
+  static func stubK(_ input: [String: Any]) -> String {
+    let first = (input["actions"] as? [[String: Any]])?.first?["id"] as? String
+    return JSONText.encode(["action_ids": first.map { [$0] } ?? []])
+  }
   #else
   static let enabled = false
   #endif

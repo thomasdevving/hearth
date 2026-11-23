@@ -59,7 +59,7 @@ export const DIRECTION_TEXT: Record<PlanRule["direction"], string> = {
 };
 
 /** Features whose label is plural ("Steps", "Visits to the gym") take a plural verb. */
-const PLURAL = new Set(["steps", "active_hours", "places_visited", "place_visits"]);
+const PLURAL = new Set(["steps", "active_hours", "rest_regularity", "places_visited", "place_visits"]);
 const PLURAL_TEXT: Record<PlanRule["direction"], string> = {
   higher: "go up",
   lower: "go down",

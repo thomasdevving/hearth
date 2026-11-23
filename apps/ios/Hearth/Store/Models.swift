@@ -204,11 +204,25 @@ import SwiftData
   init(id: String, date: String, type: String) { self.id = id; self.date = date; self.type = type; self.status = "open" }
 }
 
+/// `action_choices` (as on the web), key `<actionId>_<date>`: which version of a plan action
+/// the user chose on a day, so Hearth can say by counting which one they chose last time.
+/// Class S3, local only.
+@Model final class ActionChoice {
+  @Attribute(.unique) var id: String
+  var actionId: String
+  var date: String
+  var choice: String        // full | smaller
+  init(actionId: String, date: String, choice: String) {
+    self.id = "\(actionId)_\(date)"; self.actionId = actionId; self.date = date; self.choice = choice
+  }
+  var value: ActionChoiceValue? { ActionChoiceValue.Choice(rawValue: choice).map { ActionChoiceValue(actionId: actionId, date: date, choice: $0) } }
+}
+
 enum HearthSchema {
   static let models: [any PersistentModel.Type] = [
     DayRaw.self, DayRecord.self, EngineState.self, PlanSource.self, PlanRule.self, PersonalItem.self,
     PlanAction.self, ContextLabel.self, CheckinRecord.self, DiaryEntry.self, LedgerEntry.self,
     QuestionnaireRecord.self, SafetyPlan.self, TrustedContact.self, SafetyEvent.self, HearthSettings.self,
-    WeekAggregate.self, InboxItem.self, Person.self,
+    WeekAggregate.self, InboxItem.self, Person.self, ActionChoice.self,
   ]
 }

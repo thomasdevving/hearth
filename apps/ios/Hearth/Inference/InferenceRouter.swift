@@ -55,7 +55,12 @@ final class InferenceRouter {
     // The question in "ask your data" is raw free text: on-device only (R3, DECISIONS M10).
     let dataClass = (task == "Q" || task == "Q_classify") ? "S3" : def.dataClass
     let settings = store.settings
-    let onDeviceAvailable = settings.onDeviceEnabled && OnDeviceModel.isAvailable
+    #if DEBUG
+    let stub = DemoData.pick && task == "K"
+    #else
+    let stub = false
+    #endif
+    let onDeviceAvailable = (settings.onDeviceEnabled && OnDeviceModel.isAvailable) || stub
     let online = CloudModel.isConfigured
     let req: [String: Any] = [
       "dataClass": dataClass, "cloudConsent": settings.cloudConsent, "onDeviceAvailable": onDeviceAvailable,
@@ -99,7 +104,11 @@ final class InferenceRouter {
         var text: String?
         var payload: String?
         do {
-          if target == "on_device" {
+          if target == "on_device" && stub {
+            #if DEBUG
+            text = DemoData.stubK(finalInput)
+            #endif
+          } else if target == "on_device" {
             text = try await OnDeviceModel.generate(instructions: prompt.text + liteNote, prompt: message, schema: schema, name: "Task\(schemaId)")
           } else {
             let r = try await CloudModel.generate(instructions: prompt.text, prompt: message, schema: schema, name: "Task\(schemaId)")

@@ -72,7 +72,8 @@ final class Store {
 
   func activeRules() -> [PlanRuleValue] { all(PlanRule.self).compactMap(\.value).filter(\.active) }
   func activeItems() -> [PersonalItemValue] { all(PersonalItem.self).compactMap(\.value).filter(\.active) }
-  func activeActions() -> [PlanActionValue] { all(PlanAction.self).compactMap(\.value).filter(\.active) }
+  /// In a stable order (by id, as the web's store lists them), so the plan does not reshuffle.
+  func activeActions() -> [PlanActionValue] { all(PlanAction.self, sort: [SortDescriptor(\.id)]).compactMap(\.value).filter(\.active) }
 
   // Inbox ----------------------------------------------------------------------------------
 

@@ -65,9 +65,9 @@ struct WhyView: View {
 
   #if DEBUG
   /// `-HearthScrollBottom YES` shows the end of the screen (for screenshots).
-  private static var debugAnchor: UnitPoint? { UserDefaults.standard.bool(forKey: "HearthScrollBottom") ? .bottom : nil }
+  static var debugAnchor: UnitPoint? { UserDefaults.standard.bool(forKey: "HearthScrollBottom") ? .bottom : nil }
   #else
-  private static let debugAnchor: UnitPoint? = nil
+  static let debugAnchor: UnitPoint? = nil
   #endif
 
   private var label: String {
