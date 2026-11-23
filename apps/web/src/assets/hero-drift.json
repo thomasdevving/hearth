@@ -1,0 +1,154 @@
+{
+ "feature": "rest_midpoint",
+ "quote": "going to bed later",
+ "noticed": "2026-10-04",
+ "points": [
+  {
+   "date": "2026-09-14",
+   "value": 198,
+   "low": 156,
+   "median": 193,
+   "high": 230
+  },
+  {
+   "date": "2026-09-15",
+   "value": 175,
+   "low": 157,
+   "median": 193,
+   "high": 229
+  },
+  {
+   "date": "2026-09-16",
+   "value": 205,
+   "low": 155,
+   "median": 192,
+   "high": 229
+  },
+  {
+   "date": "2026-09-17",
+   "value": 174,
+   "low": 155,
+   "median": 192,
+   "high": 229
+  },
+  {
+   "date": "2026-09-18",
+   "value": 179,
+   "low": 155,
+   "median": 192,
+   "high": 229
+  },
+  {
+   "date": "2026-09-19",
+   "value": 266,
+   "low": 239,
+   "median": 275,
+   "high": 310
+  },
+  {
+   "date": "2026-09-20",
+   "value": 258,
+   "low": 229,
+   "median": 266,
+   "high": 303
+  },
+  {
+   "date": "2026-09-21",
+   "value": 201,
+   "low": 155,
+   "median": 192,
+   "high": 228
+  },
+  {
+   "date": "2026-09-22",
+   "value": 209,
+   "low": 155,
+   "median": 192,
+   "high": 229
+  },
+  {
+   "date": "2026-09-23",
+   "value": 240,
+   "low": 156,
+   "median": 193,
+   "high": 230
+  },
+  {
+   "date": "2026-09-24",
+   "value": 242,
+   "low": 157,
+   "median": 194,
+   "high": 231
+  },
+  {
+   "date": "2026-09-25",
+   "value": 198,
+   "low": 161,
+   "median": 196,
+   "high": 231
+  },
+  {
+   "date": "2026-09-26",
+   "value": 311,
+   "low": 230,
+   "median": 264,
+   "high": 298
+  },
+  {
+   "date": "2026-09-27",
+   "value": 300,
+   "low": 229,
+   "median": 266,
+   "high": 303
+  },
+  {
+   "date": "2026-09-28",
+   "value": 215,
+   "low": 163,
+   "median": 197,
+   "high": 231
+  },
+  {
+   "date": "2026-09-29",
+   "value": 208,
+   "low": 164,
+   "median": 198,
+   "high": 232
+  },
+  {
+   "date": "2026-09-30",
+   "value": 206,
+   "low": 168,
+   "median": 199,
+   "high": 231
+  },
+  {
+   "date": "2026-10-01",
+   "value": 235,
+   "low": 171,
+   "median": 201,
+   "high": 230
+  },
+  {
+   "date": "2026-10-02",
+   "value": 262,
+   "low": 168,
+   "median": 201,
+   "high": 233
+  },
+  {
+   "date": "2026-10-03",
+   "value": 305,
+   "low": 232,
+   "median": 270,
+   "high": 309
+  },
+  {
+   "date": "2026-10-04",
+   "value": 336,
+   "low": 235,
+   "median": 275,
+   "high": 314
+  }
+ ]
+}

@@ -304,7 +304,8 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .json { white-space: pre-wrap; background: var(--surface-2); padding: var(--s3); border-radius: var(--radius-sm); font-size: 0.75rem; max-height: 300px; overflow: auto; }
 
 /* ---------- landing page ---------- */
-.landing { --land-max: 1080px; color: var(--ink); background: var(--white); overflow-x: hidden; }
+/* clip, not hidden: hidden would make .landing a scroll container and break the sticky workflows */
+.landing { --land-max: 1080px; color: var(--ink); background: var(--white); overflow-x: hidden; overflow-x: clip; }
 .land-nav { max-width: var(--land-max); margin: 0 auto; padding: var(--s5); display: flex; align-items: center; gap: var(--s5); position: relative; z-index: 2; }
 .land-nav .spacer { flex: 1; }
 .land-nav a.navlink { color: var(--ink-2); text-decoration: none; font-weight: 500; }
@@ -339,25 +340,50 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .preview-header { justify-content: space-between; margin-bottom: var(--s4); }
 .preview-brand { font-size: 0.82rem; font-weight: 500; color: var(--ink-2); }
 .preview-demo { color: var(--magenta-deep); background: var(--magenta-tint); border-radius: 999px; font-size: 0.7rem; padding: 3px var(--s2); }
-.preview-tabs { display: flex; gap: var(--s1); background: var(--surface-2); border-radius: 999px; padding: var(--s1); }
-.preview-tabs button { flex: 1; min-width: 0; border-color: transparent; background: transparent; padding: var(--s2); font-size: 0.86rem; color: var(--muted); }
-.preview-tabs button[aria-pressed="true"] { color: var(--magenta-deep); background: var(--white); border-color: var(--magenta-line); box-shadow: 0 2px 8px rgba(122, 15, 85, 0.06); }
-.preview-panel { display: grid; min-height: 295px; padding: var(--s5) 0 var(--s4); }
-/* Both views reserve their natural height; switching cannot resize the hero artwork. */
-.preview-view { grid-area: 1 / 1; min-width: 0; }
-.preview-view[aria-hidden="true"] { visibility: hidden; pointer-events: none; }
-.preview-panel h2 { font-size: 1.2rem; line-height: 1.2; margin: 0 0 var(--s2); letter-spacing: -0.025em; }
-.preview-description { font-size: 0.82rem; color: var(--muted); margin-bottom: var(--s4); }
-.preview-panel h3 { font-family: var(--font-body); font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: var(--s4) 0 var(--s2); }
-.preview-signs, .preview-actions, .preview-signals { list-style: none; margin: 0; padding: 0; }
-.preview-signs li, .preview-actions li { display: flex; align-items: center; gap: var(--s2); font-size: 0.91rem; margin-bottom: var(--s2); }
-.preview-signs li > span { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--magenta); }
-.preview-actions li { padding: var(--s2) var(--s3); background: var(--magenta-tint); border-radius: var(--radius-sm); }
-.preview-actions li > svg { color: var(--magenta); flex: none; }
-.preview-signals li { display: grid; grid-template-columns: minmax(0, 1fr) 80px auto; gap: var(--s2); align-items: center; padding: var(--s3) 0; border-bottom: 1px solid var(--line); font-size: 0.8rem; }
-.preview-signals strong { font-weight: 500; }
-.preview-signals li > span { font-variant-numeric: tabular-nums; min-width: 3.2em; text-align: right; }
-.preview-explainer { font-size: 0.82rem; color: var(--muted); margin: var(--s4) 0 0; }
+.preview-description { font-size: 0.82rem; color: var(--muted); margin: 0; }
+/* Drift card (screens/HeroDrift.tsx): three moments that play in turn, story-style. */
+.drift-steps { display: flex; align-items: center; gap: var(--s2); }
+.drift-steps > button:not(.drift-play) { flex: 1; min-width: 0; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; padding: 0; border: 0; border-radius: 0; background: none; font-size: 0.78rem; font-weight: 500; color: var(--muted); }
+.drift-steps > button:not(.drift-play):hover:not(:disabled) { background: none; color: var(--ink); }
+.drift-steps > button[aria-pressed="true"] { color: var(--magenta-deep); }
+.drift-step-bar { display: block; width: 100%; height: 3px; border-radius: 3px; background: var(--magenta-line); overflow: hidden; }
+.drift-step-bar > span { display: block; height: 100%; background: var(--magenta); transform: scaleX(0); transform-origin: left; }
+.drift-steps > button.is-done .drift-step-bar > span, .drift-steps > button[aria-pressed="true"] .drift-step-bar > span { transform: scaleX(1); }
+.drift-steps > button[aria-pressed="true"] .drift-step-bar > span.is-running { animation: drift-fill linear forwards; transform: scaleX(0); }
+@keyframes drift-fill { to { transform: scaleX(1); } }
+.drift-play { flex: none; width: 32px; height: 32px; min-width: 32px; min-height: 32px; padding: 0; display: grid; place-items: center; border: 1px solid var(--magenta-line); background: var(--white); color: var(--magenta-deep); }
+.drift-copy { display: grid; margin: var(--s4) 0 var(--s2); }
+.drift-copy-view, .drift-foot > * { grid-area: 1 / 1; min-width: 0; transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.drift-copy-view[aria-hidden="true"], .drift-foot > [aria-hidden="true"] { opacity: 0; transform: translateY(6px); visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s; }
+.drift-copy h2 { font-size: 1.15rem; line-height: 1.2; letter-spacing: -0.025em; margin: 0 0 var(--s1); }
+.drift-example { display: flex; align-items: center; gap: var(--s2); margin: var(--s2) 0 var(--s2); font-size: 0.75rem; font-weight: 500; color: var(--ink-2); }
+.drift-example span { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--magenta-deep); background: var(--magenta-tint); border-radius: 999px; padding: 2px var(--s2); }
+.drift-chart { display: block; width: 100%; height: auto; overflow: visible; }
+.drift-band { fill: rgba(47, 125, 79, 0.14); }
+.drift-median { fill: none; stroke: #2f7d4f; stroke-width: 1.2; stroke-dasharray: 5 4; opacity: 0.8; }
+.drift-line { fill: none; stroke: var(--magenta); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.drift-dot { fill: var(--magenta); stroke: var(--white); stroke-width: 1.2; }
+.drift-reveal { transform-box: fill-box; transform-origin: left; transition: transform 1.6s cubic-bezier(0.45, 0, 0.2, 1); }
+/* Days outside the usual range light up once the drift starts. */
+.drift-dot.is-out { transition: fill 0.4s ease; }
+.drift.is-drift .drift-dot.is-out, .drift.is-checkin .drift-dot.is-out { fill: #b25d00; }
+.drift-mark line { stroke: #b25d00; stroke-width: 1.4; stroke-dasharray: 3 3; }
+.drift-mark text { fill: #b25d00; font: 600 10px var(--font-body); }
+.drift-mark { opacity: 0; transition: opacity 0.4s ease 0.2s; }
+.drift-axis { fill: var(--muted); font: 500 9.5px var(--font-body); }
+.drift-foot { display: grid; min-height: 96px; margin: var(--s2) 0 var(--s4); align-items: start; }
+.drift-legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); margin: 0; font-size: 0.75rem; color: var(--ink-2); }
+.lg-line { width: 14px; height: 2px; border-radius: 2px; background: var(--magenta); }
+.lg-band { width: 14px; height: 10px; border-radius: 3px; background: rgba(47, 125, 79, 0.18); margin-left: var(--s2); }
+.drift-checkin { display: flex; flex-direction: column; gap: 2px; padding: var(--s3); border-radius: var(--radius-sm); border: 1.5px solid var(--magenta); background: var(--white); font-size: 0.8rem; color: var(--ink-2); box-shadow: 0 10px 24px -14px rgba(122, 15, 85, 0.45); }
+.drift-checkin-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+.drift-checkin strong { font-size: 0.92rem; color: var(--ink); }
+.drift-sign em { font-style: italic; color: var(--ink); }
+.drift-chip { font-size: 0.68rem; font-weight: 600; color: #2f7d4f; background: #ecf6ef; border: 1px solid #cfe7d6; border-radius: 999px; padding: 1px var(--s2); }
+.drift.is-checkin .drift-mark { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .drift-reveal, .drift-copy-view, .drift-foot > *, .drift-mark, .drift-dot.is-out { transition: none; }
+}
 .preview-open { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); min-height: 48px; padding: var(--s3) var(--s4); border-radius: 999px; text-decoration: none; font-size: 0.9rem; font-weight: 500; background: var(--magenta); color: var(--white); }
 .preview-open:hover { background: var(--magenta-deep); }
 .preview-privacy { font-size: 0.75rem; color: var(--muted); text-align: center; margin: var(--s3) 0 0; }
@@ -412,6 +438,10 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .flow-text-right .flow-head-inner { display: flex; flex-direction: column; align-items: flex-end; }
 .flow-head h2 { font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 var(--s4); }
 .flow-head .intro { color: var(--ink-2); font-size: 1.1rem; margin: 0; }
+.flow-head .flow-actions { width: 100%; margin-top: var(--s5); }
+.flow-head .flow-link { gap: var(--s2); }
+.flow-head .flow-link span { transition: transform 0.2s ease; }
+.flow-head .flow-link:hover span { transform: translateX(3px); }
 /* Compact copy area; the full-size transparent stem continues into the next row. */
 .plan-intro { --plan-flower-ratio: calc(1086 / 1448); min-height: calc(100vw * 941 / 1672 * 0.78 + 48px); overflow: visible; }
 .plan-intro::before { inset: 24px 0 auto; z-index: 1; height: calc(100vw * var(--plan-flower-ratio)); background-position: left top; pointer-events: none; }
@@ -436,11 +466,98 @@ legend { padding: 0; margin-bottom: var(--s2); }
 /* feature-right places its copy on the right and its phones on the left. */
 .feature-right .phone-petal { background-image: url("./assets/phone-petal-left.svg"); }
 /* iPhone 18 Pro body: 71.9 mm wide × 150 mm high (Apple technical specifications). */
-.phone-body { position: relative; aspect-ratio: 71.9 / 150; border-radius: 44px; padding: 10px; background: #1d1320; box-shadow: 0 30px 70px rgba(122, 15, 85, 0.25), 0 2px 0 rgba(255, 255, 255, 0.08) inset; }
-.phone-screen { position: relative; height: 100%; border-radius: 34px; overflow: hidden; background: var(--white); padding-top: 30px; }
+.phone-body { position: relative; box-sizing: border-box; aspect-ratio: 71.9 / 150; border-radius: 46px; padding: 3.5px; background: linear-gradient(150deg, #a19d97 0%, #4a4844 14%, #2b2a28 45%, #3a3936 70%, #8f8b85 100%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22), 0 46px 80px -24px rgba(122, 15, 85, 0.38), 0 20px 40px -20px rgba(29, 19, 32, 0.5); }
+/* Two flat layers behind the body, shifted towards the far side, give the tilted phone its
+   titanium edge. No preserve-3d: in a 3D context Chrome repainted the swapped screen late and
+   the Dynamic Island fought with the coplanar body. */
+.phone-tilt::before, .phone-tilt::after { content: ""; position: absolute; z-index: -1; inset: 0; border-radius: 46px; pointer-events: none; }
+.phone-tilt::after { background: linear-gradient(90deg, #7d7a75, #3a3936 40%, #3a3936 60%, #7d7a75); transform: translateX(calc(var(--edge) * 0.5)); }
+.phone-tilt::before { background: #1e1d1c; transform: translateX(var(--edge)); box-shadow: 0 0 0 1px #55524d; }
+.phone-screen { position: relative; box-sizing: border-box; height: 100%; border: 6px solid #050505; border-radius: 43px; overflow: hidden; background: var(--white); padding-top: 34px; }
 .phone-body img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center top; }
-.phone-notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 76px; height: 20px; border-radius: 12px; background: #1d1320; z-index: 1; }
+.phone-status { position: absolute; z-index: 2; top: 0; left: 0; right: 0; height: 32px; display: flex; align-items: center; justify-content: space-between; padding: 1px 20px 0 27px; font: 600 11.5px/1 -apple-system, "SF Pro Text", system-ui, sans-serif; letter-spacing: -0.01em; color: #000; }
+.phone-status-icons { width: 48px; height: 9px; }
+/* Dynamic Island: about 31% of the screen width, 126 × 37 pt on a 402 pt screen. */
+.phone-notch { position: absolute; z-index: 3; top: 7px; left: 50%; transform: translateX(-50%); width: 31%; aspect-ratio: 126 / 37; border-radius: 999px; background: #000; }
+.phone-glare { position: absolute; z-index: 4; inset: 0; pointer-events: none; background: linear-gradient(118deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0) 26%, rgba(255, 255, 255, 0) 74%, rgba(255, 255, 255, 0.07) 100%); }
+.phone-btn { position: absolute; width: 3px; border-radius: 2px; background: linear-gradient(90deg, #2a2826, #8a8680 55%, #3a3835); }
+.btn-action, .btn-vol-up, .btn-vol-down { left: -2.5px; }
+.btn-side, .btn-camera { right: -2.5px; }
+.btn-action { top: 16.5%; height: 4.5%; }
+.btn-vol-up { top: 24%; height: 7.5%; }
+.btn-vol-down { top: 33%; height: 7.5%; }
+.btn-side { top: 26%; height: 11%; }
+.btn-camera { top: 57%; height: 7%; background: linear-gradient(90deg, #1c1b1a, #5b5853 60%, #2a2826); }
+/* A slanted 3D tilt for perspective; the phone turns towards the copy beside it. */
+.phone-tilt { --ry: -15deg; --rx: 7deg; --rz: 1.5deg; --edge: 6px; position: relative; transform: perspective(1500px) rotateY(var(--ry)) rotateX(var(--rx)) rotateZ(var(--rz)); transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.wf-phone-left .wf-device .phone-tilt { --ry: 15deg; --rz: -1.5deg; --edge: -6px; }
+.wf-device:hover .phone-tilt { --ry: -9deg; --rx: 4deg; }
+.wf-phone-left .wf-device:hover .phone-tilt { --ry: 9deg; }
 .phone figcaption { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: var(--s3); }
+/* Workflow: a pinned walkthrough (after viddyscribe.com's "Workflow" section). The section is
+   --n × 62vh taller than the screen; while it scrolls past, the inner grid stays pinned, each
+   step opens in turn, the line under it fills, and the one phone swaps its screen. */
+.wf { position: relative; height: calc(var(--n) * 62vh + 100vh); }
+.wf-stage { position: sticky; top: 0; height: 100vh; }
+/* The plan flower continues here: the intro clips its own copy at its bottom edge, this layer
+   draws the rest at the same size and offset and stays pinned with the walkthrough. */
+.wf-art { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.wf-art-img { position: absolute; left: 0; right: 0; top: calc(24px - var(--plan-intro-h, 0px)); height: calc(100vw * 1086 / 1448); background: left top / 100% auto no-repeat; transform-origin: 50% 50%; }
+.wf-pin { position: relative; z-index: 1; box-sizing: border-box; height: 100%; max-width: var(--land-max); margin: 0 auto; padding: var(--s6) var(--s5); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s7); align-items: center; }
+.wf-head { padding-bottom: var(--s6); }
+.wf-eyebrow { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; color: var(--magenta); font-weight: 700; margin: 0 0 var(--s2); }
+.wf-title { font-size: clamp(1.6rem, 2.8vw, 2.2rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
+.wf-steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.wf-steps li { position: relative; border-bottom: 1px solid var(--line); }
+.wf-step-head { display: flex; align-items: baseline; gap: var(--s3); width: 100%; min-height: 44px; padding: var(--s4) 0; border: 0; border-radius: 0; background: none; text-align: left; color: var(--muted); font-family: var(--font-display); font-size: 1.12rem; font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; transition: color 0.25s ease; }
+.wf-step-head:hover:not(:disabled) { background: none; color: var(--ink); }
+.wf-step-head:focus-visible { outline: 2px solid var(--magenta); outline-offset: 2px; border-radius: 4px; }
+.wf-n { flex: none; color: var(--magenta-line); font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; transition: color 0.25s ease; }
+.wf-steps li.is-active .wf-step-head { color: var(--ink); }
+.wf-steps li.is-active .wf-n { color: var(--magenta); }
+.wf-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.wf-steps li.is-active .wf-body { grid-template-rows: 1fr; }
+.wf-body-inner { min-height: 0; overflow: hidden; }
+.wf-body-inner > p { color: var(--ink-2); font-size: 1rem; line-height: 1.55; margin: 0 0 var(--s3); }
+.wf-body-inner > :nth-last-child(2) { margin-bottom: var(--s5); }
+.wf-body .land-help { margin-top: 0; }
+.wf-bar { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; overflow: hidden; opacity: 0; }
+.wf-bar > span { display: block; height: 100%; background: var(--magenta); transform: scaleX(var(--p, 0)); transform-origin: left; }
+.wf-steps li.is-active .wf-bar { opacity: 1; }
+.wf-device { display: flex; justify-content: center; min-height: 0; }
+.wf-device .phone { width: min(290px, calc((100vh - 270px) * 0.4793)); }
+.wf-device .phone-screen img { position: absolute; left: 0; top: 34px; width: 100%; height: calc(100% - 34px); opacity: 0; transition: opacity 0.35s ease; }
+.wf-device .phone-screen img.is-active { opacity: 1; }
+.wf-count { color: var(--magenta); font-weight: 700; font-variant-numeric: tabular-nums; margin-right: var(--s1); }
+.wf-phone-left .wf-device { grid-column: 1; grid-row: 1; }
+.wf-phone-left .wf-text { grid-column: 2; grid-row: 1; }
+.wf-phone-left .phone-petal { background-image: url("./assets/phone-petal-left.svg"); }
+.wf-inline-phone { display: none; }
+@media (min-width: 861px) and (min-height: 621px) {
+  .plan-intro { overflow: hidden; }
+}
+.facts-section { padding-top: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .wf-body, .wf-device .phone-screen img, .wf-step-head, .wf-n, .phone-tilt { transition: none; }
+}
+/* Narrow or short screens: no pinning, every step open with its own phone. */
+@media (max-width: 860px), (max-height: 620px) {
+  .wf { height: auto; }
+  .wf-stage { position: static; height: auto; }
+  .wf-art { display: none; }
+  .wf-pin { height: auto; display: block; padding: var(--s6) var(--s5) 0; }
+  .phone-tilt { --ry: -10deg; --rx: 5deg; --rz: 1deg; --edge: 4px; }
+  .wf-head { width: calc(100% - 16px); max-width: 38rem; margin: 0 auto var(--s5); padding: 0; }
+  .wf-steps { border: 0; }
+  .wf-steps li { border: 0; padding-bottom: 64px; }
+  .wf-step-head { pointer-events: none; color: var(--ink); font-size: clamp(1.3rem, 4.2vw, 1.6rem); font-weight: 700; flex-direction: column; gap: var(--s2); width: calc(100% - 16px); max-width: 38rem; margin: 0 auto; padding: 0 0 var(--s3); }
+  .wf-n { color: var(--magenta); font-size: 0.95rem; }
+  .wf-body { grid-template-rows: 1fr; }
+  .wf-body-inner { overflow: visible; }
+  .wf-body-inner > p, .wf-body .land-help { width: calc(100% - 16px); max-width: 38rem; margin-inline: auto; }
+  .wf-bar, .wf-device { display: none; }
+  .wf-inline-phone { display: block; margin: var(--s5) auto 0; }
+}
 .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); margin-top: var(--s5); }
 .fact .n { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; color: var(--magenta); line-height: 1.05; white-space: nowrap; }
 .fact .vs { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
@@ -463,9 +580,11 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .js-reveal .reveal.from-right { transform: translateX(56px) rotate(2deg); }
 .js-reveal .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: no-preference) {
-  .flow-head::before, .land-final::before { animation: breathe 24s ease-in-out infinite alternate; }
+  .flow-head::before, .land-final::before, .wf-art-img { animation: breathe 24s ease-in-out infinite alternate; }
   @keyframes breathe { from { transform: scale(1); } to { transform: scale(1.06); } }
   .feature-shots.in .phone-art > .phone-body { animation: float 8s ease-in-out 1s infinite; }
+  .wf-device .phone-tilt { animation: phone-float 8s ease-in-out 1s infinite; }
+  @keyframes phone-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
   @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
   .land-cta { transition: transform 0.2s ease, background 0.2s ease; }
   .land-cta:hover { transform: translateY(-2px); }
@@ -485,6 +604,7 @@ legend { padding: 0; margin-bottom: var(--s2); }
   .phone-petal { width: min(calc(100% + 180px), calc(100vw - 16px)); }
   /* Each section has one set of gutters, including the nested ledger/support. */
   #privacy > .land-section, .landing > section.land-section { padding: 0; }
+  #privacy > .facts-section { padding: 0 var(--s6) var(--s7); }
   .flow-head { min-height: 0; padding-block: 0; }
   .flow-head-inner { padding: var(--s6); }
   .flow-head-inner > * { max-width: 38rem; }

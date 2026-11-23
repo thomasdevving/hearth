@@ -803,3 +803,32 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   numbers from the engine (R2); no model; non-diagnostic wording (R9).
 - **Web only for now.** The engine functions run in JavaScriptCore too, so iOS can use them; the
   iOS screens are not built yet.
+
+## Landing: pinned walkthroughs, tilted iPhone frame and a drift card in the hero (2026-11-23)
+
+- **Phones as pinned walkthroughs** (`apps/web/src/screens/Workflow.tsx`, after the "Workflow"
+  section on viddyscribe.com). Three sections replace the alternating feature rows: how it works
+  (plan, usual days, check-in, Why?, holiday), when a change starts (plan, what helped, my people,
+  GP page) and privacy (ledger with "Test it", support screen). While a section scrolls past it
+  stays pinned; each step opens in turn, a line under it fills, and one phone swaps its screen.
+  Clicking a step scrolls to it. Below 861 px wide or 621 px high it is a plain list with a
+  phone per step. `.landing` uses `overflow-x: clip`, because `hidden` breaks `position: sticky`.
+- **Screens for features since 18 Nov**: Why?, what helped last time with a drafted text, my
+  people, the GP page and the privacy test. All eleven screenshots were captured again from the
+  running app (390×844 at 600×1298, demo bar and banner hidden, stand-in on-device model).
+- **The plan flower's stem** continues into the first walkthrough: the intro clips its own copy
+  at its bottom edge and the pinned stage draws the rest at the same size and offset
+  (`--plan-intro-h`, measured with a ResizeObserver), so the stem stays until the section ends.
+- **iPhone 17 Pro-style frame** in CSS (titanium rim, side buttons, Dynamic Island, status bar,
+  glass), tilted with a flat perspective transform towards the copy. No `preserve-3d`: in a 3D
+  context Chrome repainted the swapped screen late and the Dynamic Island fought with the
+  coplanar body. The edge is two layers behind the body, shifted to the far side.
+- **Plain headings**: whole sentences instead of short fragments with full stops and commas.
+  The "How it works" intro links to the Science page.
+- **Hero drift card** (`screens/HeroDrift.tsx`) replaces the plan/signals tabs. Three moments
+  play in turn (usual activity, the drift, the check-in), with a pause button, a pause while out
+  of view, and the final state at once for reduced motion. The example is sleep: Sam's middle of
+  the night against Sam's usual range for the 21 days up to the day Hearth noticed. The numbers
+  come from `usualRangeSeries` and `whyTimeline` over the real app loop (the Why? screen's
+  functions), stored in `src/assets/hero-drift.json` because the landing page runs no app loop;
+  `test/heroDrift.test.ts` recomputes them and fails if they differ.
