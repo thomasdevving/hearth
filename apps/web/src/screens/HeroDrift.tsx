@@ -15,8 +15,8 @@ const points = drift.points as Point[];
 const fmt = (v: number | null) => formatValue("rest_midpoint", v);
 
 const W = 292;
-const H = 160;
-const PAD = { l: 4, r: 4, t: 34, b: 8 };
+const H = 140;
+const PAD = { l: 4, r: 4, t: 36, b: 6 };
 /** Points shown in the first phase: the usual weeks, before the last stretch. */
 const USUAL_UNTIL = 15;
 
@@ -135,13 +135,12 @@ export function HeroDrift() {
             <strong>Check-in ready</strong>
             <span className="drift-chip">on-device</span>
           </div>
-          <span>Three quick questions, about 20 seconds.</span>
+          <span>Three quick questions</span>
           <span className="drift-sign">Your sign: <em>“{drift.quote}”</em></span>
         </div>
       </div>
 
       <a className="preview-open" href="#/home">Explore the full demo<span aria-hidden="true">→</span></a>
-      <p className="preview-privacy"><span aria-hidden="true">◇</span>Your words stay on your device.</p>
     </section>
   );
 }
