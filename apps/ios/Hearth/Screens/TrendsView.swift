@@ -21,7 +21,7 @@ struct TrendsView: View {
       } else {
         Muted("How far your days are from your usual pattern. When the smoothed line stays above your usual range, Hearth calls it a change.")
         SectionTitle(text: "Change index")
-        indexChart(records, contexts: contexts)
+        IndexChart(records: records, contexts: contexts)
         legend([("Daily index", Color(hex: 0x8B8A85)), ("Smoothed", Theme.magenta), ("Your usual range (limit)", Theme.ink)])
         SectionTitle(text: "By domain")
         domainChart(records)
@@ -30,32 +30,6 @@ struct TrendsView: View {
       if !all.isEmpty { stateCounts(all) }
       if !all.isEmpty { signals(all) }
     }
-  }
-
-  private func indexChart(_ records: [DayRecordValue], contexts: [ContextLabelValue]) -> some View {
-    Chart {
-      ForEach(contexts.filter { $0.kind == "explains_sensors" }, id: \.id) { c in
-        if let s = Clock.date(c.start), let e = Clock.date(c.end) {
-          RectangleMark(xStart: .value("Start", s), xEnd: .value("End", e)).foregroundStyle(Theme.magentaTint)
-        }
-      }
-      ForEach(records, id: \.date) { r in
-        if let d = Clock.date(r.date) {
-          if let D = r.D {
-            PointMark(x: .value("Date", d), y: .value("Daily index", D)).foregroundStyle(Color(hex: 0x8B8A85)).symbolSize(12)
-          }
-          if r.UCL != nil {
-            LineMark(x: .value("Date", d), y: .value("Smoothed", r.S), series: .value("Series", "S")).foregroundStyle(Theme.magenta).lineStyle(.init(lineWidth: 2.5))
-          }
-          if let u = r.UCL {
-            LineMark(x: .value("Date", d), y: .value("Limit", u), series: .value("Series", "UCL")).foregroundStyle(Theme.ink).lineStyle(.init(lineWidth: 1.5, dash: [6, 4]))
-          }
-        }
-      }
-    }
-    .chartXAxis { AxisMarks(values: .stride(by: .month)) { _ in AxisGridLine(); AxisValueLabel(format: .dateTime.month(.abbreviated)) } }
-    .frame(height: 220)
-    .accessibilityLabel("Change index per day with the smoothed line and your usual range")
   }
 
   private func domainChart(_ records: [DayRecordValue]) -> some View {

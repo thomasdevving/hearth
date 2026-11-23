@@ -801,8 +801,11 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   band against the engine's stored z-scores), one day that did not count (`whyTimeline`: the day
   furthest above the limit while the trend stayed under it) and the day the trend crossed. All
   numbers from the engine (R2); no model; non-diagnostic wording (R9).
-- **Web only for now.** The engine functions run in JavaScriptCore too, so iOS can use them; the
-  iOS screens are not built yet.
+- **iOS: Why? only.** `WhyView` (`Route.why(feature)`, from the phrases under Why? on Today)
+  calls `usualRangeSeries` and `whyTimeline` through JavaScriptCore and draws the same three
+  steps with Swift Charts; the index chart is shared with Trends (`IndexChart`). Smaller step
+  and what came first are web only for now. Debug: `-HearthDemoChange YES` (with `-HearthDemo`)
+  drifts the last two weeks of demo data so the Changed state can be checked in the Simulator.
 
 ## Landing: pinned walkthroughs, tilted iPhone frame and a drift card in the hero (2026-11-23)
 

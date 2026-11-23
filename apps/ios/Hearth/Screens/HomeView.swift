@@ -4,7 +4,14 @@ import SwiftUI
 /// and the user's own last months.
 struct HomeView: View {
   @Environment(AppModel.self) private var app
-  @State private var why = false
+  @State private var why = Self.whyOpen
+
+  #if DEBUG
+  /// `-HearthWhyOpen YES` starts with the Why? list open (for screenshots).
+  private static var whyOpen: Bool { UserDefaults.standard.bool(forKey: "HearthWhyOpen") }
+  #else
+  private static let whyOpen = false
+  #endif
 
   var body: some View {
     let _ = app.revision
@@ -76,7 +83,15 @@ struct HomeView: View {
           Button(why ? "Hide" : "Why?") { why.toggle() }.buttonStyle(.link)
           if why {
             if last.contributors.isEmpty { Text("• A small change across several signals.") }
-            ForEach(last.contributors, id: \.feature) { c in Text("• \(c.phrase)") }
+            // Each phrase opens Why? for its signal (web: `why` with `feature`).
+            VStack(alignment: .leading, spacing: 0) {
+              ForEach(last.contributors, id: \.feature) { c in
+                Button("\(c.phrase) ›") { app.path.append(.why(c.feature)) }
+                  .buttonStyle(.link)
+                  .multilineTextAlignment(.leading)
+                  .accessibilityHint("Shows this signal against your usual days")
+              }
+            }
           }
         }
         if let d = last?.date { Muted("Scored up to \(Clock.pretty(d)).") }

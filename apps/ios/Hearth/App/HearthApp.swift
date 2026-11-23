@@ -27,6 +27,9 @@ struct HearthApp: App {
     case "settings": model.selectedTab = .settings
     default: break
     }
+    // `-HearthRoute why:rest_midpoint` opens that screen on top of the tab.
+    if let r = UserDefaults.standard.string(forKey: "HearthRoute"), r.hasPrefix("why:") { model.path = [.why(String(r.dropFirst(4)))] }
+    if DemoData.change { DemoData.addRule(store: model.store) }
     if CloudCheck.requested { Task { await CloudCheck.run() } }
     #endif
     People.migrateTrustedContact(model.store)
@@ -116,6 +119,7 @@ struct RootView: View {
     case .baselinePhq: BaselinePhqView()
     case .weekly: WeeklyView()
     case .people: PeopleView()
+    case .why(let feature): WhyView(feature: feature)
     }
   }
 }

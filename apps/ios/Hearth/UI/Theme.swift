@@ -205,6 +205,8 @@ struct FlowLayout: Layout {
 struct ScreenScroll<Content: View>: View {
   let title: String
   var badge: String? = nil
+  /// Where the scroll starts and stays when the content grows (nil: the top, as usual).
+  var anchor: UnitPoint? = nil
   @ViewBuilder var content: Content
   var body: some View {
     ScrollView {
@@ -218,6 +220,8 @@ struct ScreenScroll<Content: View>: View {
     }
     .background(Color.white)
     .scrollDismissesKeyboard(.interactively)
+    .defaultScrollAnchor(anchor, for: .initialOffset)
+    .defaultScrollAnchor(anchor, for: .sizeChanges)
   }
 }
 

@@ -219,3 +219,25 @@ struct CrisisLines: Codable {
   var countries: [String: Line]
   var emergency_text: String
 }
+
+// Explanations (packages/engine/src/explain.ts) ------------------------------------------
+
+/// `UsualPoint`: one day of a signal against the usual range it was scored with.
+struct UsualPoint: Codable, Hashable {
+  var date: String
+  var value: Double?
+  var median: Double?
+  var low: Double?
+  var high: Double?
+  var z: Double?
+}
+
+/// `WhyTimeline`: the latest changed stretch, the single day that did not count, and how long
+/// the trend had been rising before it crossed the limit.
+struct WhyTimelineValue: Codable, Hashable {
+  struct Episode: Codable, Hashable { var start: String; var end: String? }
+  struct SingleDay: Codable, Hashable { var date: String; var D: Double; var UCL: Double }
+  var episode: Episode?
+  var singleDay: SingleDay?
+  var risingDays: Int
+}

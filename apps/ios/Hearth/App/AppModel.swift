@@ -284,4 +284,6 @@ enum Route: Hashable {
   case baselinePhq
   case weekly
   case people
+  /// Why? for one signal (feature id), from the phrases under Why? on Today.
+  case why(String)
 }
