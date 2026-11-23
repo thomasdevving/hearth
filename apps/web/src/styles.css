@@ -546,6 +546,7 @@ legend { padding: 0; margin-bottom: var(--s2); }
 .wf-phone-left .wf-text { grid-column: 2; grid-row: 1; }
 .wf-phone-left .phone-petal { background-image: url("./assets/phone-petal-left.svg"); }
 .wf-inline-phone { display: none; }
+.facts-section { padding-top: 0; }
 @media (min-width: 861px) and (min-height: 621px) {
   .plan-intro { overflow: hidden; }
 }
@@ -616,6 +617,7 @@ legend { padding: 0; margin-bottom: var(--s2); }
   .phone-petal { width: min(calc(100% + 180px), calc(100vw - 16px)); }
   /* Each section has one set of gutters, including the nested ledger/support. */
   #privacy > .land-section, .landing > section.land-section { padding: 0; }
+  #privacy > .facts-section { padding: 0 var(--s6) var(--s7); }
   .flow-head { min-height: 0; padding-block: 0; }
   .flow-head-inner { padding: var(--s6); }
   .flow-head-inner > * { max-width: 38rem; }
@@ -842,13 +844,7 @@ button.demo-btn::before { content: "Demo: "; color: var(--muted); font-weight: 4
 /* Plan setup: section headings read like the questions around them (same font, size and weight as the bold labels). */
 .plan-q { font-family: var(--font-body); font-size: 1rem; font-weight: 700; line-height: inherit; letter-spacing: 0; color: var(--ink); margin: var(--s5) 0 var(--s1); }
 
-/* Landing: numbers straight after the hero (with how they were measured), and a short FAQ. */
-.land-proof { position: relative; z-index: 1; max-width: var(--land-max); margin: 0 auto; padding: var(--s5) var(--s5) var(--s7); }
-.land-proof .facts { margin-top: 0; border-top: 1px solid var(--line); padding-top: var(--s6); }
-.proof-note { margin: var(--s4) 0 0; font-size: 0.85rem; color: var(--muted); }
-/* Stay left of the hero flower's petals; numbers in Outfit (Syne's 0 reads like an o). */
-.land-proof > * { max-width: 640px; }
-.land-proof .fact .n { font-family: var(--font-body); font-weight: 700; letter-spacing: -0.02em; }
+/* Landing: a short FAQ before the final call to action. */
 .land-faq { max-width: 760px; margin: 0 auto; padding: var(--s7) var(--s5) calc(var(--s7) * 1.5); }
 .land-faq h2 { font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 var(--s5); }
 .faq-list details { border-bottom: 1px solid var(--line); }
@@ -859,6 +855,5 @@ button.demo-btn::before { content: "Demo: "; color: var(--muted); font-weight: 4
 .faq-list details[open] summary::after { content: "–"; }
 .faq-list details p { margin: 0 0 var(--s4); color: var(--ink-2); max-width: 40em; }
 @media (max-width: 860px) {
-  .land-proof { padding: var(--s4) var(--s6) var(--s6); }
   .land-faq { padding: var(--s6) var(--s6) var(--s7); }
 }

@@ -302,31 +302,6 @@ export function Landing({ section }: { section?: string }) {
       </header>
       </div>
 
-      <section className="land-proof" aria-label="What the demo shows">
-        <div className="facts">
-          <div className="fact reveal">
-            <div className="n">
-              <CountUp to={0} />
-            </div>
-            <p>requests left the browser with the cloud off, over a full 150-day demo.</p>
-          </div>
-          <div className="fact reveal" style={{ ["--d" as string]: "120ms" }}>
-            <div className="n">
-              <CountUp to={7} suffix=" days" />
-            </div>
-            <p>median time to notice a gradual change.</p>
-          </div>
-          <div className="fact reveal" style={{ ["--d" as string]: "240ms" }}>
-            <div className="n">
-              0<span className="vs"> vs </span>
-              <CountUp to={92} />
-            </div>
-            <p>alarm days on holiday, with and without confirming the holiday.</p>
-          </div>
-        </div>
-        <p className="proof-note">Measured in the demo on simulated people: 50 for noticing a change, 20 for holidays.</p>
-      </section>
-
       <section id="how" aria-labelledby="how-title">
         <div className="flow-head flow-text-right plan-intro" style={{ ["--bg" as string]: `url(${flowerPlan})` }}>
           <div className="flow-head-inner reveal">
@@ -372,6 +347,29 @@ export function Landing({ section }: { section?: string }) {
           </div>
         </div>
         <Workflow eyebrow="Privacy you can check" title="See what left your device, and get help even without internet" steps={privacySteps} />
+        <div className="land-section facts-section">
+          <div className="facts">
+            <div className="fact reveal">
+              <div className="n">
+                <CountUp to={0} />
+              </div>
+              <p>requests left the browser with the cloud off, in a full 150-day demo run.</p>
+            </div>
+            <div className="fact reveal" style={{ ["--d" as string]: "120ms" }}>
+              <div className="n">
+                <CountUp to={7} suffix=" days" />
+              </div>
+              <p>median time to notice the demo person's gradual change, on 50 simulated people.</p>
+            </div>
+            <div className="fact reveal" style={{ ["--d" as string]: "240ms" }}>
+              <div className="n">
+                0<span className="vs"> vs </span>
+                <CountUp to={92} />
+              </div>
+              <p>holiday alarm days with the holiday confirmed, and without, across 20 simulated people.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="land-faq" id="faq" aria-labelledby="faq-title">
