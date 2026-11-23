@@ -104,6 +104,11 @@ input[type="checkbox"] { accent-color: var(--magenta); }
 .card.warm { background: var(--magenta-tint); border-color: var(--magenta-line); }
 button.card { border-radius: var(--radius); position: relative; padding-right: 44px; }
 button.card::after { content: "›"; position: absolute; right: var(--s4); top: 50%; transform: translateY(-50%); font-size: 1.6rem; line-height: 1; color: var(--magenta); }
+/* An inbox card that starts something shows a real-looking button, so it reads as tappable. */
+.card-cta { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin-top: var(--s2); padding: 8px 16px; border-radius: 999px; background: var(--magenta); color: var(--white); font-weight: 600; font-size: 0.95rem; }
+.card-cta::after { content: "›"; font-size: 1.15rem; line-height: 1; }
+button.card:has(.card-cta) { padding-right: var(--s4); }
+button.card:has(.card-cta)::after { display: none; }
 @media (hover: hover) { .card.clickable:hover { background: var(--magenta-tint); } }
 .card q, .quote { font-style: italic; color: var(--ink-2); }
 .card .row { margin-bottom: 0; }

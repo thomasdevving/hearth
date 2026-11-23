@@ -142,9 +142,9 @@ struct HomeView: View {
   @ViewBuilder private func inboxCard(_ item: InboxItem) -> some View {
     switch item.type {
     case "checkin":
-      cardButton(.accent, "Check-in ready", "Three quick questions, about 20 seconds.") { app.path.append(.checkin(item.checkinId ?? "")) }
+      cardButton(.accent, "Check-in ready", "Three quick questions, about 20 seconds.", cta: "Start check-in") { app.path.append(.checkin(item.checkinId ?? "")) }
     case "questionnaire":
-      cardButton(.accent, item.instrument == "PHQ2" ? "Two short questions" : "A short questionnaire (9 questions)", "About the last two weeks.") {
+      cardButton(.accent, item.instrument == "PHQ2" ? "Two short questions" : "A short questionnaire (9 questions)", "About the last two weeks.", cta: "Start") {
         app.path.append(.questionnaire(item.instrument ?? "PHQ2"))
       }
     case "context_confirm":
@@ -160,16 +160,35 @@ struct HomeView: View {
     }
   }
 
-  private func cardButton(_ tone: Card<AnyView>.Tone, _ title: String, _ sub: String, action: @escaping () -> Void) -> some View {
+  /// A tappable inbox card. Cards that start something show a real button ("Start check-in"),
+  /// the others a chevron, so they read as tappable (web: `.card-cta`, `button.card::after`).
+  private func cardButton(_ tone: Card<AnyView>.Tone, _ title: String, _ sub: String, cta: String? = nil, action: @escaping () -> Void) -> some View {
     Button(action: action) {
       Card(tone: tone) {
-        AnyView(VStack(alignment: .leading, spacing: 4) {
-          Text(title).font(HearthFont.body(17, weight: "SemiBold"))
-          Text(sub).foregroundStyle(Theme.ink2)
+        AnyView(HStack(alignment: .center, spacing: 12) {
+          VStack(alignment: .leading, spacing: 4) {
+            Text(title).font(HearthFont.body(17, weight: "SemiBold"))
+            Text(sub).foregroundStyle(Theme.ink2)
+            if let cta {
+              HStack(spacing: 6) {
+                Text(cta)
+                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+              }
+              .font(HearthFont.body(16, weight: "SemiBold")).foregroundStyle(.white)
+              .padding(.horizontal, 16).frame(minHeight: 40)
+              .background(Capsule().fill(Theme.magenta))
+              .padding(.top, 8)
+            }
+          }
+          if cta == nil {
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right").font(.system(size: 17, weight: .semibold)).foregroundStyle(Theme.magenta)
+              .accessibilityHidden(true)
+          }
         })
       }
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.bare)
   }
 
   @ViewBuilder var extras: some View {
