@@ -776,3 +776,30 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
 - **Not a letter from a clinician.** Letters between the therapist and the GP are written by
   them (NHG guideline on information exchange GP–GGZ); this page is what the patient chooses to
   bring. The clinician report with weekly numbers stays on the share link (task E).
+
+## Smaller step, what came first, and an interactive "Why?" (2026-11-23)
+
+- **Smaller step for a hard day.** Each action in the plan can get the user's own smaller
+  version ("Make it smaller" on Your plan; `PlanAction.smaller`). "Too much today?" shows it and
+  "I'll do this instead" records the choice for that day in `action_choices` (Dexie v4, S3, on
+  the device). Hearth then says, by counting, "Last time (date) you chose the smaller step". No
+  model writes or picks the smaller step; it is not asked for during plan setup, so the first
+  run stays as short as before. The GP page lists it under "What I do". If-then plans with a
+  fallback are a known relapse-prevention technique (implementation intentions).
+- **What came first** (`signalOnset` in `packages/engine/src/explain.ts`). For the latest changed
+  stretch (ELEVATED or CONFIRMED, ongoing or finished) it finds, per signal, the first day of a
+  sustained move away from the usual range: `r ≥ onsetRiskMin` (1) on `onsetSustainDays` (2) of
+  three days in a row, searched from `onsetLookbackDays` (28) before the stretch. The new keys
+  are in `shared/config/defaults.json` and the Remote Config template. Your plan shows the order,
+  "N days before Hearth noticed", the user's own quote for their signs, and for other signals
+  "Watch for this too", which adds a rule only with a quote the user types. Signs that did not
+  move are listed without judgement.
+- **Interactive "Why?"** (`#/why?feature=…`, from the phrases under Why? on Today and from What
+  came first). Three steps: the signal against its usual range (`usualRangeSeries`: the same
+  reference set, day type and median ± 1.4826·MAD + floor that scoring used, with only the
+  questionnaires known on that day, so a later PHQ-9 does not redraw the past; a test checks the
+  band against the engine's stored z-scores), one day that did not count (`whyTimeline`: the day
+  furthest above the limit while the trend stayed under it) and the day the trend crossed. All
+  numbers from the engine (R2); no model; non-diagnostic wording (R9).
+- **Web only for now.** The engine functions run in JavaScriptCore too, so iOS can use them; the
+  iOS screens are not built yet.

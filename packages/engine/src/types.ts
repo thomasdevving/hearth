@@ -121,6 +121,8 @@ export interface PlanAction {
   text: string;
   quote: string;
   active: boolean;
+  /** The user's own smaller version for a day when the action is too much (S3, typed by the user). */
+  smaller?: string;
 }
 
 export type ContextKind = "explains_sensors" | "stressor";
@@ -389,6 +391,9 @@ export interface Config {
   minKnownMinutes: number;
   backfillDays: number;
   rawRetentionDays: number;
+  onsetLookbackDays: number; // explain.ts: how far before a changed stretch to look for what moved first
+  onsetRiskMin: number; // explain.ts: risk-directed deviation that counts as "moved"
+  onsetSustainDays: number; // explain.ts: of three days in a row, how many must have moved
   phone: { enabled: boolean; thresholds: number[] };
   featureFloors: Record<string, number>;
   promptVersions: Record<string, string>;

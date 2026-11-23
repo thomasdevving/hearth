@@ -19,6 +19,7 @@ import { EvalG } from "./EvalG";
 import { HelpedNew } from "./HelpedNew";
 import { People } from "./People";
 import { PlanPrint } from "./PlanPrint";
+import { Why } from "./Why";
 
 export const SCREENS: Record<string, ComponentType<{ params: Record<string, string> }>> = {
   home: Home,
@@ -42,4 +43,5 @@ export const SCREENS: Record<string, ComponentType<{ params: Record<string, stri
   helped_new: HelpedNew,
   people: People,
   plan_print: PlanPrint,
+  why: Why,
 };

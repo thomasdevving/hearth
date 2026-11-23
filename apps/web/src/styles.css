@@ -174,6 +174,40 @@ th { background: var(--surface-2); font-weight: 600; position: sticky; top: 0; }
 .today-pick li svg { flex: none; color: var(--magenta); }
 .today-pick small { color: var(--ink-2); }
 
+/* ---------- smaller step, what came first, why ---------- */
+.action-item { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.today-pick li:has(.action-item) { display: block; font-family: var(--font-body); font-size: 1rem; font-weight: 400; }
+.today-pick .action-item strong { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+.action-buttons { margin: 0; align-items: center; }
+.action-buttons .secondary { min-height: 40px; padding: 6px 14px; }
+.action-memory { color: var(--ink-2); font-size: 0.85rem; }
+.action-chosen { margin: 0; color: var(--steady); font-weight: 600; font-size: 0.92rem; }
+.smaller-step { padding: var(--s3) var(--s4); border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--s2); align-items: flex-start; }
+.smaller-step p { margin: 0; font-weight: 600; }
+.smaller-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.smaller-edit { display: flex; flex-direction: column; gap: var(--s2); }
+.smaller-edit label { display: flex; flex-direction: column; gap: var(--s1); font-size: 0.9rem; color: var(--ink-2); }
+.smaller-edit .row { margin: 0; }
+.small-link { font-size: 0.85rem; align-self: flex-start; }
+.came-first .onset-list { list-style: none; margin: var(--s3) 0; padding: 0; counter-reset: onset; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
+.came-first .onset-list li { counter-increment: onset; position: relative; padding: var(--s3) var(--s4) var(--s3) calc(var(--s4) + 30px); display: flex; flex-direction: column; gap: 4px; }
+.came-first .onset-list li + li { border-top: 1px solid var(--line); }
+.came-first .onset-list li::before { content: counter(onset); position: absolute; left: var(--s4); top: var(--s3); width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); color: var(--ink-2); font-size: 0.8rem; font-weight: 700; display: grid; place-items: center; }
+.came-first .onset-list li.is-own::before { background: var(--magenta-tint); color: var(--magenta-deep); }
+.onset-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s1) var(--s3); }
+.onset-when { color: var(--changed); font-size: 0.88rem; font-weight: 600; }
+.onset-own { color: var(--ink-2); font-style: italic; }
+.onset-other { color: var(--muted); font-size: 0.88rem; }
+.why-link { text-align: left; }
+.why-step { margin: var(--s5) 0; }
+.why-step h2 { display: flex; align-items: center; gap: var(--s2); font-size: 1.15rem; }
+.why-num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--magenta); color: #fff; font-size: 0.85rem; display: grid; place-items: center; }
+.why-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--s2); font-size: 0.82rem; color: var(--ink-2); margin: var(--s2) 0 0; }
+.why-legend .lg { display: inline-block; width: 16px; height: 10px; border-radius: 2px; }
+.why-legend .lg-value { height: 3px; background: #ca026a; }
+.why-legend .lg-band { background: rgba(47, 125, 79, 0.25); }
+.why-legend .lg-mid { height: 0; border-top: 2px dashed #2f7d4f; }
+
 /* ---------- plan cards (plan setup) ---------- */
 .add-own { display: inline-block; margin: var(--s4) 0 var(--s2); }
 .add-own-form { margin: var(--s4) 0; padding: var(--s4); border: 1px dashed var(--magenta-line); border-radius: var(--radius); }

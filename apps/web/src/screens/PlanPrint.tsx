@@ -147,7 +147,10 @@ export function PlanPrint() {
                   ) : (
                     <ul>
                       {d.actions.map((a) => (
-                        <li key={a.id}>{a.text}</li>
+                        <li key={a.id}>
+                          {a.text}
+                          {a.smaller && <span className="gp-how">If that is too much: {a.smaller}</span>}
+                        </li>
                       ))}
                     </ul>
                   )}

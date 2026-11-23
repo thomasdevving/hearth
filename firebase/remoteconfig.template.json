@@ -234,6 +234,24 @@
       },
       "valueType": "NUMBER"
     },
+    "onsetLookbackDays": {
+      "defaultValue": {
+        "value": "28"
+      },
+      "valueType": "NUMBER"
+    },
+    "onsetRiskMin": {
+      "defaultValue": {
+        "value": "1"
+      },
+      "valueType": "NUMBER"
+    },
+    "onsetSustainDays": {
+      "defaultValue": {
+        "value": "2"
+      },
+      "valueType": "NUMBER"
+    },
     "phone": {
       "defaultValue": {
         "value": "{\"enabled\":false,\"thresholds\":[0,30,60,120,180,240,360]}"

@@ -13,6 +13,10 @@ import { ModelBadge } from "../ui/kit";
 import { HelpedCard } from "../ui/HelpedCard";
 import { CallAFriend } from "../ui/CallAFriend";
 import { getPeople } from "../app/people";
+import { ActionItem } from "../ui/ActionItem";
+import { WhatCameFirst } from "../ui/WhatCameFirst";
+import { getToday } from "../app/clock";
+import { getMeta } from "../app/runtime";
 
 async function exportFhir(): Promise<void> {
   const [rules, items, actions, questionnaires] = await Promise.all([db.plan_rules.toArray(), db.personal_items.toArray(), db.plan_actions.toArray(), db.questionnaires.toArray()]);
@@ -30,6 +34,8 @@ export function MyPlan() {
     last: (await db.day_records.orderBy("date").last()) ?? null,
     helped: (await db.helped_notes.toArray()).filter((n) => !n.archived).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
     people: await getPeople(),
+    choices: await db.action_choices.toArray(),
+    today: (await getMeta())?.today ?? getToday(),
   }));
   const [fit, setFit] = useState<{ ids: string[]; ranOn: "on_device" | "cloud" } | null>(null);
   // Task K: which of the user's own actions fit today. The model returns ids only; the user's
@@ -70,10 +76,7 @@ export function MyPlan() {
               const a = actions.find((x) => x.id === id);
               return a ? (
                 <li key={id}>
-                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M4 12 12 4M5.5 4H12v6.5" />
-                  </svg>
-                  <span>{a.text}</span>
+                  <ActionItem action={a} choices={d.choices} today={d.today} showQuote={false} />
                 </li>
               ) : null;
             })}
@@ -89,10 +92,7 @@ export function MyPlan() {
             .filter((a) => !fit?.ids.includes(a.id))
             .map((a) => (
               <li key={a.id} className="plan-item">
-                <div className="plan-item-text">
-                  <strong>{a.text}</strong>
-                  <span className="quote">“{a.quote}”</span>
-                </div>
+                <ActionItem action={a} choices={d.choices} today={d.today} />
               </li>
             ))}
         </ul>
@@ -107,6 +107,7 @@ export function MyPlan() {
         </Card>
       )}
       <CallAFriend people={d.people} />
+      <WhatCameFirst />
       <section className="for-clinician" aria-labelledby="for-clinician-title">
         <h2 id="for-clinician-title" className="plan-group">For your GP or clinician</h2>
         <p className="muted">Your plan on one page, or as a file their system can read (FHIR). Made on this device; you decide whether to hand it over.</p>

@@ -19,9 +19,9 @@ const GRID = "#e6e5e1";
 /** The most recent day with a value (a rolling feature can be null on the last day). */
 const lastValue = (vals: (number | null)[]) => [...vals].reverse().find((v) => v !== null) ?? null;
 
-const sec = (date: string) => Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10)) / 1000;
+export const sec = (date: string) => Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10)) / 1000;
 
-function axes(yLabel: string): uPlot.Axis[] {
+export function axes(yLabel: string): uPlot.Axis[] {
   return [
     { stroke: INK2, grid: { stroke: GRID, width: 1 }, ticks: { stroke: GRID }, values: (_u, vals) => vals.map((v) => new Date(v * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })) },
     { stroke: INK2, grid: { stroke: GRID, width: 1 }, ticks: { stroke: GRID }, label: yLabel, size: 44 },
@@ -100,7 +100,7 @@ function contextPlugin(contexts: ContextLabel[], qs: QuestionnaireRecord[]): uPl
   };
 }
 
-function indexChart(all: DayRecord[], contexts: ContextLabel[], qs: QuestionnaireRecord[]) {
+export function indexChart(all: DayRecord[], contexts: ContextLabel[], qs: QuestionnaireRecord[]) {
   // Before the usual range exists the index is scored against a reference still being built;
   // the chart starts at the first day with a limit.
   const first = all.findIndex((r) => r.UCL !== null);

@@ -49,6 +49,9 @@ const checks: Record<keyof Config, Check> = {
   minKnownMinutes: num(0, 1440),
   backfillDays: int(0, 730),
   rawRetentionDays: int(1, 3650),
+  onsetLookbackDays: int(7, 120),
+  onsetRiskMin: num(0.1, 4),
+  onsetSustainDays: int(1, 3),
   phone: (v) =>
     isRecord(v) &&
     typeof v.enabled === "boolean" &&

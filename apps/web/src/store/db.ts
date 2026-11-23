@@ -156,6 +156,7 @@ export class HearthDB extends Dexie {
   day_actions!: Table<{ date: string; actions: Action[] }, string>;
   helped_notes!: Table<HelpedNote, string>;
   people!: Table<Person, string>;
+  action_choices!: Table<ActionChoice, string>;
 
   constructor(name = "hearth") {
     super(name);
@@ -191,7 +192,17 @@ export class HearthDB extends Dexie {
         const c = (await tx.table("trusted_contact").get("singleton"))?.value as { name: string; phone: string } | undefined;
         if (c?.phone) await tx.table("people").put({ id: "person_1", order: 0, name: c.name || "", phone: c.phone, goodFor: "", message: DEFAULT_MESSAGE });
       });
+    // "Too much today": which version of an action the user chose on a day (the smaller step).
+    this.version(4).stores({ action_choices: "id, actionId, date" });
   }
+}
+
+/** One choice on one day: the action as written, or the user's own smaller step (S3, on this device). */
+export interface ActionChoice {
+  id: string;
+  actionId: string;
+  date: string;
+  choice: "full" | "smaller";
 }
 
 /** Someone the user can reach out to (S3: stays on this device; Hearth never contacts them). */

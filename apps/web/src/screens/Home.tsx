@@ -202,7 +202,11 @@ export function Home() {
             <ul className="why">
               {last.contributors.length === 0 && <li>A small change across several signals.</li>}
               {last.contributors.map((c) => (
-                <li key={c.feature}>{c.phrase}</li>
+                <li key={c.feature}>
+                  <button className="link why-link" onClick={() => navigate("why", { feature: c.feature })}>
+                    {c.phrase} ›
+                  </button>
+                </li>
               ))}
             </ul>
           )}

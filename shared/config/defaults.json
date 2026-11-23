@@ -38,6 +38,9 @@
   "minKnownMinutes": 480,
   "backfillDays": 120,
   "rawRetentionDays": 180,
+  "onsetLookbackDays": 28,
+  "onsetRiskMin": 1,
+  "onsetSustainDays": 2,
   "phone": { "enabled": false, "thresholds": [0, 30, 60, 120, 180, 240, 360] },
   "featureFloors": {
     "steps": 300,
