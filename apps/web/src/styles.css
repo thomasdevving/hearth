@@ -774,14 +774,14 @@ button.demo-btn::before { content: "Demo: "; color: var(--muted); font-weight: 4
 .person-actions .call, .safety .person-actions .call, .support-card .person-actions .call { margin: 0; min-height: 0; font-size: 0.95rem; font-weight: 600; line-height: 1; text-align: center; }
 
 /* ---------- intro (first screen) ---------- */
-.app:has(.intro) { padding-bottom: 0; }
-.column:has(.intro) { padding-top: 0; padding-bottom: 0; overflow: hidden; }
+.app:has(.onboard) { padding-bottom: 0; }
+.column:has(.onboard) { padding-top: 0; padding-bottom: 0; overflow: hidden; }
 /* Splash: the mark blooms open, then the name, the slogan and one button. */
-.intro { position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--s7) 0; }
-.intro::before { content: ""; position: absolute; z-index: -1; inset: 0 -24px; background: url("./assets/hero-flower.webp") center 30% / 140% auto no-repeat; opacity: 0.16; mask-image: radial-gradient(ellipse at 50% 35%, #000 25%, transparent 70%); pointer-events: none; }
+.onboard { position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--s7) 0; }
+.onboard::before { content: ""; position: absolute; z-index: -1; inset: 0 -24px; background: url("./assets/hero-flower.webp") center 30% / 140% auto no-repeat; opacity: 0.16; mask-image: radial-gradient(ellipse at 50% 35%, #000 25%, transparent 70%); pointer-events: none; }
 .intro-mark { width: 96px; height: 96px; margin-bottom: var(--s5); }
 .intro-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; letter-spacing: 0.02em; color: var(--magenta); margin: 0 0 var(--s3); }
-.intro h1 { font-size: clamp(2rem, 8.5vw, 2.7rem); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 var(--s7); max-width: 11em; }
+.onboard h1 { font-size: clamp(2rem, 8.5vw, 2.7rem); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 var(--s7); max-width: 11em; }
 .intro-start { min-height: 52px; padding: 0 var(--s6); font-size: 1.05rem; }
 /* Short onboarding: three points, privacy behind one link, one way forward. */
 .intro-about { align-items: stretch; justify-content: flex-start; text-align: left; padding: var(--s6) 0 var(--s5); }
@@ -810,11 +810,11 @@ button.demo-btn::before { content: "Demo: "; color: var(--muted); font-weight: 4
 .intro-demo { margin: var(--s3) 0 0; font-size: 0.8rem; color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) {
   .intro-mark { animation: intro-bloom 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-  .intro-brand, .intro h1, .intro-start, .intro-more, .intro-demo, .intro-cards li, .about-lead { animation: intro-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .intro-brand, .onboard h1, .intro-start, .intro-more, .intro-demo, .intro-cards li, .about-lead { animation: intro-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
   .intro-brand { animation-delay: 0.45s; }
-  .intro h1 { animation-delay: 0.65s; }
+  .onboard h1 { animation-delay: 0.65s; }
   .intro-start { animation-delay: 0.95s; }
-  .intro::before { animation: intro-fade 1.8s ease both; }
+  .onboard::before { animation: intro-fade 1.8s ease both; }
   .intro-about .intro-mark { animation-duration: 0.6s; }
   .intro-about h1 { animation-delay: 0.1s; }
   .about-lead { animation-delay: 0.15s; }

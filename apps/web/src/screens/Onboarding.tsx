@@ -54,7 +54,7 @@ export function Onboarding() {
 
   if (step === "intro")
     return (
-      <section className="intro" aria-labelledby="intro-title">
+      <section className="onboard" aria-labelledby="intro-title">
         <div className="intro-mark" aria-hidden="true">
           <LogoMark size={96} />
         </div>
@@ -67,7 +67,7 @@ export function Onboarding() {
     );
 
   return (
-    <section className="intro intro-about" aria-labelledby="about-title">
+    <section className="onboard intro-about" aria-labelledby="about-title">
       <div className="intro-mark intro-mark-small" aria-hidden="true">
         <LogoMark size={44} />
       </div>
