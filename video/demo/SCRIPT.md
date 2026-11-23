@@ -1,4 +1,4 @@
-# Jury demo: script and voice-over (2:59)
+# Jury demo: script and voice-over (2:58)
 
 Draft video: `video/demo/hearth-jury-draft.mp4` (1920×1080). The small timecode in the top
 right corner of every frame matches the times below, so you can line up your webcam clips and
@@ -9,23 +9,23 @@ voice-over in any editor (CapCut, iMovie, Premiere, DaVinci).
   below fits its slot at that pace.
 - The live demo plays at real speed (1×): nothing is sped up. Only waiting time at the cuts
   is left out, and the time machine skips the simulated days.
-- The time limit is 3:00. The draft is 2:59, so keep your clips inside their placeholders.
+- The time limit is 3:00. The draft is 2:58, so keep your clips inside their placeholders.
 
 ## How it maps to the recipe
 
 | # | Recipe point | Where |
 |---|---|---|
 | 1 | Recognisable problem, ≤ 30 s | 0:00–0:24 webcam hook + "Today" slide |
-| 2 | One sentence, repeated at the end | 0:24 and 2:51 (same sentence) |
-| 3 | A real, live demo with visible effect | 0:31–2:01, the real web app at 1× |
-| 4 | The agent catches or verifies a mistake, and you say so | 0:45–0:51 "Caught and checked" (quote check); 1:32 recall with a checked quote and Sam's confirmation |
-| 5 | Sponsor models by name, each with a role, architecture slide | 2:23–2:34 |
-| 6 | Human control, safety, privacy | 2:34–2:42 (and in the demo at 0:51, 1:00, 1:45, 1:50 and 1:58) |
-| 7 | Hard numbers | 2:42–2:51 |
-| 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:51–2:59 |
+| 2 | One sentence, repeated at the end | 0:24 and 2:50 (same sentence) |
+| 3 | A real, live demo with visible effect | 0:30–1:58, the real web app at 1×; then the GP page, 1:58–2:08 |
+| 4 | The agent catches or verifies a mistake, and you say so | 0:44–0:49 "Caught and checked" (quote check); 1:30 recall with a checked quote and Sam's confirmation |
+| 5 | Sponsor models by name, each with a role, architecture slide | 2:26–2:35 |
+| 6 | Human control, safety, privacy | 2:35–2:42 (and in the demo at 0:49, 0:58, 1:43, 1:48 and 1:54) |
+| 7 | Hard numbers | 2:42–2:50 |
+| 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:50–2:58 |
 
-The tech and theory sit between the demo and the architecture: what Hearth watches
-(2:01–2:11) and what counts as a drift (2:11–2:23).
+After the demo: the GP page (1:58–2:08). The tech and theory sit between that and the
+architecture: what Hearth watches (2:08–2:16) and what counts as a drift (2:16–2:26).
 
 ## Script
 
@@ -42,54 +42,62 @@ Your own words, to camera. A suggestion to adapt (38 words, about 15 seconds):
 > VO: "Today, a relapse-prevention plan sits in a drawer, and appointments are weeks apart.
 > In between, the drift goes unnoticed."
 
-### 0:24–0:31 · Slide: the one sentence
+### 0:24–0:30 · Slide: the one sentence
 > VO: "Hearth notices when your days drift, and reminds you what helps, in your own words."
 
-### 0:31–2:01 · LIVE DEMO (screen recording at 1×, optional small WEBCAM bottom left)
+### 0:30–1:58 · LIVE DEMO (screen recording at 1×, optional small WEBCAM bottom left)
 | Time | On screen | VO |
 |---|---|---|
-| 0:31 | Sam types the plan | "This is Sam. Hearth already watches research-based signals for everyone. Sam adds the early signs Sam knows, in their own words." |
-| 0:41 | Cards appear | "Gemini Nano, running inside Chrome, turns that into a plan." |
-| 0:45 | **Caught and checked** | "The model invented a sign Sam never mentioned. Hearth checks every quote and drops it." |
-| 0:51 | Sam reviews and saves | "Sam stays in control: untick anything that's wrong." |
-| 0:56 | Day 61, note | "Day 61. Sam writes: 'I'm in Spain this week.'" |
-| 1:00 | One quick check | "Hearth asks once; only after a yes is the holiday set aside." |
-| 1:05 | Day 109, Changed | "Day 109. Later sleep, a higher resting heart rate. The engine computes that, not the model." |
-| 1:13 | **Why?** | "Why? shows each signal against Sam's own usual days: one bad day doesn't count, the trend does." |
-| 1:18 | Check-in | "A twenty-second check-in: three taps for how Sam feels, Sam's own questions, and one line in Sam's own words: 'I've started avoiding people again.'" |
-| 1:32 | **Recalled by meaning** | "Gemini Nano, on the device, recognises one of Sam's own signs: 'stop replying to messages'. Sam confirms." |
-| 1:39 | What helped last time | "And Hearth brings back what helped last time, in Sam's own words." |
-| 1:45 | Draft that text | "Nano drafts the text. Sam decides whether to send it; Hearth never does." |
-| 1:50 | Call a friend | "On a hard day, one tap calls Sam's sister or texts Maya. Hearth itself never contacts anyone." |
-| 1:58 | Privacy ledger | "Every call ran on the device." |
+| 0:30 | Sam types the plan | "This is Sam. Hearth already watches research-based signals for everyone. Sam adds the early signs Sam knows, in their own words." |
+| 0:40 | Cards appear | "Gemini Nano, running inside Chrome, turns that into a plan." |
+| 0:44 | **Caught and checked** | "The model invented a sign Sam never mentioned. Hearth checks every quote and drops it." |
+| 0:49 | Sam reviews and saves | "Sam stays in control: untick anything that's wrong." |
+| 0:54 | Day 61, note | "Day 61. Sam writes: 'I'm in Spain this week.'" |
+| 0:58 | One quick check | "Hearth asks once; only after a yes is the holiday set aside." |
+| 1:03 | Day 109, Changed | "Day 109. Later sleep, a higher resting heart rate. The engine computes that, not the model." |
+| 1:11 | **Why?** | "Why? shows each signal against Sam's own usual days: one bad day doesn't count, the trend does." |
+| 1:16 | Check-in | "A twenty-second check-in: three taps for how Sam feels, Sam's own questions, and one line in Sam's own words: 'I've started avoiding people again.'" |
+| 1:30 | **Recalled by meaning** | "Gemini Nano, on the device, recognises one of Sam's own signs: 'stop replying to messages'. Sam confirms." |
+| 1:37 | What helped last time | "And Hearth brings back what helped last time, in Sam's own words." |
+| 1:43 | Draft that text | "Nano drafts the text. Sam decides whether to send it; Hearth never does." |
+| 1:48 | Call a friend | "On a hard day, one tap calls Sam's sister or texts Maya." |
+| 1:54 | Privacy ledger | "Every call ran on the device." |
 
-### 2:01–2:11 · What Hearth watches, and why
-> VO: "Hearth watches what research links to harder periods: sleep, activity, rhythm, heart
-> rate and places, each only against your own usual days."
+### 1:58–2:08 · For the GP: the plan on one page
+The A4 page from the app, with its parts marked one by one: the header (kept and shared by
+Sam), current status, the plan by phase (stable, early signs, crisis), the crisis row, the
+questionnaires, and the FHIR R4 copy.
 
-### 2:11–2:23 · What counts as a drift, and how Hearth helps
+> VO: "For Sam's GP: the plan on one page, each sign in Sam's own words, and a FHIR copy for
+> the practice, made on the device."
+
+### 2:08–2:16 · What Hearth watches, and why
+> VO: "Hearth watches what research links to harder periods, each only against your own
+> usual days."
+
+### 2:16–2:26 · What counts as a drift, and how Hearth helps
 The chart is Sam's real index from the engine. Day 107 spikes but the trend stays inside
 Sam's usual range; on day 109 the trend crosses.
 
-> VO: "Not one bad day: day 107 alone changed nothing. Only when the trend leaves Sam's range
-> comes a check-in, Sam's plan, and a questionnaire if it lasts."
+> VO: "Not one bad day: day 107 changed nothing. Only when the trend leaves Sam's range
+> does Hearth step in."
 
-### 2:23–2:34 · Architecture
+### 2:26–2:35 · Architecture
 > VO: "Hybrid through Firebase AI Logic. Code computes every score. Gemini Nano handles your
 > words on the device; cloud Gemini sees only weekly numbers, after you opt in."
 
-### 2:34–2:42 · Control, safety and privacy
+### 2:35–2:42 · Control, safety and privacy
 > VO: "You confirm every card. The cloud stays off until you say yes, and the 988 screen
 > works offline."
 
-### 2:42–2:51 · Numbers
+### 2:42–2:50 · Numbers
 > VO: "On fifty simulated people: drift noticed in a median of seven days, one false-alarm
 > day per hundred, nothing left the browser."
 
 Fill in the amber card before recording: run `#/eval_g` in Chrome with Gemini Nano and use
 the precision it shows.
 
-### 2:51–2:59 · Close (optional small WEBCAM)
+### 2:50–2:58 · Close (optional small WEBCAM)
 > VO / WEBCAM: "When your days drift, Hearth notices. Built with Firebase AI Logic and Gemini.
 > Scan to try it."
 
@@ -104,7 +112,7 @@ The QR code opens https://hearth-9de01.web.app; the GitHub link is shown under i
      Start → Jump to: Holiday → Use scripted note → confirm → Yes → Jump to: First change →
      Today → Why? → tap the first reason (the Why? screen) → Today → open the check-in → answer, type "Yeah, I've started avoiding people again.
      Haven't answered anyone in days." → Save → Yes, that's it → Draft that text → Today tab (scroll to "Call a friend") → Privacy tab.
-     Then put your recording over 0:31–2:01 (the phone frame), or use it full screen.
+     Then put your recording over 0:30–1:58 (the phone frame), or use it full screen.
    - **Or let the script drive your Chrome (recommended):** the video layout reads the
      timing marks from the recording, so a new recording drops straight in.
      1. In Chrome, check that `chrome://on-device-internals` shows the model as ready.
