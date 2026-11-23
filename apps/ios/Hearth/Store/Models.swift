@@ -176,6 +176,8 @@ import SwiftData
   var sensorHeart: Bool = true
   var sensorVisits: Bool = false
   var healthAuthorized: Bool = false
+  /// The day of the hard stretch the "what helped?" prompt on Today was answered for.
+  var helpedPromptDone: String? = nil
   init() {}
 }
 
@@ -204,11 +206,48 @@ import SwiftData
   init(id: String, date: String, type: String) { self.id = id; self.date = date; self.type = type; self.status = "open" }
 }
 
+/// `action_choices` (as on the web), key `<actionId>_<date>`: which version of a plan action
+/// the user chose on a day, so Hearth can say by counting which one they chose last time.
+/// Class S3, local only.
+@Model final class ActionChoice {
+  @Attribute(.unique) var id: String
+  var actionId: String
+  var date: String
+  var choice: String        // full | smaller
+  init(actionId: String, date: String, choice: String) {
+    self.id = "\(actionId)_\(date)"; self.actionId = actionId; self.date = date; self.choice = choice
+  }
+  var value: ActionChoiceValue? { ActionChoiceValue.Choice(rawValue: choice).map { ActionChoiceValue(actionId: actionId, date: date, choice: $0) } }
+}
+
+/// `helped_notes` (as on the web), key `id`: "what helped me last time", a sentence and/or a
+/// short voice note, attached to one of the user's signs by the sign's own words. Class S3:
+/// never leaves the device, and no model writes it.
+@Model final class HelpedNote {
+  @Attribute(.unique) var id: String
+  /// The sign, by the user's own words (PlanRule.quote or PersonalItem.quote).
+  var signQuote: String
+  var text: String
+  /// Optional voice note, at most ~15 s (AAC in an .m4a container).
+  @Attribute(.externalStorage) var audio: Data?
+  /// Optional text to send.
+  var message: String?
+  var contactName: String?
+  var createdAt: String     // YYYY-MM-DD
+  var source: String        // user | seed
+  var archived: Bool
+  init(id: String, signQuote: String, text: String, audio: Data?, message: String?, contactName: String?, createdAt: String, source: String = "user", archived: Bool = false) {
+    self.id = id; self.signQuote = signQuote; self.text = text; self.audio = audio; self.message = message
+    self.contactName = contactName; self.createdAt = createdAt; self.source = source; self.archived = archived
+  }
+}
+
 enum HearthSchema {
   static let models: [any PersistentModel.Type] = [
     DayRaw.self, DayRecord.self, EngineState.self, PlanSource.self, PlanRule.self, PersonalItem.self,
     PlanAction.self, ContextLabel.self, CheckinRecord.self, DiaryEntry.self, LedgerEntry.self,
     QuestionnaireRecord.self, SafetyPlan.self, TrustedContact.self, SafetyEvent.self, HearthSettings.self,
-    WeekAggregate.self, InboxItem.self, Person.self,
+    WeekAggregate.self, InboxItem.self, Person.self, ActionChoice.self,
+    HelpedNote.self,
   ]
 }

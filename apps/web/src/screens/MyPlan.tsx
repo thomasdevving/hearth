@@ -133,7 +133,7 @@ export function MyPlan() {
         Save what helped
       </button>
       </Fold>
-      <Fold title="Your signs and questions" hint={`${d.rules.length} signs · ${d.items.length} questions`}>
+      <Fold title="Your signs and questions" hint={`${d.rules.length} sign${d.rules.length === 1 ? "" : "s"} · ${d.items.length} question${d.items.length === 1 ? "" : "s"}`}>
       <h2 className="plan-group">Signs you watch for</h2>
       <ul className="plan-list">
         {d.rules.map((r) => (

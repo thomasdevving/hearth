@@ -358,6 +358,9 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hearth does not write to Health.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Hearth notes which places you visit (not your route) to learn your usual days. Locations never leave this iPhone.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Hearth uses your location to name a place in your plan, such as the gym. Locations never leave this iPhone.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "If you choose, Hearth reads a photo of your paper plan on this iPhone. The photo is not kept.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "If you choose, Hearth records a short voice note about what helped you, or turns what you say into text on this iPhone. It stays on this iPhone.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "If you choose to speak instead of type, your words are recognised on this iPhone only. Nothing is sent to a server.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -391,6 +394,9 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hearth does not write to Health.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Hearth notes which places you visit (not your route) to learn your usual days. Locations never leave this iPhone.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Hearth uses your location to name a place in your plan, such as the gym. Locations never leave this iPhone.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "If you choose, Hearth reads a photo of your paper plan on this iPhone. The photo is not kept.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "If you choose, Hearth records a short voice note about what helped you, or turns what you say into text on this iPhone. It stays on this iPhone.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "If you choose to speak instead of type, your words are recognised on this iPhone only. Nothing is sent to a server.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

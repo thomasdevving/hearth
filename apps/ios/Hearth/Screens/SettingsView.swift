@@ -10,7 +10,7 @@ struct SettingsView: View {
   var body: some View {
     let _ = app.revision
     let s = app.settings
-    ScreenScroll(title: "Settings") {
+    ScreenScroll(title: "Settings", anchor: WhyView.debugAnchor) {
       SectionTitle(text: "Where models run")
       Toggle(isOn: Binding(get: { CloudModel.isConfigured && s.cloudConsent }, set: { s.cloudConsent = $0; app.changed() })) {
         VStack(alignment: .leading, spacing: 2) {
@@ -25,7 +25,7 @@ struct SettingsView: View {
       Toggle(isOn: Binding(get: { s.onDeviceEnabled }, set: { s.onDeviceEnabled = $0; app.changed() })) {
         VStack(alignment: .leading, spacing: 2) {
           Text("Use the on-device model").font(HearthFont.body(16, weight: "SemiBold"))
-          Muted("Apple Intelligence: \(OnDeviceModel.availability.rawValue). When off, private tasks use simple fallbacks.")
+          Muted("Apple Intelligence: \(OnDeviceModel.availability.rawValue). When off, private tasks use simple rules.")
         }
       }
       .tint(Theme.magenta)
@@ -76,15 +76,21 @@ struct SettingsView: View {
       Button("My safety plan ›") { app.safetyEntry = "edit" }.buttonStyle(.link)
 
       SectionTitle(text: "Your data")
+      Button("Share with your clinician ›") { app.path.append(.share) }.buttonStyle(.link)
       Button("Delete everything") { confirmDelete = true }
         .buttonStyle(.secondary)
         .foregroundStyle(Theme.danger)
       if let msg { Text(msg).foregroundStyle(Theme.steady) }
+
+      SectionTitle(text: "About Hearth")
+      Muted("The research each signal rests on, the formulas, and what was measured.")
+      Button("The science behind Hearth ›") { app.path.append(.science) }.buttonStyle(.link)
       HelpButton()
     }
     .confirmationDialog("Delete everything on this iPhone? This cannot be undone.", isPresented: $confirmDelete, titleVisibility: .visible) {
       Button("Delete everything", role: .destructive) {
         app.store.deleteEverything()
+        ExportFiles.clear()
         app.path.removeAll()
         app.changed()
       }

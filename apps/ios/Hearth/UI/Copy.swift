@@ -16,8 +16,8 @@ enum Copy {
 
   static let featureLabel: [String: String] = [
     "steps": "Steps", "active_hours": "Active hours", "walking_speed": "Walking pace",
-    "rhythm_stability": "Daily rhythm", "fragmentation": "Stop-and-start activity", "relative_amplitude": "Day–night difference",
-    "rest_duration": "Rest length", "rest_midpoint": "Rest time (midpoint)", "rest_regularity": "Regular rest times",
+    "rhythm_stability": "Daily rhythm", "fragmentation": "Activity in short bursts", "relative_amplitude": "Day–night difference",
+    "rest_duration": "Rest length", "rest_midpoint": "Middle of your night", "rest_regularity": "Regular rest times",
     "hrv": "Heart rate variability", "resting_hr": "Resting heart rate",
     "home_stay": "Time at home", "location_entropy": "Variety of places", "places_visited": "Places visited",
     "location_variance": "Area covered", "routine_regularity": "Usual routine", "place_visits": "Visits",
@@ -40,6 +40,15 @@ enum Copy {
   static let direction: [String: String] = [
     "higher": "goes up", "lower": "goes down", "later": "gets later", "earlier": "gets earlier", "less_regular": "gets less regular",
   ]
+  /// Plural labels ("Steps", "Visits to the gym") take a plural verb, as on the web.
+  private static let plural: Set<String> = ["steps", "active_hours", "rest_regularity", "places_visited", "place_visits"]
+  private static let pluralDirection: [String: String] = [
+    "higher": "go up", "lower": "go down", "later": "get later", "earlier": "get earlier", "less_regular": "get less regular",
+  ]
+  static func direction(_ feature: String, _ dir: String) -> String {
+    let base = String(feature.split(separator: ":").first ?? "")
+    return (plural.contains(base) ? pluralDirection : direction)[dir] ?? dir
+  }
 
   static let context: [String: String] = [
     "holiday": "On holiday", "travel": "Travelling", "visitors": "Visitors staying", "ill": "Ill", "moving": "Moving house",
@@ -104,14 +113,19 @@ enum Copy {
     "safety": "Support options are shown.",
   ]
 
+  /// Plain weekly summary written by code (web: templates.ts `weeklyTemplate`). Words, not
+  /// the raw index: the comparison is made in code (R2), the number stays on Trends.
   static func weeklyTemplate(_ weeks: [WeekAggregateValue]) -> (reflection: String, question: String) {
     guard let w = weeks.last else { return ("No full week of data yet.", "What would you like to notice this week?") }
     let prev = weeks.count > 1 ? weeks[weeks.count - 2] : nil
     func plural(_ n: Int, _ one: String, _ many: String) -> String { "\(n) \(n == 1 ? one : many)" }
-    var parts = ["In \(w.isoWeek) there were \(plural(w.daysWithData, "day", "days")) with data."]
-    if let m = w.indexMean { parts.append("Your change index averaged \(fmt(m))\(prev?.indexMean.map { ", against \(fmt($0)) the week before" } ?? "").") }
+    var parts = ["In \(Weekly.weekLabel(w.isoWeek)) there were \(plural(w.daysWithData, "day", "days")) with data."]
+    if let m = w.indexMean, let p = prev?.indexMean {
+      let diff = m - p
+      parts.append(abs(diff) < 0.05 ? "Your days were about as close to your usual pattern as the week before." : diff > 0 ? "Your days were a little further from your usual pattern than the week before." : "Your days were closer to your usual pattern than the week before.")
+    }
     if w.daysElevated > 0 { parts.append("On \(plural(w.daysElevated, "day", "days")) your pattern looked different from usual.") }
-    if w.ema.n > 0, let mood = w.ema.mood_low { parts.append("You answered \(plural(w.ema.n, "check-in", "check-ins")); \"feeling down\" averaged \(fmt(mood)) out of 7.") }
+    if w.ema.n > 0, let mood = w.ema.mood_low { parts.append("You answered \(plural(w.ema.n, "check-in", "check-ins")); \"feeling down\" averaged \(JSONText.number(mood)) out of 7.") }
     if !w.contexts.isEmpty { parts.append("You noted: \(w.contexts.joined(separator: ", ")).") }
     return (parts.joined(separator: " "), "What made the better days of this week different?")
   }
@@ -120,7 +134,7 @@ enum Copy {
 
   static let taskName: [String: String] = [
     "G": "Plan → cards", "G2": "Scan a paper plan", "H": "Context from a note", "I": "Spoken check-in",
-    "A": "Check-in introduction", "B": "Diary markers", "C": "Explain a result", "K": "Pick your own actions",
+    "A": "Check-in introduction", "B": "Diary markers", "C": "Explain a result", "K": "Pick your own actions", "R": "Recall what helped", "T": "Draft a text",
     "Q": "Ask your data", "P": "Shareable weekly note", "D": "Weekly reflection", "E": "Clinician report",
   ]
 

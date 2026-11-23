@@ -1,0 +1,24 @@
+{
+  "note": "Shared input for the FHIR export on the web (src/export/fhir.ts) and on iOS (FhirExport.swift). fhir-web.json is the web's output for it, with urn:uuid values numbered in order. Regenerate with UPDATE_FIXTURES=1 npx vitest run test/fhirParity.test.ts in apps/web.",
+  "now": "2026-11-22T10:00:00.000Z",
+  "rules": [
+    { "id": "r1", "feature": "rest_midpoint", "direction": "later", "placeId": null, "quote": "going to bed later", "active": true },
+    { "id": "r2", "feature": "steps", "direction": "lower", "placeId": null, "quote": "I hardly walk", "active": true },
+    { "id": "r3", "feature": "place_visits", "direction": "lower", "placeId": "place_1", "quote": "I stop going to the climbing gym", "active": true },
+    { "id": "r4", "feature": "home_stay", "direction": "higher", "placeId": null, "quote": "an old sign I removed", "active": false }
+  ],
+  "items": [
+    { "id": "i1", "question": "Did you reply to messages today?", "quote": "stop replying to messages", "active": true },
+    { "id": "i2", "question": "Did you eat regular meals today?", "quote": "an old question", "active": false }
+  ],
+  "actions": [
+    { "id": "a1", "text": "Call my sister", "quote": "Calling my sister helps", "active": true },
+    { "id": "a2", "text": "Go for a walk before lunch", "quote": "a walk at lunch clears my head", "active": true, "smaller": "Step outside for five minutes" },
+    { "id": "a3", "text": "An old action", "quote": "no longer", "active": false }
+  ],
+  "questionnaires": [
+    { "id": "q3", "instrument": "PHQ9", "takenAt": "2026-11-20T21:15:00+01:00", "answers": [2, 2, 2, 1, 1, 2, 1, 1, 1], "result": { "id": "PHQ9", "total": 13, "band": "moderate", "positive": false, "flagged": true, "changeFromReference": 8, "safetyItemPositive": true, "nextStep": "safety" } },
+    { "id": "q1", "instrument": "PHQ9", "takenAt": "2026-10-05T19:00:00+02:00", "answers": [1, 1, 2, 0, 0, 1, 0, 0, 0], "result": { "id": "PHQ9", "total": 5, "band": "mild", "positive": false, "flagged": false, "changeFromReference": null, "safetyItemPositive": false, "nextStep": "none" } },
+    { "id": "q2", "instrument": "PHQ2", "takenAt": "2026-11-18T08:30:00+01:00", "answers": [2, 1], "result": { "id": "PHQ2", "total": 3, "band": null, "positive": true, "flagged": false, "changeFromReference": null, "safetyItemPositive": false, "nextStep": "offer_phq9" } }
+  ]
+}

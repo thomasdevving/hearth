@@ -53,7 +53,15 @@ struct PlanRuleValue: Codable, Hashable {
   var active: Bool
 }
 struct PersonalItemValue: Codable, Hashable { var id: String; var question: String; var quote: String; var active: Bool }
-struct PlanActionValue: Codable, Hashable { var id: String; var text: String; var quote: String; var active: Bool }
+struct PlanActionValue: Codable, Hashable {
+  var id: String
+  var text: String
+  var quote: String
+  var active: Bool
+  /// The user's own smaller version for a day when the action is too much (S3, typed by the
+  /// user, never written by a model).
+  var smaller: String? = nil
+}
 
 struct ContextLabelValue: Codable, Hashable {
   var id: String
@@ -183,6 +191,9 @@ struct WeekAggregateValue: Codable {
   var phq9: Int?
   var phq9Flagged: Bool?
   var contexts: [String]
+  /// The note in the user's own voice, only after they approved it (task P, class S1).
+  struct Note: Codable, Equatable { var themes: [String]?; var text: String }
+  var note: Note?
 }
 
 // Questionnaires and safety lists from shared/ -----------------------------------------
@@ -218,4 +229,47 @@ struct CrisisLines: Codable {
   var `default`: Line
   var countries: [String: Line]
   var emergency_text: String
+}
+
+// Explanations (packages/engine/src/explain.ts) ------------------------------------------
+
+/// `UsualPoint`: one day of a signal against the usual range it was scored with.
+struct UsualPoint: Codable, Hashable {
+  var date: String
+  var value: Double?
+  var median: Double?
+  var low: Double?
+  var high: Double?
+  var z: Double?
+}
+
+/// `WhyTimeline`: the latest changed stretch, the single day that did not count, and how long
+/// the trend had been rising before it crossed the limit.
+struct WhyTimelineValue: Codable, Hashable {
+  struct Episode: Codable, Hashable { var start: String; var end: String? }
+  struct SingleDay: Codable, Hashable { var date: String; var D: Double; var UCL: Double }
+  var episode: Episode?
+  var singleDay: SingleDay?
+  var risingDays: Int
+}
+
+/// `SignalOnset` (packages/engine/src/explain.ts): when one signal first moved in the latest
+/// stretch, counted by the engine.
+struct SignalOnsetValue: Codable, Hashable {
+  var feature: String
+  /// The rule in the user's plan that watches this signal, if any.
+  var ruleId: String?
+  var firstDate: String?
+  /// Days before the stretch started (negative: after it started).
+  var daysBefore: Int?
+  var direction: String?
+}
+
+/// `OnsetResult`: the latest stretch, the signals that moved (earliest first) and the plan's
+/// signs that did not move.
+struct OnsetResultValue: Codable, Hashable {
+  struct Episode: Codable, Hashable { var start: String; var end: String? }
+  var episode: Episode
+  var moved: [SignalOnsetValue]
+  var unchanged: [SignalOnsetValue]
 }

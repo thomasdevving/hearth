@@ -34,7 +34,7 @@ struct QuestionnairePages: View {
               .background(RoundedRectangle(cornerRadius: 12).fill(selected ? Theme.magenta : .white))
               .overlay(RoundedRectangle(cornerRadius: 12).stroke(selected ? Theme.magenta : Theme.line, lineWidth: 1.5))
           }
-          .buttonStyle(.plain)
+          .buttonStyle(.bare)
           .accessibilityAddTraits(selected ? [.isSelected] : [])
         }
       }
@@ -69,7 +69,7 @@ struct BaselinePhqView: View {
   @Environment(AppModel.self) private var app
   var body: some View {
     ScreenScroll(title: "Your starting point") {
-      Muted("Nine questions about the last two weeks. Your answers become your own reference: later, Hearth compares with this, not with other people.")
+      Muted("Nine questions about the last two weeks. Later answers are compared with these.")
       QuestionnairePages(instrument: "PHQ9") { rec in app.path.append(.result(rec.id, baseline: true)) }
     }
   }
@@ -103,7 +103,8 @@ struct ResultView: View {
         if r.flagged && !baseline {
           Card(tone: .warm) {
             Text("Consider sharing this with your GP or clinician").font(HearthFont.body(16, weight: "SemiBold"))
-            Text("You could bring this result to your next appointment.")
+            Text("You can create a summary to bring along or send.")
+            Button("Share a summary ›") { app.path.append(.share) }.buttonStyle(.link)
           }
         }
         let phq9Open = app.store.openInbox().contains { $0.type == "questionnaire" && $0.instrument == "PHQ9" }

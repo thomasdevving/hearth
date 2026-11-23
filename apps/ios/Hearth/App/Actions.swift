@@ -158,6 +158,20 @@ extension AppModel {
     changed()
   }
 
+  // For today (task K) -----------------------------------------------------------------------
+
+  /// Task K: which of the user's own actions fit today. The model returns ids only, checked
+  /// against the plan's ids (R8); the user's own text is shown (selection, not advice). Nil
+  /// without a model or with nothing usable: then all actions are shown, as on the web.
+  func pickForToday(actions: [PlanActionValue], today contributors: [String]) async -> (ids: [String], ranOn: String)? {
+    guard actions.count >= 2 else { return nil }
+    let ids = actions.map(\.id)
+    let input: [String: Any] = ["today": contributors, "actions": actions.map { ["id": $0.id, "text": $0.text] }]
+    let res = await router.run("K", input: input, options: .init(verify: ["actionIds": ids]))
+    guard res.ok, let picked = (JSONText.object(res.json ?? "") as? [String: Any])?["action_ids"] as? [String], !picked.isEmpty else { return nil }
+    return (picked, res.ranOn)
+  }
+
   // Plan (task G) ----------------------------------------------------------------------------
 
   /// Saves the accepted cards. `places[i]` is the coordinate picked for a place rule; a place

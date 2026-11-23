@@ -27,6 +27,7 @@ function InboxCard({ item }: { item: InboxItem }) {
         <Card tone="accent" onClick={() => navigate("checkin", { id: item.checkinId })} label="Open check-in">
           <strong>Check-in ready</strong>
           <span>Three quick questions, about 20 seconds.</span>
+          <span className="card-cta" aria-hidden="true">Start check-in</span>
         </Card>
       );
     case "questionnaire":
@@ -34,6 +35,7 @@ function InboxCard({ item }: { item: InboxItem }) {
         <Card tone="accent" onClick={() => navigate("questionnaire", { instrument: item.instrument })} label={`Open ${item.instrument}`}>
           <strong>{item.instrument === "PHQ2" ? "Two short questions" : "A short questionnaire (9 questions)"}</strong>
           <span>About the last two weeks.</span>
+          <span className="card-cta" aria-hidden="true">Start</span>
         </Card>
       );
     case "context_confirm":

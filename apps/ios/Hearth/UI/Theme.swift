@@ -90,14 +90,14 @@ struct SectionTitle: View {
 struct ModelBadge: View {
   let ranOn: String
   var body: some View {
-    let text = ranOn == "on_device" ? "on-device" : ranOn == "cloud" ? "cloud" : "template"
+    let text = ranOn == "on_device" ? "on-device" : ranOn == "cloud" ? "cloud" : "standard text"
     Text(text)
       .font(HearthFont.body(12, weight: "SemiBold"))
       .padding(.horizontal, 8).padding(.vertical, 3)
       .foregroundStyle(ranOn == "cloud" ? Theme.changed : ranOn == "on_device" ? Theme.magentaDeep : Theme.muted)
       .background(Capsule().fill(ranOn == "on_device" ? Theme.magentaTint : Theme.surface2))
       .overlay(Capsule().stroke(ranOn == "on_device" ? Theme.magentaLine : Theme.line))
-      .accessibilityLabel(ranOn == "cloud" ? "Written by the cloud model" : ranOn == "on_device" ? "Written by the model on this device" : "Fixed text, no model")
+      .accessibilityLabel(ranOn == "cloud" ? "Written by the cloud model" : ranOn == "on_device" ? "Written by the model on this device" : "Standard text written by Hearth, no model")
   }
 }
 
@@ -138,9 +138,38 @@ struct LinkButtonStyle: ButtonStyle {
   }
 }
 
+/// A secondary button that only takes the room it needs, for rows of small choices (web:
+/// `.action-buttons .secondary`).
+struct CompactButtonStyle: ButtonStyle {
+  @Environment(\.isEnabled) private var enabled
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .font(HearthFont.body(16, weight: "Medium"))
+      .foregroundStyle(enabled ? Theme.magentaDeep : Theme.muted)
+      .frame(minHeight: 40)
+      .padding(.horizontal, 14)
+      .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+      .overlay(RoundedRectangle(cornerRadius: 10).stroke(enabled ? Theme.magentaLine : Theme.line, lineWidth: 1.5))
+      .contentShape(Rectangle())
+      .opacity(configuration.isPressed ? 0.8 : 1)
+  }
+}
+
+/// A button that draws only its own label: no system highlight (iOS 26+ tints `.plain` buttons
+/// while pressed, which flashed light blue on the questionnaire options), just a slight fade.
+struct BareButtonStyle: ButtonStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .contentShape(Rectangle())
+      .opacity(configuration.isPressed ? 0.85 : 1)
+  }
+}
+
 extension ButtonStyle where Self == PrimaryButtonStyle { static var primary: PrimaryButtonStyle { .init() } }
 extension ButtonStyle where Self == SecondaryButtonStyle { static var secondary: SecondaryButtonStyle { .init() } }
 extension ButtonStyle where Self == LinkButtonStyle { static var link: LinkButtonStyle { .init() } }
+extension ButtonStyle where Self == BareButtonStyle { static var bare: BareButtonStyle { .init() } }
+extension ButtonStyle where Self == CompactButtonStyle { static var compact: CompactButtonStyle { .init() } }
 
 struct Card<Content: View>: View {
   enum Tone { case accent, warm, plain }
@@ -172,7 +201,7 @@ struct Chip: View {
         .background(Capsule().fill(selected ? Theme.magenta : .white))
         .overlay(Capsule().stroke(selected ? Theme.magenta : Theme.line, lineWidth: 1.5))
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.bare)
     .accessibilityAddTraits(selected ? [.isSelected] : [])
   }
 }
@@ -205,6 +234,8 @@ struct FlowLayout: Layout {
 struct ScreenScroll<Content: View>: View {
   let title: String
   var badge: String? = nil
+  /// Where the scroll starts and stays when the content grows (nil: the top, as usual).
+  var anchor: UnitPoint? = nil
   @ViewBuilder var content: Content
   var body: some View {
     ScrollView {
@@ -218,6 +249,8 @@ struct ScreenScroll<Content: View>: View {
     }
     .background(Color.white)
     .scrollDismissesKeyboard(.interactively)
+    .defaultScrollAnchor(anchor, for: .initialOffset)
+    .defaultScrollAnchor(anchor, for: .sizeChanges)
   }
 }
 
@@ -238,7 +271,7 @@ struct HelpButton: View {
         .frame(maxWidth: .infinity, minHeight: 48)
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.danger, lineWidth: 1.5))
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.bare)
     .padding(.top, 16)
   }
 }
@@ -260,5 +293,41 @@ struct TextArea: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.line))
         .accessibilityLabel(label.isEmpty ? placeholder : label)
     }
+  }
+}
+
+/// A section that starts closed, for the parts of a long screen you only need now and then
+/// (as `Fold` on the web).
+struct Fold<Content: View>: View {
+  let title: String
+  var hint: String? = nil
+  @ViewBuilder var content: Content
+  @State private var open: Bool
+  init(title: String, hint: String? = nil, startsOpen: Bool = false, @ViewBuilder content: () -> Content) {
+    self.title = title; self.hint = hint; self.content = content()
+    _open = State(initialValue: startsOpen)
+  }
+  var body: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      Button { withAnimation(.easeInOut(duration: 0.2)) { open.toggle() } } label: {
+        HStack(alignment: .center, spacing: 12) {
+          VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(HearthFont.display(17)).foregroundStyle(Theme.ink)
+            if let hint { Text(hint).font(HearthFont.body(14)).foregroundStyle(Theme.muted) }
+          }
+          Spacer(minLength: 0)
+          Image(systemName: open ? "minus" : "plus").foregroundStyle(Theme.magenta).font(.system(size: 17, weight: .medium))
+        }
+        .padding(.top, 20).padding(.bottom, 16)
+        .frame(minHeight: 52)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.bare)
+      .accessibilityAddTraits(.isHeader)
+      .accessibilityValue(open ? "open" : "closed")
+      if open { VStack(alignment: .leading, spacing: 10) { content }.padding(.bottom, 16) }
+    }
+    .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 1) }
+    .overlay(alignment: .bottom) { Rectangle().fill(Theme.line).frame(height: 1) }
   }
 }

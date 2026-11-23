@@ -10,10 +10,10 @@ struct CallAFriendCard: View {
     VStack(alignment: .leading, spacing: 10) {
       SectionTitle(text: "Call a friend")
       if people.isEmpty {
-        Muted("Add one to three people you could reach out to on a hard day. They stay on this iPhone; Hearth never contacts them.")
+        Muted("Add one to three people to reach out to on a hard day. Hearth never contacts them.")
         Button("Add someone") { app.path.append(.people) }.buttonStyle(.secondary)
       } else {
-        if !compact { Muted("One call or message can make a hard day lighter. You choose who and when; Hearth never sends anything.") }
+        if !compact { Muted("You choose who and when. Hearth never sends anything.") }
         ForEach(people, id: \.id) { p in
           HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {

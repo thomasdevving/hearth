@@ -284,4 +284,14 @@ enum Route: Hashable {
   case baselinePhq
   case weekly
   case people
+  /// Why? for one signal (feature id), from the phrases under Why? on Today.
+  case why(String)
+  /// "What helped": save a note for a sign (by its words; nil: the first sign).
+  case helpedNew(String?)
+  /// The plan on one page for the GP (`plan_print` on the web).
+  case planPrint
+  /// A summary for a clinician (`share` on the web).
+  case share
+  /// The science behind Hearth (`science` on the web).
+  case science
 }

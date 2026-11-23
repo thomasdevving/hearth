@@ -1,7 +1,8 @@
 #!/bin/sh
 # Build phase: copies the engine bundle, shared/ and the fonts into the app (mode "app"),
-# or the golden fixtures into the test bundle (mode "tests"). Nothing here is committed twice:
-# the sources of truth stay in packages/engine, shared/ and node_modules.
+# or the golden fixtures and the web's FHIR parity fixtures into the test bundle (mode "tests").
+# Nothing here is committed twice: the sources of truth stay in packages/engine, shared/,
+# apps/web/test/fixtures and node_modules.
 set -e
 MODE="$1"
 REPO="${SRCROOT}/../.."
@@ -12,6 +13,10 @@ if [ "$MODE" = "tests" ]; then
   mkdir -p "$DEST/fixtures"
   rm -f "$DEST/fixtures/"*.json
   cp "$REPO/packages/engine/test/fixtures/"*.json "$DEST/fixtures/"
+  # Web output for the same input, so the iOS FHIR export can be compared with the web's.
+  mkdir -p "$DEST/parity"
+  rm -f "$DEST/parity/"*.json
+  cp "$REPO/apps/web/test/fixtures/"fhir-*.json "$DEST/parity/"
   exit 0
 fi
 

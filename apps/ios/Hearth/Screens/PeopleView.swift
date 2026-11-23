@@ -12,7 +12,7 @@ struct PeopleView: View {
 
   var body: some View {
     ScreenScroll(title: "My people") {
-      Muted("One to three people you could call or message when things get harder. They appear on your plan, on Today when your days change, and on the support screen. They stay on this iPhone; Hearth never contacts anyone.")
+      Muted("One to three people to call or message on a hard day. Hearth never contacts them.")
       ForEach(rows.indices, id: \.self) { i in
         VStack(alignment: .leading, spacing: 8) {
           Text("Person \(i + 1)").font(HearthFont.body(16, weight: "SemiBold"))

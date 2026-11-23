@@ -20,7 +20,39 @@ struct HearthApp: App {
       model.settings.onboarded = true
       if UserDefaults.standard.bool(forKey: "HearthDemoPlanned") { model.settings.planDone = true; model.settings.baselineDone = true }
     }
-    if UserDefaults.standard.string(forKey: "HearthTab") == "trends" { model.selectedTab = .trends }
+    switch UserDefaults.standard.string(forKey: "HearthTab") {
+    case "trends": model.selectedTab = .trends
+    case "plan": model.selectedTab = .plan
+    case "ledger": model.selectedTab = .ledger
+    case "settings": model.selectedTab = .settings
+    default: break
+    }
+    if DemoData.change { DemoData.addRule(store: model.store) }
+    if DemoData.enabled && UserDefaults.standard.bool(forKey: "HearthDemoActions") { DemoData.addActions(store: model.store) }
+    if DemoData.helped { DemoData.addHelped(store: model.store) }
+    if DemoData.gp { DemoData.addGP(store: model.store) }
+    if DemoData.note { DemoData.addNotes(store: model.store) }
+    if DemoData.enabled && UserDefaults.standard.bool(forKey: "HearthDemoConsent") { model.settings.cloudConsent = true }
+    // `-HearthRoute why:rest_midpoint` opens that screen on top of the tab; `helped_new` the
+    // "What helped" screen; `checkin` a new random check-in; `plan_print` the plan on one page;
+    // `share` the summary for a clinician; `weekly` the weekly reflection; `science` the
+    // science page; `plan_setup` the plan form; `context_confirm` a holiday found in a note.
+    switch UserDefaults.standard.string(forKey: "HearthRoute") {
+    case let r? where r.hasPrefix("why:"): model.path = [.why(String(r.dropFirst(4)))]
+    case "helped_new": model.path = [.helpedNew(nil)]
+    case "plan_print": model.path = [.planPrint]
+    case "share": model.path = [.share]
+    case "weekly": model.path = [.weekly]
+    case "science": model.path = [.science]
+    case "plan_setup": model.path = [.planSetup(first: false)]
+    case "context_confirm":
+      DemoData.addContextConfirm(store: model.store)
+      if let id = model.store.openInbox().last(where: { $0.type == "context_confirm" })?.id { model.path = [.contextConfirm(id)] }
+    case "checkin":
+      model.createCheckin(kind: "random", reasons: [], date: Clock.today)
+      if let id = model.store.openInbox().last(where: { $0.type == "checkin" })?.checkinId { model.path = [.checkin(id)] }
+    default: break
+    }
     if CloudCheck.requested { Task { await CloudCheck.run() } }
     #endif
     People.migrateTrustedContact(model.store)
@@ -80,7 +112,7 @@ struct RootView: View {
           stack { HomeView() }.tabItem { Label("Today", systemImage: "sun.max") }.tag(AppModel.Tab.today)
           stack { TrendsView() }.tabItem { Label("Trends", systemImage: "chart.xyaxis.line") }.tag(AppModel.Tab.trends)
           stack { MyPlanView() }.tabItem { Label("Plan", systemImage: "list.bullet.rectangle") }.tag(AppModel.Tab.plan)
-          stack { LedgerView() }.tabItem { Label("Ledger", systemImage: "lock.shield") }.tag(AppModel.Tab.ledger)
+          stack { LedgerView() }.tabItem { Label("Privacy", systemImage: "lock.shield") }.tag(AppModel.Tab.ledger)
           stack { SettingsView() }.tabItem { Label("Settings", systemImage: "gearshape") }.tag(AppModel.Tab.settings)
         }
         .onChange(of: app.selectedTab) { _, _ in app.path.removeAll() }
@@ -110,6 +142,11 @@ struct RootView: View {
     case .baselinePhq: BaselinePhqView()
     case .weekly: WeeklyView()
     case .people: PeopleView()
+    case .why(let feature): WhyView(feature: feature)
+    case .helpedNew(let sign): HelpedNewView(sign: sign)
+    case .planPrint: PlanPrintView()
+    case .share: ShareSummaryView()
+    case .science: ScienceView()
     }
   }
 }
