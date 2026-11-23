@@ -148,3 +148,21 @@ and forbids deriving that data another way.
 | A request through `LanguageModelSession(model: ai.geminiLanguageModel(name: "gemini-3.5-flash"))` with a `GenerationSchema` returns schema-shaped JSON | verified | Debug build with `-HearthCloudCheck YES`: answer in 2.9 s |
 | Without a registered App Check debug token the call is refused: "UNAUTHENTICATED, HTTP 401: Firebase App Check token is invalid" | verified | Same check, before registering the token |
 | The debug token can be fixed per run with the `FIRAAppCheckDebugToken` environment variable (`SIMCTL_CHILD_` prefix for `simctl launch`) | verified | Same check |
+
+## 11. Scan a paper plan and speech input on iOS (verified 2026-11-23, iOS 27.3 Simulator)
+
+- **G2:** Apple's on-device model is used with text only, so the photo is read by Vision
+  (`VNRecognizeTextRequest`, accurate, en-US), which runs on the device. Task G2 then runs
+  through the router on the recognised text (reading order). Every line it returns must be in
+  the recognised text (engine `verifyQuote`), otherwise the recognised text is used as is;
+  without a model, the recognised text is used directly. The photo stays in memory and is
+  never written to disk. The text goes into the plan field for correction, then task G runs.
+- **Speech (task I and the microphone buttons):** `SFSpeechRecognizer` with
+  `requiresOnDeviceRecognition = true`; the microphone button is hidden when
+  `supportsOnDeviceRecognition` is false, so server recognition is never used. Audio is not
+  recorded to a file. Usage strings: `NSSpeechRecognitionUsageDescription`,
+  `NSMicrophoneUsageDescription`, `NSCameraUsageDescription`.
+- In this Simulator `SystemLanguageModel.default.availability` reports `available`, but every
+  request fails with `LanguageModelError -1` (Model Catalog: "no underlying assets"). The
+  router logs these as `error` and the fallbacks are used, which is the behaviour without a
+  model. Screens with model output were therefore checked with the DEBUG stand-ins.

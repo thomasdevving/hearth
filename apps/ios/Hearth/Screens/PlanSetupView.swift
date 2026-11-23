@@ -40,14 +40,17 @@ struct PlanSetupView: View {
   // Writing ---------------------------------------------------------------------------------
 
   private var writeView: some View {
-    ScreenScroll(title: "Your plan") {
+    ScreenScroll(title: "Your plan", anchor: WhyView.debugAnchor) {
       Muted("Your own signs make Hearth sharper.")
       TextArea(label: "When things start to slip, what do you, or the people close to you, notice first?", text: $warning, placeholder: "For example: I go to bed later and stop going to the gym…", minHeight: 110)
+      MicButton { t in warning = warning.isEmpty ? t : "\(warning) \(t)" }
       Text("Signs many people notice early").font(HearthFont.body(16, weight: "SemiBold")).padding(.top, 12)
         .accessibilityAddTraits(.isHeader)
       Muted("Tick any that fit you.")
       SuggestionPicker(picked: $picked)
       TextArea(label: "What helps when that happens?", text: $helps, placeholder: "For example: calling my sister…")
+      MicButton { t in helps = helps.isEmpty ? t : "\(helps) \(t)" }
+      ScanPlanButton { t in warning = warning.isEmpty ? t : "\(warning)\n\(t)" }
       let working: Bool = { if case .working = mode { return true } else { return false } }()
       let empty = warning.trimmed.isEmpty && helps.trimmed.isEmpty && picked.isEmpty
       Button(working ? "Reading on this device…" : "Turn into my plan") { Task { await makeCards() } }

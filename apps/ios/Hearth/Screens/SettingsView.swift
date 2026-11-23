@@ -10,7 +10,7 @@ struct SettingsView: View {
   var body: some View {
     let _ = app.revision
     let s = app.settings
-    ScreenScroll(title: "Settings") {
+    ScreenScroll(title: "Settings", anchor: WhyView.debugAnchor) {
       SectionTitle(text: "Where models run")
       Toggle(isOn: Binding(get: { CloudModel.isConfigured && s.cloudConsent }, set: { s.cloudConsent = $0; app.changed() })) {
         VStack(alignment: .leading, spacing: 2) {
@@ -81,6 +81,10 @@ struct SettingsView: View {
         .buttonStyle(.secondary)
         .foregroundStyle(Theme.danger)
       if let msg { Text(msg).foregroundStyle(Theme.steady) }
+
+      SectionTitle(text: "About Hearth")
+      Muted("The research each signal rests on, the formulas, and what was measured.")
+      Button("The science behind Hearth ›") { app.path.append(.science) }.buttonStyle(.link)
       HelpButton()
     }
     .confirmationDialog("Delete everything on this iPhone? This cannot be undone.", isPresented: $confirmDelete, titleVisibility: .visible) {

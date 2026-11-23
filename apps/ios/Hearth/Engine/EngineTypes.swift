@@ -191,6 +191,9 @@ struct WeekAggregateValue: Codable {
   var phq9: Int?
   var phq9Flagged: Bool?
   var contexts: [String]
+  /// The note in the user's own voice, only after they approved it (task P, class S1).
+  struct Note: Codable, Equatable { var themes: [String]?; var text: String }
+  var note: Note?
 }
 
 // Questionnaires and safety lists from shared/ -----------------------------------------

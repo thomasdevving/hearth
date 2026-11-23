@@ -79,15 +79,62 @@ enum DemoData {
   /// message>". Both still go through the router's verification and ledger, on this device.
   static var recall: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoRecall") }
 
+  /// `-HearthDemoAsk YES`: stand-in for tasks Q_classify and Q_phrase ("Ask your data").
+  static var ask: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoAsk") }
+  /// `-HearthDemoNote YES`: stand-in for task P (the weekly note).
+  static var note: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoNote") }
+  /// `-HearthDemoSpoken YES`: stand-in for task I (own questions from what was said).
+  static var spoken: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoSpoken") }
+  /// `-HearthDemoScan YES`: stand-in for task G2 (it returns the recognised text as it is).
+  static var scan: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoScan") }
+  /// `-HearthDemoCloud YES`: routing treats the cloud as reachable, so the payload preview of
+  /// the weekly reflection can be checked. The call itself still needs a configured cloud.
+  static var cloudReachable: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoCloud") }
+
   /// Whether a stand-in answers this task.
-  static func stubs(_ task: String) -> Bool { (pick && task == "K") || (recall && (task == "R" || task == "T")) }
+  static func stubs(_ task: String) -> Bool {
+    (pick && task == "K") || (recall && (task == "R" || task == "T")) || (ask && (task == "Q_classify" || task == "Q_phrase"))
+      || (note && task == "P") || (spoken && task == "I") || (scan && task == "G2")
+  }
 
   static func stub(_ task: String, _ input: [String: Any]) -> String {
     switch task {
     case "R": return stubR(input)
     case "T": return stubT(input)
+    case "Q_classify": return stubQClassify(input)
+    case "Q_phrase": return stubQPhrase(input)
+    case "P": return JSONText.encode(["themes": ["sleep", "activity"], "note": "A slower week with late nights and less energy. Short walks helped a little."])
+    case "I": return stubI(input)
+    case "G2": return JSONText.encode(["text": input["text"] as? String ?? ""])
     default: return stubK(input)
     }
+  }
+
+  /// Keywords instead of a model; the output is checked like a model's.
+  static func stubQClassify(_ input: [String: Any]) -> String {
+    let q = (input["text"] as? String ?? "").lowercased()
+    let has = { (words: [String]) in words.contains { q.contains($0) } }
+    let intent = has(["why"]) && has(["ask", "check-in", "checkin"]) ? "why_asked" : has(["usual", "normal", "compare"]) ? "compare" : has(["rest", "sleep", "bed", "step", "walk", "heart", "mood", "down", "energy", "index"]) ? "trend" : "unsupported"
+    let feature = has(["bed", "night"]) ? "rest_midpoint" : has(["rest", "sleep"]) ? "rest_duration" : has(["step", "walk"]) ? "steps" : has(["heart"]) ? "resting_hr" : has(["mood", "down"]) ? "mood_low" : has(["energy"]) ? "energy" : intent == "why_asked" || intent == "unsupported" ? "none" : "index"
+    let period = has(["last week"]) ? "last_week" : has(["this week"]) ? "this_week" : has(["today"]) ? "today" : has(["month", "4 weeks", "four weeks"]) ? "last_4_weeks" : "none"
+    return JSONText.encode(["intent": intent, "feature": feature, "period": period])
+  }
+
+  /// The engine's plain answer, so every number comes from the facts.
+  static func stubQPhrase(_ input: [String: Any]) -> String {
+    let t = (try? JSONText.decode(String.self, Engine.shared.call("askTemplate", input["facts"] ?? NSNull()))) ?? ""
+    return JSONText.encode(["answer": t])
+  }
+
+  /// The first question is answered "yes" with the text's first clause as the quote.
+  static func stubI(_ input: [String: Any]) -> String {
+    let text = input["text"] as? String ?? ""
+    let clause = text.split(whereSeparator: { ".,;!?\n".contains($0) }).first.map { String($0).trimmingCharacters(in: .whitespaces) } ?? ""
+    let items = (input["items"] as? [[String: Any]] ?? []).compactMap { $0["item_id"] as? String }
+    let answers: [[String: Any]] = items.enumerated().map { i, id in
+      i == 0 && !clause.isEmpty ? ["item_id": id, "answer": "yes", "quote": clause] : ["item_id": id, "answer": "not_mentioned", "quote": ""]
+    }
+    return JSONText.encode(["answers": answers])
   }
 
   static func stubR(_ input: [String: Any]) -> String {
@@ -103,6 +150,33 @@ enum DemoData {
     let saved = (input["saved_message"] as? String ?? "").trimmingCharacters(in: .whitespaces)
     let body = saved.isEmpty ? "Fancy a walk soon?" : saved.prefix(1).lowercased() + saved.dropFirst()
     return JSONText.encode(["message": name.isEmpty ? String(body.prefix(1).uppercased() + body.dropFirst()) : "Hi \(name), \(body)"])
+  }
+
+  /// With `-HearthDemoNote YES`: two notes in the last finished week, so the weekly note can
+  /// be suggested from them.
+  @MainActor
+  static func addNotes(store: Store) {
+    guard store.all(DiaryEntry.self).isEmpty else { return }
+    var sunday = Clock.addDays(Clock.today, -1)
+    while let d = Clock.date(sunday), Clock.calendar.component(.weekday, from: d) != 1 { sunday = Clock.addDays(sunday, -1) }
+    let notes = [(-4, "Late nights again, I barely left the flat. Work felt heavy."), (-2, "A short walk with Maya helped a bit. Still tired.")]
+    for (i, n) in notes.enumerated() {
+      store.context.insert(DiaryEntry(id: "note_demo_\(i)", date: Clock.addDays(sunday, n.0), text: n.1, markersJSON: nil, markersSource: "none", languageJSON: nil))
+    }
+    store.save()
+  }
+
+  /// `-HearthRoute context_confirm`: a holiday found in a note, waiting for one tap.
+  @MainActor
+  static func addContextConfirm(store: Store) {
+    let today = Clock.today
+    let label: [String: Any] = ["id": "ctx_demo", "type": "holiday", "kind": "explains_sensors", "start": today, "end": Clock.addDays(today, 6), "quote": "off to Spain until Sunday", "source": "model", "confirmed": false]
+    store.addInbox("context_confirm", date: today) {
+      $0.contextJSON = JSONText.encode(label)
+      $0.sourceText = "We're off to Spain until Sunday, finally a break."
+      $0.ranOn = "on_device"
+    }
+    store.save()
   }
 
   /// `-HearthDemoHelped YES`: one of Sam's check-in questions ("stop replying to messages")

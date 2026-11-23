@@ -113,14 +113,19 @@ enum Copy {
     "safety": "Support options are shown.",
   ]
 
+  /// Plain weekly summary written by code (web: templates.ts `weeklyTemplate`). Words, not
+  /// the raw index: the comparison is made in code (R2), the number stays on Trends.
   static func weeklyTemplate(_ weeks: [WeekAggregateValue]) -> (reflection: String, question: String) {
     guard let w = weeks.last else { return ("No full week of data yet.", "What would you like to notice this week?") }
     let prev = weeks.count > 1 ? weeks[weeks.count - 2] : nil
     func plural(_ n: Int, _ one: String, _ many: String) -> String { "\(n) \(n == 1 ? one : many)" }
-    var parts = ["In \(w.isoWeek) there were \(plural(w.daysWithData, "day", "days")) with data."]
-    if let m = w.indexMean { parts.append("Your change index averaged \(fmt(m))\(prev?.indexMean.map { ", against \(fmt($0)) the week before" } ?? "").") }
+    var parts = ["In \(Weekly.weekLabel(w.isoWeek)) there were \(plural(w.daysWithData, "day", "days")) with data."]
+    if let m = w.indexMean, let p = prev?.indexMean {
+      let diff = m - p
+      parts.append(abs(diff) < 0.05 ? "Your days were about as close to your usual pattern as the week before." : diff > 0 ? "Your days were a little further from your usual pattern than the week before." : "Your days were closer to your usual pattern than the week before.")
+    }
     if w.daysElevated > 0 { parts.append("On \(plural(w.daysElevated, "day", "days")) your pattern looked different from usual.") }
-    if w.ema.n > 0, let mood = w.ema.mood_low { parts.append("You answered \(plural(w.ema.n, "check-in", "check-ins")); \"feeling down\" averaged \(fmt(mood)) out of 7.") }
+    if w.ema.n > 0, let mood = w.ema.mood_low { parts.append("You answered \(plural(w.ema.n, "check-in", "check-ins")); \"feeling down\" averaged \(JSONText.number(mood)) out of 7.") }
     if !w.contexts.isEmpty { parts.append("You noted: \(w.contexts.joined(separator: ", ")).") }
     return (parts.joined(separator: " "), "What made the better days of this week different?")
   }

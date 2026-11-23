@@ -13,7 +13,7 @@ struct TrendsView: View {
     let first = all.firstIndex { $0.UCL != nil } ?? all.count
     let records = Array(all[first...])
     let contexts = app.store.all(ContextLabel.self).compactMap(\.value).filter(\.confirmed)
-    ScreenScroll(title: "Trends") {
+    ScreenScroll(title: "Trends", anchor: WhyView.debugAnchor) {
       if all.isEmpty {
         Muted("No days yet. Hearth scores each day once it is over.")
       } else if records.isEmpty {
@@ -29,6 +29,7 @@ struct TrendsView: View {
       questionnaires
       if !all.isEmpty { stateCounts(all) }
       if !all.isEmpty { signals(all) }
+      AskSection()
     }
   }
 

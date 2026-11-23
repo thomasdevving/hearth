@@ -292,4 +292,6 @@ enum Route: Hashable {
   case planPrint
   /// A summary for a clinician (`share` on the web).
   case share
+  /// The science behind Hearth (`science` on the web).
+  case science
 }

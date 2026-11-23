@@ -16,13 +16,19 @@ struct CheckinView: View {
   @State private var done: String?
   /// "What helped me last time": task R on what was just written (after saving).
   @State private var recall: HelpedRecall?
+  /// Task I: own questions filled in from what was said.
+  @State private var prefill: Prefill = .idle
+  enum Prefill { case idle, working, done, none }
 
   #if DEBUG
   /// `-HearthCheckinAnswer "<text>"` answers this check-in with that text and saves it (for
   /// screenshots of what comes after a check-in).
   private static var autoAnswer: String? { UserDefaults.standard.string(forKey: "HearthCheckinAnswer") }
+  /// `-HearthCheckinPrefill "<text>"` writes that text and fills in the own questions from it.
+  private static var autoPrefill: String? { UserDefaults.standard.string(forKey: "HearthCheckinPrefill") }
   #else
   private static let autoAnswer: String? = nil
+  private static let autoPrefill: String? = nil
   #endif
 
   var body: some View {
@@ -39,7 +45,7 @@ struct CheckinView: View {
       }
       .navigationBarBackButtonHidden(true)
     } else if let rec {
-      ScreenScroll(title: "Check-in", badge: intro?.ranOn) {
+      ScreenScroll(title: "Check-in", badge: intro?.ranOn, anchor: WhyView.debugAnchor) {
         Text(intro?.text ?? "…").font(HearthFont.body(20, weight: "Medium")).fixedSize(horizontal: false, vertical: true)
         Button("Why am I being asked?") { why.toggle() }.buttonStyle(.link)
         if why {
@@ -80,6 +86,15 @@ struct CheckinView: View {
         }
         TextArea(label: Shared.momentary.free_text_prompt, text: $text)
         Muted("Stays on this device.")
+        FlowLayout(spacing: 10) {
+          MicButton(label: "Talk") { t in text = text.isEmpty ? t : "\(text) \(t)" }
+          if !own.isEmpty && !text.trimmed.isEmpty && app.spokenModelMayRun {
+            Button(prefill == .working ? "Reading on this device…" : "Fill in my questions from what I said") { Task { await prefillOwn(own) } }
+              .buttonStyle(.compact).disabled(prefill == .working)
+          }
+        }
+        if prefill == .done { Muted("Your own questions were filled in from your words. Check them before saving.") }
+        if prefill == .none { Muted("That needs the on-device model. Please tap your answers.") }
         HStack(spacing: 12) {
           Button(busy ? "Saving…" : "Save") { Task { await save(rec) } }
             .buttonStyle(.primary)
@@ -90,6 +105,10 @@ struct CheckinView: View {
       }
       .task(id: id) {
         await loadIntro(rec)
+        if let t = Self.autoPrefill, prefill == .idle {
+          text = t
+          await prefillOwn(own)
+        }
         if let t = Self.autoAnswer, !busy {
           for s in scales { vals[s.id] = 3 }
           who = company?.options?.first ?? "Alone"
@@ -99,6 +118,18 @@ struct CheckinView: View {
       }
     } else {
       ScreenScroll(title: "Check-in") { Muted("This check-in is no longer open.") }
+    }
+  }
+
+  /// Task I: only the user's own questions are read from the text; the three momentary items
+  /// are always tapped (R1). The answers are shown and can be changed before saving.
+  private func prefillOwn(_ own: [PersonalItemValue]) async {
+    prefill = .working
+    if let answers = await app.answersFromSpeech(text, items: own) {
+      for (id, a) in answers { personal[id] = a }
+      prefill = .done
+    } else {
+      prefill = .none
     }
   }
 

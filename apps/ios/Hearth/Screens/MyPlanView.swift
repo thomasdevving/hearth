@@ -194,43 +194,68 @@ struct LedgerView: View {
   }
 }
 
-/// `context_confirm`: one tap to confirm a context found in a note (task H), or the one-tap
-/// picker when no model is available. Nothing changes until the user confirms.
+/// `context_confirm` (web: screens/ContextConfirm.tsx): one tap to confirm a context found in
+/// a note (task H), or the picker when no model is available. The dates can be changed.
+/// Nothing changes until the user confirms.
 struct ContextConfirmView: View {
   @Environment(AppModel.self) private var app
   let inboxId: String
-  @State private var picked = ""
+  /// The label as the user is editing it (type and dates); nil until loaded.
+  @State private var label: ContextLabelValue?
 
   var body: some View {
     let item = app.store.first(InboxItem.self, where: #Predicate { $0.id == inboxId })
-    let label = item?.contextJSON.flatMap { try? JSONText.decode(ContextLabelValue.self, $0) }
+    let stored = item?.contextJSON.flatMap { try? JSONText.decode(ContextLabelValue.self, $0) }
     if let item, item.status == "open", item.type == "context_expired" {
       expired(item)
-    } else if let item, item.status == "open", let label {
-      let picker = label.type.isEmpty
+    } else if let item, item.status == "open", let stored {
+      let l = label ?? stored
+      let picker = stored.type.isEmpty
       ScreenScroll(title: picker ? "Is something changing your routine?" : "One quick check", badge: picker ? nil : (item.ranOn == "none" ? "template" : item.ranOn)) {
         if !picker {
-          Text("\(Copy.context[label.type] ?? label.type) until \(Clock.pretty(label.end))?").font(HearthFont.body(20, weight: "Medium"))
-          if let q = label.quote { Muted("From your note: “\(q)”") }
+          Text(ContextCopy.question(l.type, end: Clock.pretty(l.end))).font(HearthFont.body(20, weight: "Medium")).fixedSize(horizontal: false, vertical: true)
+          if let q = l.quote { Text("From your note: “\(q)”").foregroundStyle(Theme.ink2).fixedSize(horizontal: false, vertical: true) }
         } else {
-          Muted("From your note: “\(item.sourceText ?? "")”. Pick one if it fits; nothing changes otherwise.")
-          FlowLayout { ForEach(Copy.context.keys.sorted(), id: \.self) { t in Chip(text: Copy.context[t] ?? t, selected: picked == t) { picked = t } } }
+          Text("From your note: “\((item.sourceText ?? "").trimmed)”").foregroundStyle(Theme.ink2).fixedSize(horizontal: false, vertical: true)
+          Muted("Pick one if it fits; nothing changes otherwise.")
+          FlowLayout { ForEach(ContextCopy.types, id: \.self) { t in Chip(text: Copy.context[t] ?? t, selected: l.type == t) { var n = l; n.type = t; label = n } } }
         }
-        Muted("If you confirm, the signals this explains are set aside until then, so they don't count as a change.")
+        HStack(spacing: 16) {
+          DatePicker("From", selection: dayBinding(l, \.start), displayedComponents: .date)
+          DatePicker("until", selection: dayBinding(l, \.end), in: (Clock.date(l.start) ?? .distantPast)..., displayedComponents: .date)
+        }
+        .font(HearthFont.body(16))
+        .tint(Theme.magenta)
+        if !l.type.isEmpty {
+          Muted(ContextCopy.kind(l.type) == "explains_sensors"
+            ? "If you confirm, the signals this affects (for example where you go) are set aside for these days, so they don't count as a change."
+            : "This is noted on your trends. Nothing is set aside: a stressful time is exactly when your signals matter.")
+        }
         HStack(spacing: 12) {
           Button(picker ? "Save" : "Yes") {
-            var l = label
-            if picker { l.type = picked }
-            app.confirmContext(l, inbox: item)
+            var c = l
+            if picker { c.source = "manual" }
+            app.confirmContext(c, inbox: item)
             app.path.removeAll()
           }
-          .buttonStyle(.primary).disabled(picker && picked.isEmpty)
+          .buttonStyle(.primary).disabled(l.type.isEmpty)
           Button(picker ? "Nothing like that" : "No") { app.rejectContext(item); app.path.removeAll() }.buttonStyle(.secondary)
         }
       }
     } else {
       ScreenScroll(title: "Confirm") { Muted("Nothing to confirm.") }
     }
+  }
+
+  private func dayBinding(_ l: ContextLabelValue, _ key: WritableKeyPath<ContextLabelValue, String>) -> Binding<Date> {
+    Binding(
+      get: { Clock.date(l[keyPath: key]) ?? .now },
+      set: { d in
+        var n = label ?? l
+        n[keyPath: key] = Clock.day(d)
+        if n.end < n.start { n.end = n.start }
+        label = n
+      })
   }
 
   private func expired(_ item: InboxItem) -> some View {
@@ -252,34 +277,26 @@ struct ContextConfirmView: View {
   }
 }
 
-/// `weekly`: the weekly reflection (task D). S1: it needs cloud consent, which is not
-/// available in this build, so it is the template with the week's numbers.
-struct WeeklyView: View {
-  @Environment(AppModel.self) private var app
-  @State private var text: (reflection: String, question: String, ranOn: String)?
-
-  var body: some View {
-    let weeks = app.store.all(WeekAggregate.self, sort: [SortDescriptor(\.isoWeek)]).compactMap(\.value)
-    ScreenScroll(title: "Weekly reflection", badge: text?.ranOn) {
-      if let t = text {
-        Text(t.reflection).fixedSize(horizontal: false, vertical: true)
-        Text(t.question).font(HearthFont.body(17, weight: "SemiBold"))
-      } else { Muted("…") }
-      Muted("Made from your weekly numbers only. Nothing was sent anywhere.")
-    }
-    .task {
-      let last12 = Array(app.store.all(WeekAggregate.self, sort: [SortDescriptor(\.isoWeek)]).suffix(12))
-      let res = await app.router.run("D", input: [:], options: .init(variantInput: { v in
-        let ws = v == "lite" ? Array(last12.suffix(2)) : last12
-        // The number of weeks is a fact from code, so the model may say "12 weeks" (R2).
-        return ["variant": v, "number of weeks": ws.count, "weeks": ws.map { RawJSON($0.json) }]
-      }))
-      if res.ok, let o = JSONText.object(res.json ?? "") as? [String: Any], let r = o["reflection"] as? String, let q = o["open_question"] as? String {
-        text = (r, q, res.ranOn)
-      } else {
-        let t = Copy.weeklyTemplate(weeks)
-        text = (t.reflection, t.question, "template")
-      }
+/// The questions and kinds of contexts (web: ContextConfirm.tsx `QUESTION`, engine `CONTEXT_TABLE`).
+enum ContextCopy {
+  static func question(_ type: String, end e: String) -> String {
+    switch type {
+    case "holiday": return "Are you on holiday until \(e)?"
+    case "travel": return "Are you travelling until \(e)?"
+    case "visitors": return "Do you have visitors until \(e)?"
+    case "ill": return "Are you ill (until about \(e))?"
+    case "moving": return "Are you moving house (until about \(e))?"
+    case "exams": return "Do you have exams until \(e)?"
+    case "new_job": return "Have you started a new job?"
+    case "loss": return "Has something hard happened?"
+    case "other_stress": return "Is something stressful going on until \(e)?"
+    default: return "\(Copy.context[type] ?? type) until \(e)?"
     }
   }
+
+  /// The engine's context types, in its order.
+  static let types: [String] = (try? JSONText.decode([String].self, Engine.shared.value("CONTEXT_TYPES"))) ?? Copy.context.keys.sorted()
+
+  private static let table: [String: [String: Any]] = (JSONText.object((try? Engine.shared.value("CONTEXT_TABLE")) ?? "{}") as? [String: [String: Any]]) ?? [:]
+  static func kind(_ type: String) -> String? { table[type]?["kind"] as? String }
 }

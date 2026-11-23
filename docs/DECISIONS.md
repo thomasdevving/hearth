@@ -904,3 +904,23 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   App Check: the debug provider in debug builds and the Simulator, DeviceCheck in release.
 - The consent switch in Settings is live when the cloud is configured; S3 still never reaches
   the cloud (the router removes the cloud from the plan for S3 whatever routing says).
+
+## iOS: the last web features (2026-11-23)
+
+- **Ask your data (task Q)** sits at the end of Trends, as on the web, and is hidden without an
+  on-device model. `Q_classify` runs on the device only (S3); a second check keeps only the
+  three enums; `askFacts` in the engine computes every number; `Q_phrase` sees the facts only
+  and passes the number check, else the engine's `askTemplate` answer is shown.
+- **Weekly reflection (task D)** follows the web's routing: no consent → the plain summary
+  written by code; consent → Gemini, short version on the device when the cloud is not
+  reachable. Before any cloud call the screen shows "What would be shared" with the exact text
+  (instructions and weeks), and the router refuses the cloud for S1 unless it is handed
+  exactly that approved text (`approvedCloudPayload`). "Write it on this device instead" never
+  uses the cloud. iOS has no weekly upload yet, so the web's "Shared" column is left out.
+- **Weekly note (task P)** as on the web: on-device suggestion, engine `piiCheck` (also against
+  place labels and the names in My people) on the edited text before it is stored in the
+  week's aggregate.
+- **Context confirm** now asks the web's question per type ("Are you on holiday until …?"),
+  lets the dates be changed and explains what confirming does for that kind of context.
+- **Science** page is linked from Settings → About Hearth (the web links it from its public
+  site, which the app does not have).
