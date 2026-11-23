@@ -33,7 +33,11 @@ export function weeklyTemplate(weeks: WeekAggregate[]): { reflection: string; op
   if (!w) return { reflection: "No full week of data yet.", open_question: "What would you like to notice this week?" };
   const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
   const parts = [`In ${weekLabel(w.isoWeek)} there were ${plural(w.daysWithData, "day", "days")} with data.`];
-  if (w.indexMean !== null) parts.push(`Your change index averaged ${w.indexMean}${prev?.indexMean != null ? `, against ${prev.indexMean} the week before` : ""}.`);
+  // Words, not the raw index: the comparison is made in code (R2), the number stays on Trends.
+  if (w.indexMean !== null && prev?.indexMean != null) {
+    const diff = w.indexMean - prev.indexMean;
+    parts.push(Math.abs(diff) < 0.05 ? "Your days were about as close to your usual pattern as the week before." : diff > 0 ? "Your days were a little further from your usual pattern than the week before." : "Your days were closer to your usual pattern than the week before.");
+  }
   if (w.daysElevated > 0) parts.push(`On ${plural(w.daysElevated, "day", "days")} your pattern looked different from usual.`);
   if (w.ema.n > 0 && w.ema.mood_low !== null) parts.push(`You answered ${plural(w.ema.n, "check-in", "check-ins")}; "feeling down" averaged ${w.ema.mood_low} out of 7.`);
   if (w.contexts.length > 0) parts.push(`You noted: ${w.contexts.join(", ")}.`);

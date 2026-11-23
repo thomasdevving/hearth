@@ -64,8 +64,8 @@ export function QuestionnairePages({ instrument, onDone, baseline }: { instrumen
           </button>
         )}
         {scripted && (
-          <button className="secondary" disabled={busy} onClick={() => finish(scripted)} title="Time machine: fill in the persona's answers">
-            Use scripted answer
+          <button className="demo-btn" disabled={busy} onClick={() => finish(scripted)} title="Time machine: fill in the persona's answers">
+            Sam's answers
           </button>
         )}
       </div>

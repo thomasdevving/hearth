@@ -832,3 +832,31 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   come from `usualRangeSeries` and `whyTimeline` over the real app loop (the Why? screen's
   functions), stored in `src/assets/hero-drift.json` because the landing page runs no app loop;
   `test/heroDrift.test.ts` recomputes them and fails if they differ.
+
+## App UX pass from a strict walk-through on an iPhone-sized screen (2026-11-23)
+
+- **More room for the app.** The demo banner moved into the demo bar (a one-line notice that
+  event messages replace); the header and tabs are tighter; the bar can fold to one thin line
+  (remembered per browser) and the page reserves exactly its height (`--tm-height`, measured).
+- **One back pattern**: a small "‹ Back" above the title (`Screen` in `ui/kit.tsx`, with an
+  optional label, e.g. "‹ Today" on Why?), so titles keep the full width.
+- **Hover only with a real pointer** (`@media (hover: hover)`): after a tap on a phone the next
+  button no longer stays tinted, which looked like a chosen answer in the PHQ-2 and check-in.
+- **Long screens fold.** Plan keeps For today, Also on your list and Call a friend open; What
+  came first, For your GP, What helped before and Your signs and questions start closed with a
+  short hint (`Fold`). The ledger shows the latest six calls with "Show all", and a readable
+  date and time (the technical line is in the tooltip).
+- **Signal rows** give the name and quote the full width (value and line on the right) and say
+  "Not enough days yet" instead of a lone dash.
+- **Disabled buttons are grey**, not a pale magenta, and Make cards and the check-in's Save say
+  what is missing.
+- **Demo shortcuts are dashed** and labelled "Demo:" (Sam's answers, Sam's note, Sam's cards).
+- **Plain words**: "+1 h 1 min" instead of "+1 h 01" (engine phrase; golden fixtures
+  regenerated, which also adds the `onset*` config keys to their inputs), "activity in shorter
+  bursts" for fragmentation, "standard text" for template output, a weekly sentence in words
+  instead of the raw index, "change" on chart axes, no "task G" or "not available in this
+  build" wording; the onboarding hides the cloud option when no Firebase project is configured.
+- **Smaller fixes**: links in a row get space or stack, clickable cards show a chevron, Call and
+  Message keep one size everywhere (the support screen's crisis-call style no longer reaches
+  them), deleting your data has its own section away from "I need help now", and the landing's
+  Science link is a text link.

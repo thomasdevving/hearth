@@ -1,3 +1,4 @@
+import { Fold } from "./kit";
 import { useState } from "react";
 import { signalOnset, type EngineState, type FeatureId, type PlanRule, type SignalOnset } from "@hearth/engine";
 import { db, newId } from "../store/db";
@@ -29,7 +30,7 @@ async function watchToo(o: SignalOnset, quote: string): Promise<void> {
  * noticed. Counted by the engine from the stored days (`signalOnset`); no model is involved.
  * The user decides whether to watch an extra signal, in their own words.
  */
-export function WhatCameFirst() {
+export function WhatCameFirst({ fold = false }: { fold?: boolean }) {
   const d = useData(async () => {
     const [records, rules, state] = await Promise.all([db.day_records.orderBy("date").toArray(), db.plan_rules.toArray(), getEngineState() as Promise<EngineState | null>]);
     return { onset: signalOnset(records, rules.filter((r) => r.active), cfg), rules, places: state?.places ?? [] };
@@ -43,7 +44,7 @@ export function WhatCameFirst() {
   if (shown.length === 0 && unchanged.length === 0) return null;
   const label = (o: SignalOnset) => `${featureLabel(o.feature, d.places)} ${o.direction ? directionText(o.feature, o.direction) : ""}`.trim();
 
-  return (
+  const body = (
     <section className="came-first" aria-labelledby="came-first-title">
       <h2 id="came-first-title" className="plan-group">
         What came first
@@ -110,4 +111,5 @@ export function WhatCameFirst() {
       <p className="muted small">Worked out by Hearth's code from your own days, not by a model. The signs that move first are the ones to watch most closely; change your plan only if it feels right to you.</p>
     </section>
   );
+  return fold ? <Fold title="What came first" hint={`${shown.length} signals, in order`}>{body}</Fold> : body;
 }

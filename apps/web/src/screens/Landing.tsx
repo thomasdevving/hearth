@@ -299,7 +299,7 @@ export function Landing({ section }: { section?: string }) {
             <h2 id="how-title">Research-based signals, sharpened by the signs you know.</h2>
             <p className="intro">Signals research links to harder periods: sleep, activity, daily rhythm, heart rate and the places you go. The signs you know from experience make it sharper.</p>
             <div className="flow-actions">
-              <a className="land-cta ghost flow-link" href="#/science">
+              <a className="flow-link" href="#/science">
                 See the research behind each signal<span aria-hidden="true">→</span>
               </a>
             </div>

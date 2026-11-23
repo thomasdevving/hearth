@@ -136,10 +136,7 @@ export function Why({ params }: { params: Record<string, string> }) {
   const outside = lastPoint?.z !== null && lastPoint?.z !== undefined && Math.abs(lastPoint.z) > 1;
 
   return (
-    <Screen title="Why?">
-      <button className="link" onClick={() => navigate("home")}>
-        ‹ Today
-      </button>
+    <Screen title="Why?" back="home" backLabel="Today">
       <section className="why-step" aria-labelledby="why-1">
         <h2 id="why-1">
           <span className="why-num">1</span> {label} against your usual days

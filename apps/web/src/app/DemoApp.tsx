@@ -36,7 +36,6 @@ export default function DemoApp({ route }: { route: Route }) {
   const firstRun = route.screen === "onboarding" || route.screen === "baseline_phq" || (route.screen === "plan_setup" && route.params.first === "1");
   return (
     <div className="app">
-      {route.screen !== "report" && <div className="demo-banner" role="note">Demo with simulated sensor data. Everything else is live.</div>}
       <header className="app-header"><Wordmark /></header>
       {!fullScreen && <OnDeviceBanner />}
       {!fullScreen && !firstRun && (

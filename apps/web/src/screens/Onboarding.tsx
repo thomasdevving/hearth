@@ -30,11 +30,11 @@ export function Onboarding() {
     <>
       <h2>What Hearth is not</h2>
       <p>Not a diagnosis and not a crisis service. Nobody watches your data. “I need help now” shows support lines, even offline.</p>
-      <h2>Optional: the cloud model</h2>
+      {cloudConfigured && <h2>Optional: the cloud model</h2>}
+      {cloudConfigured && (
       <label className="toggle">
         <span>
           A longer weekly reflection by Gemini in the cloud, from weekly numbers only. Off by default.
-          {!cloudConfigured && <small> (Not available in this build.)</small>}
         </span>
         <input
           type="checkbox"
@@ -49,8 +49,8 @@ export function Onboarding() {
           }}
         />
       </label>
+      )}
       {cloudMsg && <p role="status">{cloudMsg}</p>}
-      <p className="muted">On iPhone, Hearth would ask for Health and location access here.</p>
     </>,
   ];
   return (

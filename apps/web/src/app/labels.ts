@@ -19,7 +19,7 @@ const FEATURE_LABEL: Record<string, string> = {
   active_hours: "Active hours",
   walking_speed: "Walking pace",
   rhythm_stability: "Daily rhythm",
-  fragmentation: "Stop-and-start activity",
+  fragmentation: "Activity in short bursts",
   relative_amplitude: "Day–night difference",
   rest_duration: "Rest length",
   rest_midpoint: "Middle of your night",

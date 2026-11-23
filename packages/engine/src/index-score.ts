@@ -102,7 +102,7 @@ function formatMinutes(min: number): string {
   if (m < 60) return `${m} min`;
   const h = Math.floor(m / 60);
   const rest = m % 60;
-  return rest === 0 ? `${h} h` : `${h} h ${String(rest).padStart(2, "0")}`;
+  return rest === 0 ? `${h} h` : `${h} h ${rest} min`;
 }
 
 /** Plain-language phrase for a deviating feature. Never diagnostic (rule R9). */
@@ -114,7 +114,7 @@ export function contributorPhrase(feature: FeatureId, z: number, opts: { days?: 
     case "active_hours": base = up ? "more active hours than usual" : "fewer active hours than usual"; break;
     case "walking_speed": base = up ? "a faster walking pace" : "a slower walking pace"; break;
     case "rhythm_stability": base = up ? "a steadier daily rhythm" : "a less steady daily rhythm"; break;
-    case "fragmentation": base = up ? "more stop-and-start activity" : "less stop-and-start activity"; break;
+    case "fragmentation": base = up ? "activity in shorter bursts" : "activity in longer stretches"; break;
     case "relative_amplitude": base = up ? "a bigger difference between day and night activity" : "a smaller difference between day and night activity"; break;
     case "rest_duration": base = up ? "longer rest than usual" : "shorter rest than usual"; break;
     case "rest_midpoint": {

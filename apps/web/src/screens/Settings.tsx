@@ -42,7 +42,7 @@ export function Settings() {
           <small>
             {cloudConfigured
               ? "Off by default. When on, only weekly summaries and single numbers (never your own words, notes or places) may be sent to Gemini in the cloud. Every request is in the privacy ledger."
-              : "Not available in this build: no Firebase project is configured."}
+              : "The cloud model is not set up in this copy of Hearth, so everything runs on this device."}
           </small>
         </span>
         <input
@@ -79,12 +79,12 @@ export function Settings() {
           Download on-device model
         </button>
       )}
-      <div className="row">
+      <div className="link-list">
         <button className="link" onClick={() => checkOnDevice()}>
-          Check again
+          Check the on-device model again
         </button>
         <button className="link" onClick={() => navigate("eval_g")}>
-          Test the plan reader (task G) ›
+          Test how Hearth reads a plan ›
         </button>
       </div>
 
@@ -112,7 +112,7 @@ export function Settings() {
 
       <h2>Support</h2>
       <label className="toggle">
-        <span>Crisis line</span>
+        <span className="nowrap">Crisis line</span>
         <select value={settings.country} onChange={(e) => set({ country: e.target.value })} aria-label="Country">
           {Object.entries(crisisLines.countries).map(([code, v]) => (
             <option key={code} value={code}>
@@ -122,18 +122,17 @@ export function Settings() {
           <option value="other">Other</option>
         </select>
       </label>
-      <button className="link" onClick={() => navigate("people")}>
-        My people (call a friend) ›
-      </button>
-      <button className="link" onClick={() => navigate("safety", { edit: "1" })}>
-        My safety plan ›
-      </button>
+      <div className="link-list">
+        <button className="link" onClick={() => navigate("people")}>
+          My people ›
+        </button>
+        <button className="link" onClick={() => navigate("safety", { edit: "1" })}>
+          My safety plan ›
+        </button>
+      </div>
 
       <h2>Your data</h2>
-      <div className="row">
-        <button className="secondary" onClick={() => exportAll()}>
-          Export everything
-        </button>
+      <div className="link-list">
         <button className="link" onClick={() => navigate("weekly")}>
           Weekly reflection ›
         </button>
@@ -141,6 +140,13 @@ export function Settings() {
           Share with your clinician ›
         </button>
       </div>
+      <div className="row">
+        <button className="secondary" onClick={() => exportAll()}>
+          Export everything
+        </button>
+      </div>
+      <h2>Delete your data</h2>
+      <p className="muted">Removes everything Hearth stored on this device and in the cloud. This cannot be undone.</p>
       <button
         className="danger"
         onClick={async () => {
@@ -156,6 +162,7 @@ export function Settings() {
         Delete everything
       </button>
       {msg && <p role="status">{msg}</p>}
+      <hr className="section-rule" />
       <HelpButton />
     </Screen>
   );

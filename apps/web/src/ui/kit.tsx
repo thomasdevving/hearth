@@ -1,20 +1,34 @@
 import type { ReactNode } from "react";
 import { navigate } from "../app/events";
 
-export function Screen({ title, back, children, badge }: { title: string; back?: string; children: ReactNode; badge?: ReactNode }) {
+/** One back pattern everywhere: a small "‹ Back" above the title, so titles keep the full width. */
+export function Screen({ title, back, backLabel = "Back", children, badge }: { title: string; back?: string; backLabel?: string; children: ReactNode; badge?: ReactNode }) {
   return (
     <section className="screen" aria-labelledby="screen-title">
+      {back && (
+        <button className="link back" onClick={() => navigate(back)}>
+          ‹ {backLabel}
+        </button>
+      )}
       <header className="screen-head">
-        {back && (
-          <button className="link back" onClick={() => navigate(back)} aria-label="Back">
-            ‹ Back
-          </button>
-        )}
         <h1 id="screen-title">{title}</h1>
         {badge}
       </header>
       {children}
     </section>
+  );
+}
+
+/** A section that starts closed, for the parts of a long screen you only need now and then. */
+export function Fold({ title, hint, children, defaultOpen = false }: { title: string; hint?: string; children: ReactNode; defaultOpen?: boolean }) {
+  return (
+    <details className="fold" open={defaultOpen}>
+      <summary>
+        <span className="fold-title">{title}</span>
+        {hint && <small className="fold-hint">{hint}</small>}
+      </summary>
+      <div className="fold-body">{children}</div>
+    </details>
   );
 }
 
@@ -31,9 +45,9 @@ export function Card({ children, tone, onClick, label }: { children: ReactNode; 
 
 /** Every screen with model-written text shows where it was written (docs/01 §7). */
 export function ModelBadge({ ranOn }: { ranOn: "on_device" | "cloud" | "template" | "none" }) {
-  const text = ranOn === "on_device" ? "on-device" : ranOn === "cloud" ? "cloud" : "fixed text";
+  const text = ranOn === "on_device" ? "on-device" : ranOn === "cloud" ? "cloud" : "standard text";
   return (
-    <span className={`badge badge-${ranOn === "none" ? "template" : ranOn}`} title={ranOn === "cloud" ? "Written by the cloud model" : ranOn === "on_device" ? "Written by the model on this device" : "Fixed text, no model"}>
+    <span className={`badge badge-${ranOn === "none" ? "template" : ranOn}`} title={ranOn === "cloud" ? "Written by the cloud model" : ranOn === "on_device" ? "Written by the model on this device" : "Standard text written by Hearth, no model"}>
       {text}
     </span>
   );

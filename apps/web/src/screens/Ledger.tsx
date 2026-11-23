@@ -1,3 +1,4 @@
+import { prettyDate } from "../app/labels";
 import { useState } from "react";
 import { PrivacyProof } from "../privacy/PrivacyProof";
 import type { LedgerEntry } from "@hearth/engine";
@@ -35,10 +36,14 @@ function where(e: LedgerEntry): string {
   return "no model (fallback)";
 }
 
+/** The latest calls first; the rest one tap away, so the proof does not become a wall of text. */
+const SHOWN = 6;
+
 export function Ledger() {
   const [leftOnly, setLeftOnly] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [showNet, setShowNet] = useState(false);
+  const [all, setAll] = useState(false);
   const d = useData(async () => ({ ledger: (await db.ledger.orderBy("at").reverse().toArray()), net: await db.network_log.orderBy("id").reverse().limit(200).toArray() }));
   if (!d) return <Screen title="Privacy ledger">Loading…</Screen>;
   const rows = d.ledger.filter((e) => !leftOnly || e.ranOn === "cloud" || e.bytesSent > 0);
@@ -56,7 +61,7 @@ export function Ledger() {
       </label>
       {rows.length === 0 && <p className="muted">Nothing yet.</p>}
       <ul className="plain-list" style={{ listStyle: "none", padding: 0 }}>
-        {rows.map((e) => (
+        {(all ? rows : rows.slice(0, SHOWN)).map((e) => (
           <li key={e.id} className="ledger-entry">
             <div className="row" style={{ justifyContent: "space-between", margin: 0 }}>
               <span>
@@ -64,9 +69,9 @@ export function Ledger() {
                 <br />
                 <span className="ledger-what">{CLASS_TEXT[e.dataClass] ?? e.dataClass}</span>
                 <br />
-                <small>
-                  {e.at.slice(0, 16).replace("T", " ")} · {e.dataClass} · {e.decision.run === "model" ? `${e.decision.mode.toLowerCase().replace(/_/g, " ")}${e.decision.variant === "lite" ? " (lite)" : ""}` : `fallback: ${e.decision.reason.replace("_", " ")}`} · {e.outcome}
-                  {e.latencyMs !== null ? ` · ${e.latencyMs} ms` : ""} · {e.promptVersion}
+                <small title={`${e.dataClass} · ${e.decision.run === "model" ? e.decision.mode : `fallback: ${e.decision.reason}`} · ${e.outcome}${e.latencyMs !== null ? ` · ${e.latencyMs} ms` : ""} · prompt ${e.promptVersion}`}>
+                  {prettyDate(e.at.slice(0, 10))}, {e.at.slice(11, 16)}
+                  {e.decision.run !== "model" ? " · simple rules, no model" : ""}
                 </small>
               </span>
               {e.ranOn === "cloud" && (
@@ -79,6 +84,11 @@ export function Ledger() {
           </li>
         ))}
       </ul>
+      {!all && rows.length > SHOWN && (
+        <button className="secondary ledger-more" onClick={() => setAll(true)}>
+          Show all {rows.length}
+        </button>
+      )}
       <h2>Network requests</h2>
       <button className="secondary" onClick={() => setShowNet(!showNet)} aria-expanded={showNet}>
         {showNet ? "Hide" : `Show every request this app made (${d.net.length})`}

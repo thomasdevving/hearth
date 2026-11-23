@@ -86,7 +86,7 @@ function NoteSuggestion({ item }: { item: Extract<InboxItem, { type: "note" }> }
       <q>{item.text}</q>
       <div className="row">
         <button
-          className="primary"
+          className="demo-btn"
           disabled={busy}
           onClick={async () => {
             setBusy(true);
@@ -94,7 +94,7 @@ function NoteSuggestion({ item }: { item: Extract<InboxItem, { type: "note" }> }
             setBusy(false);
           }}
         >
-          Use scripted note
+          Send Sam's note
         </button>
         <button className="secondary" disabled={busy} onClick={() => skipNote(item.id)}>
           Skip
@@ -258,7 +258,7 @@ export function Home() {
                   <small>“{r.quote}”</small>
                 </div>
                 <Sparkline values={values} label={featureLabel(f, state?.places)} />
-                <span className="value">{formatValue(f, lastV)}</span>
+                <span className={`value${lastV == null ? " is-empty" : ""}`}>{lastV == null ? "Not enough days yet" : formatValue(f, lastV)}</span>
               </li>
             );
           })}

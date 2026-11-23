@@ -273,8 +273,8 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
         </label>
         <div className="row">
           {scripted && (
-            <button className="secondary" onClick={() => showCards(verifyPlan(scripted.expected, scripted.text, cfg), "template")}>
-              Use Sam's confirmed cards
+            <button className="demo-btn" onClick={() => showCards(verifyPlan(scripted.expected, scripted.text, cfg), "template")}>
+              Sam's confirmed cards
             </button>
           )}
           <button className="primary" onClick={saveManual}>
@@ -323,6 +323,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
         <button className="primary" disabled={status.kind === "working" || !(warning.trim() || helps.trim() || picked.size > 0)} onClick={makeCards}>
           {status.kind === "working" ? "Reading on this device…" : "Make cards"}
         </button>
+        {!(warning.trim() || helps.trim() || picked.size > 0) && <small className="disabled-why">Write your signs or tick one above first.</small>}
       </div>
       <div className="row">
         <button className="link" onClick={() => setStatus({ kind: "fallback", reason: "manual" })}>

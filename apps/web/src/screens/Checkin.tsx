@@ -180,7 +180,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
         </button>
         {script && (
           <button
-            className="secondary"
+            className="demo-btn"
             disabled={busy}
             onClick={() =>
               submit(
@@ -193,10 +193,11 @@ export function Checkin({ params }: { params: Record<string, string> }) {
               )
             }
           >
-            Use scripted answer
+            Sam's answers
           </button>
         )}
       </div>
+      {!complete && !busy && <small className="disabled-why">Answer the three scales and who you are with, then you can save.</small>}
     </Screen>
   );
 }

@@ -117,7 +117,7 @@ export function indexChart(all: DayRecord[], contexts: ContextLabel[], qs: Quest
     cursor: { drag: { x: false, y: false } },
     legend: { show: true, live: false },
     scales: { x: { time: true }, y: { range: (_u, _min, max) => [0, Math.max(1, (max ?? 1) * 1.1)] } },
-    axes: axes("index"),
+    axes: axes("change"),
     series: [
       { label: "Date", value: (_u, v) => (v == null ? "–" : new Date(v * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })) },
       { label: "Daily index", stroke: "#8b8a85", width: 1, points: { show: true, size: 4, fill: "#8b8a85" }, value: (_u, v) => (v == null ? "–" : v.toFixed(2)) },
@@ -215,7 +215,7 @@ export function Trends() {
                 <small>last 8 weeks</small>
               </div>
               <Sparkline values={vals} width={160} label={`${featureLabel(f, state?.places)}`} />
-              <span className="value">{formatValue(f, lastValue(vals))}</span>
+              <span className={`value${lastValue(vals) == null ? " is-empty" : ""}`}>{lastValue(vals) == null ? "Not enough days yet" : formatValue(f, lastValue(vals))}</span>
             </li>
           );
         })}
