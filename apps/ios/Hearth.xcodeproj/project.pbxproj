@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A1000000000000000000A021 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000A011 /* FirebaseAILogic */; };
+		A1000000000000000000A022 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000A012 /* FirebaseAppCheck */; };
+		A1000000000000000000A023 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000A013 /* FirebaseCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A1000000000000000000F001 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -55,6 +61,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000000000000000000A021 /* FirebaseAILogic in Frameworks */,
+				A1000000000000000000A022 /* FirebaseAppCheck in Frameworks */,
+				A1000000000000000000A023 /* FirebaseCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +134,11 @@
 				A10000000000000000000020 /* Hearth */,
 			);
 			name = Hearth;
+			packageProductDependencies = (
+				A1000000000000000000A011 /* FirebaseAILogic */,
+				A1000000000000000000A012 /* FirebaseAppCheck */,
+				A1000000000000000000A013 /* FirebaseCore */,
+			);
 			productName = Hearth;
 			productReference = A10000000000000000000010 /* Hearth.app */;
 			productType = "com.apple.product-type.application";
@@ -179,6 +193,9 @@
 			);
 			mainGroup = A10000000000000000000002;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A1000000000000000000A001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A10000000000000000000003 /* Products */;
 			projectDirPath = "";
@@ -461,6 +478,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1000000000000000000A001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1000000000000000000A011 /* FirebaseAILogic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1000000000000000000A001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAILogic;
+		};
+		A1000000000000000000A012 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1000000000000000000A001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		A1000000000000000000A013 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1000000000000000000A001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A10000000000000000000001 /* Project object */;
 }

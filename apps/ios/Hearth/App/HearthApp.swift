@@ -8,6 +8,8 @@ struct HearthApp: App {
   @State private var app: AppModel
 
   init() {
+    // Firebase first, so App Check is set up before any cloud-capable model call.
+    FirebaseSetup.start()
     let container: ModelContainer
     do { container = try Store.makeContainer() } catch { fatalError("Store failed: \(error)") }
     self.container = container

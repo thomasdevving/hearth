@@ -1,1 +1,3 @@
 build/
+# Your own Firebase config (R10); the app runs on the device without it.
+Hearth/GoogleService-Info.plist

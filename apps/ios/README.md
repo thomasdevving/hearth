@@ -6,8 +6,9 @@ JavaScriptCore; no detection logic is written in Swift. Built in milestones M8 a
 
 ## What you need
 
-- A Mac with Xcode (built so far with Xcode 26.1; the deployment target is **iOS 26.0** for
-  now, see `docs/DECISIONS.md`, M8 iOS. The Gemini cloud model needs iOS 27 / Xcode 27).
+- A Mac with **Xcode 27** (Swift 6.4). The deployment target is iOS 26.0; the Gemini cloud model
+  through Firebase AI Logic needs iOS 27 and is switched off below it. Xcode resolves the
+  Firebase Apple SDK (13.2+) on first build.
 - Node.js and npm (the build phase builds `engine.js` and copies the fonts from `node_modules`).
 - An iPhone with Apple Intelligence switched on, for the on-device model. Without it every
   model task uses its plain fallback.
@@ -71,13 +72,28 @@ xcrun simctl launch "iPhone 17 Pro" com.thomasdevving.hearth -HearthDemo YES
 Add `-HearthDemoPlanned YES` to skip plan setup and the first PHQ-9, or `-HearthTab trends`
 to open on Trends.
 
+## Firebase AI Logic (cloud)
+
+The app links the Firebase Apple SDK (FirebaseAILogic, FirebaseAppCheck, FirebaseCore). On
+device, tasks run on Apple's model through `LanguageModelSession`; in the cloud, Gemini runs
+through `ai.geminiLanguageModel(name:)` in the same `LanguageModelSession`, with the same
+schemas and engine checks (`Hearth/Inference/OnDeviceModel.swift`, `CloudModel`). The
+InferenceRouter picks the order per task; S3 never reaches the cloud.
+
+To switch the cloud on:
+
+1. In the Firebase console, add an iOS app with bundle ID `com.thomasdevving.hearth` and put its
+   `GoogleService-Info.plist` in `apps/ios/Hearth/` (git-ignored, R10; never commit it).
+2. Run a debug build once and copy the App Check debug token from the Xcode console into
+   App Check → Apps → Manage debug tokens. Release builds use DeviceCheck.
+3. In the app: Settings → "Allow the cloud model". Every cloud call is in the privacy ledger.
+
+Without the plist, or below iOS 27, the app runs entirely on the device.
+
 ## Not in this build
 
-- **Cloud:** no Firebase Apple SDK and no `GoogleService-Info.plist`. Cloud consent is shown
-  as not available, nothing is uploaded and task D uses its template. To add it later: put
-  `GoogleService-Info.plist` in `apps/ios/Hearth/` (it is git-ignored, R10; never commit it),
-  raise the target to iOS 27, add the Firebase Apple SDK 13 package, and fill in `CloudModel`
-  in `Hearth/Inference/OnDeviceModel.swift` (anonymous auth, weekly upload, task D).
+- **Cloud uploads:** anonymous auth, the weekly Firestore upload and share links are web only
+  for now; on iOS the cloud is used for model calls (task D, E) with consent.
 - **P1 on iOS:** tasks I, K, G2, P, Q, speech input, writing PHQ-9 to Health, share links.
 
 ## Where things are

@@ -1,3 +1,4 @@
+import FirebaseAILogic
 import Foundation
 import FoundationModels
 
@@ -72,15 +73,37 @@ enum OnDeviceModel {
   }
 }
 
-/// The cloud model. On iOS it is Gemini through `ai.geminiLanguageModel(name:)` in Firebase
-/// Apple SDK 13, which needs iOS 27 and a GoogleService-Info.plist. Neither is present in this
-/// build, so it is never reachable: every cloud route falls back exactly as offline.
+/// The cloud model: Gemini through Firebase AI Logic. With Firebase Apple SDK 13 the Gemini
+/// model plugs into Apple's own `LanguageModelSession` (`ai.geminiLanguageModel(name:)`), so the
+/// cloud uses the same session API, the same `DynamicGenerationSchema` and the same engine
+/// checks as the on-device model. There is no built-in fallback in SDK 13: the InferenceRouter
+/// chooses the order (docs/PLATFORM_NOTES.md §2). Needs iOS 27, Xcode 27 (Swift 6.4) and a
+/// `GoogleService-Info.plist`; without them every cloud route falls back exactly as offline.
 enum CloudModel {
-  static var isConfigured: Bool { Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist") != nil && sdkLinked }
-  /// The Firebase SDK is not linked yet (docs/DECISIONS.md, M8 iOS).
-  static let sdkLinked = false
+  /// The same default as the web app (`GEMINI_MODEL`); `HearthGeminiModel` in Info.plist overrides it.
+  static let modelName = (Bundle.main.object(forInfoDictionaryKey: "HearthGeminiModel") as? String) ?? "gemini-3.5-flash"
 
-  static func generate(instructions: String, prompt: String, schema: [String: Any]) async throws -> (text: String, payload: String) {
+  static var isConfigured: Bool {
+    #if compiler(>=6.4)
+    if #available(iOS 27.0, *) { return FirebaseSetup.started }
+    #endif
+    return false
+  }
+
+  /// One request. Returns the model's JSON text and the content handed to the cloud, for the
+  /// privacy ledger (R4). Only S1 and S2 tasks get here; the router refuses S3 (R3).
+  static func generate(instructions: String, prompt: String, schema jsonSchema: [String: Any], name: String) async throws -> (text: String, payload: String) {
+    #if compiler(>=6.4)
+    if #available(iOS 27.0, *), FirebaseSetup.started {
+      let ai = FirebaseAI.firebaseAI(backend: .googleAI(), useLimitedUseAppCheckTokens: true)
+      let model = ai.geminiLanguageModel(name: modelName)
+      let session = LanguageModelSession(model: model, instructions: instructions)
+      let schema = try GenerationSchema(root: OnDeviceModel.dynamicSchema(jsonSchema, name: name), dependencies: [])
+      let payload = "\(instructions)\n\n\(prompt)"
+      let response = try await session.respond(to: prompt, schema: schema, includeSchemaInPrompt: false, options: GenerationOptions(temperature: 0.2))
+      return (response.content.jsonString, payload)
+    }
+    #endif
     throw OnDeviceModel.ModelError(description: "cloud model not available in this build")
   }
 }

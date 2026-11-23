@@ -885,3 +885,19 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
 - A short FAQ ("Before you start") before the final call to action: data, medical device,
   crisis, smartwatch, how long before it notices, trying it without your own data. Answers
   follow the README and the docs; plain rows with a +/– and no boxes.
+
+## iOS: Firebase AI Logic linked (2026-11-23)
+
+- The iOS app links the Firebase Apple SDK 13.2 (FirebaseAILogic, FirebaseAppCheck,
+  FirebaseCore) through Swift Package Manager and builds with Xcode 27 (Swift 6.4).
+- `CloudModel` uses `FirebaseAI.firebaseAI(backend: .googleAI(), useLimitedUseAppCheckTokens: true)`
+  and `geminiLanguageModel(name:)` inside Apple's `LanguageModelSession`, with the same
+  `DynamicGenerationSchema` as the on-device model, so both sides share one converter and the
+  engine's `verifyTask`. The model name matches the web default (`gemini-3.5-flash`);
+  `HearthGeminiModel` in Info.plist overrides it.
+- `geminiLanguageModel` needs iOS 27; the deployment target stays iOS 26.0 and the cloud is
+  off below 27 (`#available`), so nothing changes for iOS 26 users.
+- Firebase starts only when `GoogleService-Info.plist` is in the bundle (git-ignored, R10).
+  App Check: the debug provider in debug builds and the Simulator, DeviceCheck in release.
+- The consent switch in Settings is live when the cloud is configured; S3 still never reaches
+  the cloud (the router removes the cloud from the plan for S3 whatever routing says).

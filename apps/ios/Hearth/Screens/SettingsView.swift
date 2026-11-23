@@ -12,13 +12,16 @@ struct SettingsView: View {
     let s = app.settings
     ScreenScroll(title: "Settings") {
       SectionTitle(text: "Where models run")
-      Toggle(isOn: .constant(false)) {
+      Toggle(isOn: Binding(get: { CloudModel.isConfigured && s.cloudConsent }, set: { s.cloudConsent = $0; app.changed() })) {
         VStack(alignment: .leading, spacing: 2) {
           Text("Allow the cloud model").font(HearthFont.body(16, weight: "SemiBold"))
-          Muted("Not available in this build: no Firebase project is configured.")
+          Muted(CloudModel.isConfigured
+            ? "Off by default. When on, only weekly summaries and single numbers (never your words, notes or places) may go to Gemini in the cloud. Every request is in the privacy ledger."
+            : "The cloud model is not set up in this copy of Hearth, so everything runs on this device.")
         }
       }
-      .disabled(true)
+      .tint(Theme.magenta)
+      .disabled(!CloudModel.isConfigured)
       Toggle(isOn: Binding(get: { s.onDeviceEnabled }, set: { s.onDeviceEnabled = $0; app.changed() })) {
         VStack(alignment: .leading, spacing: 2) {
           Text("Use the on-device model").font(HearthFont.body(16, weight: "SemiBold"))

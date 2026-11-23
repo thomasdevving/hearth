@@ -134,7 +134,7 @@ ones that missed their target:
 | Platform | Status |
 |---|---|
 | **Web (Chrome)**, submitted | The full product on a simulated person, hosted on Firebase Hosting. Gemini Nano through Firebase AI Logic, Gemini in the cloud with consent. |
-| **iOS** | SwiftUI app on the user's own HealthKit data, running the same engine in JavaScriptCore, with Apple's on-device model. The Firebase SDK is not linked on iOS yet, so it is not part of this entry. See `apps/ios` and its README. |
+| **iOS** | SwiftUI app on the user's own HealthKit data, running the same engine in JavaScriptCore. Apple's on-device model through Foundation Models, and Gemini through Firebase AI Logic (`geminiLanguageModel`) for consented cloud tasks. Built and tested in the iOS 27 Simulator; on-device and cloud runs on an iPhone are still to be checked. See `apps/ios` and its README. |
 
 ## Built during the submission period
 

@@ -102,7 +102,7 @@ final class InferenceRouter {
           if target == "on_device" {
             text = try await OnDeviceModel.generate(instructions: prompt.text + liteNote, prompt: message, schema: schema, name: "Task\(schemaId)")
           } else {
-            let r = try await CloudModel.generate(instructions: prompt.text, prompt: message, schema: schema)
+            let r = try await CloudModel.generate(instructions: prompt.text, prompt: message, schema: schema, name: "Task\(schemaId)")
             text = r.text; payload = r.payload
           }
         } catch {
