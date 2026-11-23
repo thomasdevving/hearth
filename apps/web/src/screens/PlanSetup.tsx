@@ -170,7 +170,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
     const toggle = (arr: boolean[], set: (v: boolean[]) => void, i: number, v: boolean) => set(arr.map((x, k) => (k === i ? v : x)));
     return (
       <Screen title="Your plan as cards" badge={<ModelBadge ranOn={status.ranOn} />}>
-        <p className="muted">Each card shows where it came from: your own words, or a sign you ticked. Untick anything that is not right.</p>
+        <p className="muted">Each card shows where it came from. Untick anything that is not right.</p>
         {status.dropped > 0 && (
           <p className="plan-note" role="status">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5" /><path d="M8 7.5v4M8 5h0" /></svg>
@@ -245,7 +245,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
   if (status.kind === "fallback") {
     return (
       <Screen title="Your plan">
-        <p>The on-device model is not available, so let's do this by hand. Nothing you type leaves this device.</p>
+        <p>The on-device model is not available, so fill this in by hand. It stays on this device.</p>
         {(warning.trim() || helps.trim()) && (
           <div className="you-wrote">
             <small>You wrote</small>
@@ -287,9 +287,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
 
   return (
     <Screen title="Your plan" back={first ? undefined : "my_plan"}>
-      <p className="muted">
-        Hearth already watches signals research links to harder periods. Your own signs make it sharper: write them, tick them, or both. It all stays on this device.
-      </p>
+      <p className="muted">Your own signs make Hearth sharper.</p>
       {scripted && (
         <p className="demo-hint">
           Demo: write as yourself, or{" "}
@@ -311,7 +309,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
       </label>
       <MicButton onText={(t) => setWarning((w) => (w ? `${w} ${t}` : t))} />
       <h2>Signs many people notice early</h2>
-      <p className="muted">Research links these changes to harder periods. Tick any that fit you.</p>
+      <p className="muted">Tick any that fit you.</p>
       <SuggestionPicker picked={picked} onChange={setPicked} />
       <label className="stack">
         <strong>What helps when that happens?</strong>
@@ -321,20 +319,16 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
       <ScanPlan onText={(t) => setWarning((w) => (w ? `${w}\n${t}` : t))} />
       <div className="row">
         <button className="primary" disabled={status.kind === "working" || !(warning.trim() || helps.trim() || picked.size > 0)} onClick={makeCards}>
-          {status.kind === "working" ? "Reading on this device…" : "Make cards"}
+          {status.kind === "working" ? "Reading on this device…" : "Turn into my plan"}
         </button>
         {!(warning.trim() || helps.trim() || picked.size > 0) && <small className="disabled-why">Write your signs or tick one above first.</small>}
       </div>
-      <div className="row">
-        <button className="link" onClick={() => setStatus({ kind: "fallback", reason: "manual" })}>
-          Fill it in by hand instead
-        </button>
-        <button className="link" onClick={skipSigns}>
-          I don't know my signs yet
-        </button>
-      </div>
-      <p className="muted">
-        <small>Not sure? That's fine. Hearth notices changes from your usual days on its own, and you can add your signs later, ideally together with your GP or therapist.</small>
+      {(warning.trim() || helps.trim() || picked.size > 0) && <p className="make-note">The model on this device turns your words into cards. You check each one.</p>}
+      <p className="alt-actions">
+        Not sure yet?{" "}
+        <button className="link" onClick={skipSigns}>Skip for now</button>
+        {" "}or{" "}
+        <button className="link" onClick={() => setStatus({ kind: "fallback", reason: "manual" })}>fill it in by hand</button>.
       </p>
     </Screen>
   );

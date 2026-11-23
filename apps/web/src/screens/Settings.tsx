@@ -93,7 +93,7 @@ export function Settings() {
         <span>
           <strong>Fixed schedule</strong>
           <br />
-          <small>A check-in every 3 days instead of when your pattern changes. See “Is this working for you?”.</small>
+          <small>A check-in every 3 days, instead of when your pattern changes.</small>
         </span>
         <input type="checkbox" aria-label="Fixed schedule" checked={settings.scheduleMode === "fixed"} onChange={(e) => set({ scheduleMode: e.target.checked ? "fixed" : "triggered" })} />
       </label>
@@ -102,7 +102,7 @@ export function Settings() {
       </button>
 
       <h2>Sensors</h2>
-      <p className="muted">In this demo the sensor data is simulated. On iPhone these switches control HealthKit and location.</p>
+      <p className="muted">Simulated in this demo. On iPhone these control Health and location access.</p>
       {(["steps", "walkingSpeed", "sleep", "visits"] as const).map((k) => (
         <label className="toggle" key={k}>
           <span>{{ steps: "Steps", walkingSpeed: "Walking pace", sleep: "Sleep", visits: "Places (visits)" }[k]}</span>

@@ -110,7 +110,7 @@ export function MyPlan() {
       <WhatCameFirst fold />
       <Fold title="For your GP or clinician" hint="One page or a file">
       <section className="for-clinician" aria-label="For your GP or clinician">
-        <p className="muted">Your plan on one page, or as a file their system can read (FHIR). Made on this device; you decide whether to hand it over.</p>
+        <p className="muted">One page, or a file their system can read (FHIR). You decide whether to share it.</p>
         <div className="row">
           <button className="secondary" onClick={() => navigate("plan_print")}>
             My plan on one page
@@ -122,7 +122,7 @@ export function MyPlan() {
       </section>
       </Fold>
       <Fold title="What helped you before" hint={d.helped.length === 1 ? "1 saved" : `${d.helped.length} saved`}>
-      {d.helped.length === 0 && <p className="muted">After a hard stretch, save what helped. Hearth brings it back when the same sign shows up.</p>}
+      {d.helped.length === 0 && <p className="muted">After a hard stretch, save what helped. Hearth brings it back next time.</p>}
       {d.helped.map((n) => (
         <div key={n.id}>
           <small className="muted">For “{n.signQuote}”</small>

@@ -11,7 +11,7 @@ export function CallAFriend({ people, compact = false }: { people: Person[]; com
     return (
       <section className="call-friend" aria-labelledby="call-friend-title">
         <h2 id="call-friend-title">Call a friend</h2>
-        <p className="muted">Add one to three people you could reach out to on a hard day. They stay on this device; Hearth never contacts them.</p>
+        <p className="muted">Add one to three people to reach out to on a hard day. Hearth never contacts them.</p>
         <button className="secondary" onClick={() => navigate("people")}>
           Add someone
         </button>
@@ -21,7 +21,7 @@ export function CallAFriend({ people, compact = false }: { people: Person[]; com
   return (
     <section className="call-friend" aria-labelledby="call-friend-title">
       <h2 id="call-friend-title">Call a friend</h2>
-      {!compact && <p className="muted">One call or message can make a hard day lighter. You choose who and when; Hearth never sends anything.</p>}
+      {!compact && <p className="muted">You choose who and when. Hearth never sends anything.</p>}
       <ul className="people-list">
         {people.map((p) => (
           <li key={p.id}>

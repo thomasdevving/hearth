@@ -94,7 +94,7 @@ export function Questionnaire({ params }: { params: Record<string, string> }) {
 export function BaselinePhq() {
   return (
     <Screen title="Your starting point">
-      <p className="muted">Nine questions about the last two weeks. Your answers become your own reference: later, Hearth compares with this, not with other people.</p>
+      <p className="muted">Nine questions about the last two weeks. Later answers are compared with these.</p>
       <QuestionnairePages instrument="PHQ9" baseline onDone={(id) => navigate("result", { id, baseline: "1" })} />
     </Screen>
   );

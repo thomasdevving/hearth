@@ -18,7 +18,7 @@ function Preview({ weeks }: { weeks: WeekAggregate[] }) {
   const [busy, setBusy] = useState(false);
   return (
     <Screen title="What would be shared" back="home">
-      <p>This is exactly what would be sent to your private space in the cloud, for each finished week. No dates finer than the week, no notes in your words, no places and no names.</p>
+      <p>Exactly what would go to your private cloud space each week: no notes, places, names or exact dates.</p>
       <pre className="json">{JSON.stringify(weeks[weeks.length - 1], null, 2)}</pre>
       <p className="muted">{weeks.length} week(s) are waiting. Later weeks are sent automatically while the cloud model is allowed; you can turn it off in Settings at any time.</p>
       <div className="row">
@@ -76,7 +76,7 @@ export function Weekly({ params }: { params: Record<string, string> }) {
   return (
     <Screen title="Weekly reflection" back="home" badge={ref ? <ModelBadge ranOn={ref.ranOn} /> : undefined}>
       {weeks.length === 0 && <p className="muted">No finished week yet.</p>}
-      {!d.settings.cloudConsent && <p className="muted">A plain summary. With the cloud model allowed in Settings{cloudConfigured ? "" : " (not in this build)"}, Gemini writes a longer reflection from these numbers.</p>}
+      {!d.settings.cloudConsent && <p className="muted">{cloudConfigured ? "Allow the cloud model in Settings for a longer reflection by Gemini." : "A short summary, written on this device."}</p>}
       {ref && (
         <>
           {ref.variant === "lite" && <p className="muted">Short version, written on this device (you are offline or the cloud was not reachable).</p>}

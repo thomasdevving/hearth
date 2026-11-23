@@ -182,12 +182,12 @@ export function Trends() {
   return (
     <Screen title="Trends">
       <p className="muted">
-        How far your days are from your own usual pattern. Above the dashed line for a few days counts as a change. Shaded: set aside; dotted: a stressful week, still counted.
+        How far your days are from your usual pattern. A few days above the dashed line count as a change.
       </p>
       <h2>Change index</h2>
       <UChart opts={charts.index.opts} data={charts.index.data} ariaLabel="Daily change index with the smoothed line and your usual limit" />
       <h2>By domain</h2>
-      <p className="muted">Which kind of signal moved, as a 7-day average. Higher means further from your usual days.</p>
+      <p className="muted">Which kind of signal moved, as a 7-day average.</p>
       <UChart opts={charts.domains.opts} data={charts.domains.data} ariaLabel="Change per domain, 7-day average" />
       <h2>Questionnaires</h2>
       {qs.length === 0 ? (
@@ -223,7 +223,7 @@ export function Trends() {
       {d.diary.length > 0 && (
         <>
           <h2>From your notes</h2>
-          <p className="muted">Read on this device (0 = not there, 3 = strong). Only for you; never used to decide anything.</p>
+          <p className="muted">Read on this device (0 = not there, 3 = strong). Never used to decide anything.</p>
           <UChart opts={charts.markers.opts} data={charts.markers.data} ariaLabel="Language markers from your notes over time" />
         </>
       )}

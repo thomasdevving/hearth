@@ -78,7 +78,7 @@ const TOUCH = `
 
   // Setup, not recorded: onboarding.
   await page.goto(BASE + "/#/onboarding");
-  await page.click("text=Next"); await page.click("text=Next"); await page.click("text=Set up my plan");
+  await page.click("text=Start with Hearth"); await page.click("text=Set up my plan");
   await page.waitForSelector("textarea");
   await page.mouse.move(195, 700);
 
@@ -101,7 +101,7 @@ const TOUCH = `
   await tap(page.locator("textarea").first(), { hold: 200 });
   await page.keyboard.type(SAM, { delay: 45 }); // ~22 characters a second: a quick typist, no fast-forward
   await pause(500);
-  await tap("button:has-text('Make cards')", { hold: 300 });
+  await tap("button:has-text('Turn into my plan')", { hold: 300 });
   await page.waitForSelector("text=Save these cards", { timeout: 60000 });
   await page.evaluate(() => scrollTo(0, 0));
   mark("cards");

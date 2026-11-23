@@ -42,17 +42,17 @@ describe("research-based sign suggestions", () => {
       fireEvent.click(screen.getByText("I pull back from people"));
     });
     await act(async () => {
-      fireEvent.click(screen.getByText("Make cards"));
+      fireEvent.click(screen.getByText("Turn into my plan"));
     });
     expect(await screen.findByText("Your plan as cards")).toBeTruthy();
     if (!document.body.textContent?.includes("Suggested sign you ticked: I go to bed later and later")) console.log(document.body.textContent);
     expect(document.body.textContent).toContain("Suggested sign you ticked: I go to bed later and later");
     expect(screen.getByText("Did you have contact with someone you like today?")).toBeTruthy();
   });
-  it("'I don't know my signs yet' saves no signs and moves on", async () => {
+  it("'Skip for now' saves no signs and moves on", async () => {
     render(<PlanSetup params={{ first: "1" }} />);
     await act(async () => {
-      fireEvent.click(await screen.findByText("I don't know my signs yet"));
+      fireEvent.click(await screen.findByText("Skip for now"));
     });
     await act(async () => new Promise((r) => setTimeout(r, 50)));
     expect(await db.plan_rules.count()).toBe(0);

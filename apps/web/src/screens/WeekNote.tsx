@@ -78,7 +78,8 @@ export function WeekNote({ isoWeek, existing }: { isoWeek: string; existing: { t
       )}
       {!existing && !draft && (
         <>
-          <p className="muted">Your notes stay on this device. The on-device model can write a short, general note from them that you may add to your weekly summary. You see it first.</p>
+          <p className="muted">Your notes stay on this device. The on-device model can suggest a short note for your weekly summary; you see it first.
+      </p>
           <button className="secondary" disabled={state === "working"} onClick={write}>
             {state === "working" ? "Writing on this device…" : "Suggest a note"}
           </button>

@@ -22,7 +22,7 @@ export function People() {
   return (
     <Screen title="My people" back="my_plan">
       <p className="muted">
-        One to three people you could call or message when things get harder. They appear on your plan, on Today when your days change, and on the support screen. They stay on this device; Hearth never contacts anyone.
+        One to three people to call or message on a hard day. Hearth never contacts them.
       </p>
       {rows.map((r, i) => (
         <fieldset className="person-form" key={i}>

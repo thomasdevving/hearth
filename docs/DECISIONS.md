@@ -860,3 +860,19 @@ in Chrome without Gemini Nano, so every model task showed its fallback. Changes:
   Message keep one size everywhere (the support screen's crisis-call style no longer reaches
   them), deleting your data has its own section away from "I need help now", and the landing's
   Science link is a text link.
+
+## First run: animated intro, one short onboarding, shorter text (2026-11-23)
+
+- **Intro**: the Hearth mark blooms open, then the name, the slogan "Notice when your days start
+  to drift." and "Start with Hearth". No header, tabs or demo bar on these two screens.
+- **One onboarding screen** replaces three pages: three illustrated rows (your usual band, a
+  drift out of it, your plan) and one way forward, "Set up my plan". Privacy, the ledger and
+  what Hearth is not are behind "Learn more about privacy" on the same screen; the cloud option
+  appears there only when a Firebase project is configured.
+- **Plan setup**: one line of intro; "Make cards" is now "Turn into my plan", with one line on
+  what it does; "Skip for now" and "fill it in by hand" sit in one sentence under a rule.
+- **Text under headings** is one short sentence where it can be (starting point, plan cards,
+  trends, Why?, people, share, weekly, privacy test, call a friend, what came first).
+- **Explanations are plain text**, not tinted boxes: the demo hints, the privacy test, the
+  plan note and the holiday line. Boxes stay for things you act on.
+- The jury-video capture script and the plan-setup test use the new button names.

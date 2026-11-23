@@ -32,19 +32,21 @@ export default function DemoApp({ route }: { route: Route }) {
   }, []);
   const Comp = SCREENS[route.screen] ?? SCREENS.home;
   const fullScreen = route.screen === "safety" || route.screen === "report";
+  // The intro is its own full screen: no header, tabs or demo bar yet.
+  const intro = route.screen === "onboarding";
   // First run: no tabs until the plan is set up, so there is one clear way forward.
   const firstRun = route.screen === "onboarding" || route.screen === "baseline_phq" || (route.screen === "plan_setup" && route.params.first === "1");
   return (
     <div className="app">
-      <header className="app-header"><Wordmark /></header>
-      {!fullScreen && <OnDeviceBanner />}
+      {!intro && <header className="app-header"><Wordmark /></header>}
+      {!fullScreen && !intro && <OnDeviceBanner />}
       {!fullScreen && !firstRun && (
         <nav className="tabs" aria-label="Main">
           {TABS.map((tab) => <a key={tab.id} href={`#/${tab.id}`} aria-current={route.screen === tab.id ? "page" : undefined}>{tab.label}</a>)}
         </nav>
       )}
       <main className="column">{ready ? <Comp params={route.params} /> : <p className="muted">Loading…</p>}</main>
-      {route.screen !== "report" && <TimeMachineBar />}
+      {route.screen !== "report" && !intro && <TimeMachineBar />}
     </div>
   );
 }

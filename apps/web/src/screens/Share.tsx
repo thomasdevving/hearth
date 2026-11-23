@@ -19,7 +19,7 @@ export function Share() {
   if (!cloudConfigured || !d.settings.cloudConsent)
     return (
       <Screen title="Share with your clinician" back="home">
-        <p>A share link sends a copy of your weekly summaries (no notes, no places, no names) to a private page that expires after 7 days.</p>
+        <p>A private link to your weekly summaries, without notes, places or names. It expires after 7 days.</p>
         <p className="muted">{cloudConfigured ? "This needs your permission for the cloud in Settings." : "Sharing is not available in this build (no Firebase project configured)."}</p>
         <button className="secondary" onClick={() => navigate("settings")}>
           Settings

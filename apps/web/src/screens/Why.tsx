@@ -154,7 +154,7 @@ export function Why({ params }: { params: Record<string, string> }) {
         <p className="why-legend">
           <span className="lg lg-value" /> {label} <span className="lg lg-band" /> your usual range <span className="lg lg-mid" /> your usual middle
         </p>
-        <p className="muted small">The shaded band is the range of your own usual days, the ones Hearth compares with. It does not count days that already looked different.</p>
+        <p className="muted small">The shaded band is your usual range.</p>
       </section>
 
       <section className="why-step" aria-labelledby="why-2">
@@ -178,9 +178,9 @@ export function Why({ params }: { params: Record<string, string> }) {
             : "Your days are within your usual pattern now."}
         </p>
         <UChart opts={view.index.opts} data={view.index.data} ariaLabel="All your signals together: each day, the trend and your usual limit" />
-        <p className="muted small">Grey dots: each day, all signals together. Pink line: the trend. Dashed line: your usual limit.</p>
+        <p className="muted small">Grey: each day. Pink: the trend. Dashed: your usual limit.</p>
       </section>
-      <p className="muted small">Worked out by Hearth's code from your own days; no model is involved. It describes a change from your usual pattern, not a diagnosis.</p>
+      <p className="muted small">Worked out by Hearth's code, not a model. A change from your usual pattern, not a diagnosis.</p>
     </Screen>
   );
 }

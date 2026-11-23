@@ -92,7 +92,7 @@ export function Checkin({ params }: { params: Record<string, string> }) {
       <button className="link" onClick={() => setWhy(!why)} aria-expanded={why}>
         Why am I being asked?
       </button>
-      {why && <p className="muted">Sometimes I ask at random, sometimes because your pattern changed. I'll tell you which one after you answer, so it doesn't colour your answer.</p>}
+      {why && <p className="muted">Some check-ins are random, some come because your pattern changed. You'll hear which after you answer.</p>}
       {scales.map((s) => (
         <fieldset key={s.id} className="stack" style={{ border: "none", padding: 0 }}>
           <legend className="item-text" style={{ fontSize: "1rem" }}>

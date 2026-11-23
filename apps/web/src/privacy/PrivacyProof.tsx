@@ -39,7 +39,7 @@ export function PrivacyProof() {
     <section className="privacy-proof" aria-labelledby="privacy-proof-title">
       <h2 id="privacy-proof-title">Don't take our word for it</h2>
       <p className="muted">
-        Your browser itself only lets Hearth talk to the Firebase services listed below. Anything else is refused before it leaves this device. Test it: Hearth tries to send a test message to another website.
+        Your browser only lets Hearth reach the services listed below. Test it and watch another website get refused.
       </p>
       <button className="secondary" onClick={run} disabled={busy}>
         {busy ? "Testing…" : "Test it"}
@@ -74,7 +74,7 @@ export function PrivacyProof() {
         </ul>
       )}
       <p className="muted">
-        <small>Your own words, notes and places are never sent to any of these: tasks that read them run on this device only, or not at all.</small>
+        <small>Your words, notes and places never go to any of these.</small>
       </p>
     </section>
   );

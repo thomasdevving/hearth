@@ -57,7 +57,7 @@ export function HelpedNew({ params }: { params: Record<string, string> }) {
   const ok = sign && (text.trim() || audio);
   return (
     <Screen title="What helped" back="my_plan">
-      <p className="muted">Save what helped, in your own words. Next time this sign comes up, Hearth shows it to you. It stays on this device.</p>
+      <p className="muted">Next time this sign comes up, Hearth shows it to you. It stays on this device.</p>
       <label className="stack">
         <strong>For which sign?</strong>
         <select value={sign} onChange={(e) => setSign(e.target.value)} aria-label="Sign">

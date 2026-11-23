@@ -105,10 +105,10 @@ export function WhatCameFirst({ fold = false }: { fold?: boolean }) {
       </ol>
       {unchanged.length > 0 && (
         <p className="muted small">
-          Did not change this time: {unchanged.map((u) => featureLabel(u.feature, d.places).toLowerCase()).join(", ")}. That is fine: a sign can show up one time and not the next.
+          Did not change this time: {unchanged.map((u) => featureLabel(u.feature, d.places).toLowerCase()).join(", ")}. That is fine.
         </p>
       )}
-      <p className="muted small">Worked out by Hearth's code from your own days, not by a model. The signs that move first are the ones to watch most closely; change your plan only if it feels right to you.</p>
+      <p className="muted small">Worked out by Hearth's code, not a model. Watch the first signs most closely.</p>
     </section>
   );
   return fold ? <Fold title="What came first" hint={`${shown.length} signals, in order`}>{body}</Fold> : body;

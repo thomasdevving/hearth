@@ -63,7 +63,7 @@ export function Ask() {
           {answer.text} <ModelBadge ranOn={answer.ranOn} />
         </p>
       )}
-      <small>Only questions about your own signals and check-ins. Your question is read on this device.</small>
+      <small>About your own signals and check-ins. Read on this device.</small>
     </section>
   );
 }
