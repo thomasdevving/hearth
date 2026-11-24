@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Hearth · for clinicians</title>
+<style>
+  @font-face { font-family: "Syne"; src: url("../../node_modules/@fontsource-variable/syne/files/syne-latin-wght-normal.woff2") format("woff2"); font-weight: 400 800; }
+  @font-face { font-family: "Outfit"; src: url("../../node_modules/@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+  html, body { margin: 0; background: #fff; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// Hearth explained for clinicians (video/clinicians/SCRIPT.md). Every point is on screen so it
+// works muted; the voice-over is optional. Screens: the iOS app on the simulated person Sam.
+const W = 1920, H = 1080;
+const C = { mag: "#ca026a", deep: "#7a0f55", tint: "#fdf0f7", line: "#eee6ec", ink: "#1d1320", ink2: "#4a3f4c", muted: "#6e6470", grey: "#faf6f9", amber: "#b25d00", amberBg: "#fff4e5", green: "#1e5b37", greenBg: "#e9f5ee" };
+const SITE = "hearth-9de01.web.app";
+const cv = document.getElementById("c");
+const g = cv.getContext("2d");
+const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+const font = (w, s, fam = "Outfit") => `${w} ${s}px ${fam}`;
+
+function text(str, x, y, f, color, align = "left") { g.font = f; g.fillStyle = color; g.textAlign = align; g.textBaseline = "alphabetic"; g.fillText(str, x, y); }
+function wrap(str, x, y, maxW, f, color, lh, align = "left") {
+  g.font = f; g.fillStyle = color; g.textAlign = align;
+  const words = str.split(" "); let line = ""; let yy = y; const lines = [];
+  for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line);
+  for (const l of lines) { g.fillText(l, x, yy); yy += lh; }
+  return yy - lh;
+}
+function rr(x, y, w, h, r, fill, stroke, lw = 2, dash) {
+  g.beginPath(); g.roundRect(x, y, w, h, r);
+  if (fill) { g.fillStyle = fill; g.fill(); }
+  if (stroke) { g.save(); if (dash) g.setLineDash(dash); g.strokeStyle = stroke; g.lineWidth = lw; g.stroke(); g.restore(); }
+}
+function fade(k, fn) { if (k <= 0) return; g.save(); g.globalAlpha = Math.min(1, k); g.translate(0, (1 - Math.min(1, k)) * 18); fn(); g.restore(); }
+function bg(flower = 0.2, which = "R") {
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const img = which === "R" ? FLOWER : FLOWER_L; if (!img) return;
+  const fw = 1920, fh = fw * (img.height / img.width);
+  g.save(); g.globalAlpha = flower; g.drawImage(img, 0, (H - fh) / 2, fw, fh); g.restore();
+}
+function logo(x, y, s = 40, withWord = true) {
+  g.drawImage(LOGO, x, y - s * 0.8, s, s);
+  if (withWord) text("Hearth", x + s + 10, y, font(800, s * 0.8, "Syne"), C.mag);
+}
+function label(str, x, y, color = C.mag) { text(str.toUpperCase(), x, y, font(700, 22, "Syne"), color); }
+function phone(img, x, y, h, tilt = 0) {
+  const w = h * (600 / 1298) + 28;
+  g.save(); g.translate(x + w / 2, y + h / 2); g.rotate(tilt); g.translate(-(x + w / 2), -(y + h / 2));
+  g.save(); g.shadowColor = "rgba(122,15,85,.28)"; g.shadowBlur = 60; g.shadowOffsetY = 24; rr(x, y, w, h + 28, 56, "#1d1320"); g.restore();
+  g.beginPath(); g.roundRect(x + 14, y + 14, w - 28, h, 44); g.clip();
+  g.fillStyle = "#fff"; g.fillRect(x + 14, y + 14, w - 28, h);
+  if (img) g.drawImage(img, x + 14, y + 14, w - 28, h);
+  g.restore();
+  return w;
+}
+function source(str, x = 140, y = 1010) { text(str, x, y, font(400, 22), C.muted); }
+
+// ---------- timeline ----------
+const T = {};
+let TOTAL = 0;
+function layout() {
+  let cur = 0;
+  const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
+  seg("intro", 6); seg("gap", 14); seg("what", 10);
+  seg("s1", 12); seg("s2", 14); seg("s3", 12); seg("s4", 15); seg("s5", 12);
+  seg("science", 18); seg("safety", 12); seg("privacy", 10); seg("foryou", 12); seg("iphone", 9); seg("ask", 14);
+  TOTAL = cur;
+}
+const local = (t, name) => t - T[name][0];
+
+// ---------- sections ----------
+function intro(t) {
+  bg(0.32, "R");
+  const s = local(t, "intro");
+  fade(ease(s / 0.8), () => logo(160, 380, 72));
+  fade(ease((s - 0.4) / 0.8), () => { text("Hearth, for clinicians", 160, 520, font(800, 92, "Syne"), C.ink); });
+  fade(ease((s - 1.0) / 0.8), () => text("How it works, why it should work, and what you get. Under three minutes.", 160, 600, font(400, 36), C.ink2));
+  fade(ease((s - 1.6) / 0.8), () => {
+    rr(160, 680, 860, 96, 22, "rgba(255,255,255,.92)", C.line, 2);
+    text("Thomas Nguyen", 196, 722, font(700, 30), C.ink);
+    text("BSc Artificial Intelligence · University of Amsterdam · student project", 196, 758, font(400, 24), C.ink2);
+  });
+}
+function gap(t) {
+  bg(0.16, "L");
+  const s = local(t, "gap");
+  label("The gap", 160, 210, C.amber);
+  const lines = [["A relapse-prevention plan is written in therapy.", C.ink], ["The early signs show up between appointments.", C.ink], ["That is exactly when they are hardest to notice.", C.amber]];
+  lines.forEach(([l, col], i) => fade(ease((s - 0.3 - i * 1.4) / 0.7), () => text(l, 160, 320 + i * 92, font(700, 58, "Syne"), col)));
+  fade(ease((s - 5.4) / 0.8), () => {
+    rr(160, 640, 1300, 200, 28, C.grey, C.line, 2);
+    const nf = font(800, 96, "Syne"); g.font = nf; const nx = 210 + g.measureText("≥ 1 in 2").width + 48;
+    text("≥ 1 in 2", 210, 776, nf, C.mag);
+    wrap("people who recover from a first episode of depression have another.", nx, 725, 1300 - nx, font(500, 34), C.ink, 46);
+  });
+  fade(ease((s - 6) / 0.8), () => source("Burcusa SL, Iacono WG. Risk for recurrence in depression. Clin Psychol Rev 2007;27:959–985."));
+}
+function what(t) {
+  bg(0.3, "R");
+  const s = local(t, "what");
+  label("What Hearth does", 160, 260);
+  fade(ease((s - 0.2) / 0.8), () => wrap("It brings the patient’s own plan back at the moment it matters.", 160, 370, 1300, font(800, 70, "Syne"), C.ink, 86));
+  const chips = ["Not a diagnosis", "Not a crisis service", "Compared only with the person themselves"];
+  let x = 160;
+  chips.forEach((c, i) => fade(ease((s - 2.2 - i * 0.6) / 0.6), () => {
+    g.font = font(600, 32); const w = g.measureText(c).width + 64;
+    rr(x, 640, w, 76, 38, "#fff", C.mag, 2.5); text(c, x + 32, 690, font(600, 32), C.deep);
+    x += w + 22;
+  }));
+}
+function step(t, name, n, title, body, imgs, switchAt = []) {
+  bg(0.14, "L");
+  const s = local(t, name);
+  label(`How it works  ·  ${n} / 5`, 140, 220);
+  fade(ease(s / 0.7), () => {
+    const y = wrap(title, 140, 320, 940, font(800, 64, "Syne"), C.ink, 76);
+    wrap(body, 140, y + 80, 900, font(400, 34), C.ink2, 50);
+  });
+  const ph = 900;
+  let img = imgs[0];
+  switchAt.forEach((at, i) => { if (s >= at) img = imgs[i + 1]; });
+  fade(ease((s - 0.2) / 0.8), () => phone(img, 1260, (H - ph - 28) / 2, ph, 0));
+  // progress dots
+  for (let i = 1; i <= 5; i++) { g.beginPath(); g.arc(140 + (i - 1) * 30, 980, 8, 0, Math.PI * 2); g.fillStyle = i <= n ? C.mag : C.line; g.fill(); }
+}
+function science(t) {
+  bg(0.12, "R");
+  const s = local(t, "science");
+  label("Why it should work", 140, 190);
+  fade(ease(s / 0.7), () => text("Three findings Hearth builds on", 140, 270, font(800, 58, "Syne"), C.ink));
+  const cols = [
+    ["Early signs are personal", "People and their families can learn the signs that come before an episode. Monitoring them is the basis of a relapse-prevention plan.", "Birchwood et al., Psychol Med 1989"],
+    ["Behaviour changes are measurable", "Disturbed sleep, less activity and a weaker daily rhythm go together with depression, and phone sensors pick them up.", "Baglioni 2011 · Lyall 2018 · Saeb 2015"],
+    ["Change against yourself", "Group findings cannot say how one person is doing. Hearth only looks for change against that person’s own usual days.", "Jacobson & Truax 1991 (reliable change)"],
+  ];
+  cols.forEach(([h, b, src], i) => fade(ease((s - 1 - i * 1.4) / 0.8), () => {
+    const x = 140 + i * 560, y = 340;
+    rr(x, y, 520, 520, 28, "#fff", C.line, 2);
+    rr(x, y, 520, 10, [28, 28, 0, 0], C.mag);
+    const hy = wrap(h, x + 40, y + 90, 440, font(800, 40, "Syne"), C.ink, 50);
+    wrap(b, x + 40, Math.max(y + 230, hy + 70), 440, font(400, 29), C.ink2, 42);
+    text(src, x + 40, y + 480, font(500, 22), C.muted);
+  }));
+  fade(ease((s - 6) / 0.8), () => source("Full references on the Science page: " + SITE + "/#/science", 140, 960));
+}
+function bullets(t, name, lab, title, items, img, labColor = C.mag) {
+  bg(0.14, "L");
+  const s = local(t, name);
+  label(lab, 140, 210, labColor);
+  g.font = font(800, 62, "Syne");
+  const titleLines = g.measureText(title).width > 960 ? 2 : 1;
+  const top = 300 + (titleLines - 1) * 74 + 130;
+  fade(ease(s / 0.7), () => wrap(title, 140, 300, 960, font(800, 62, "Syne"), C.ink, 74));
+  items.forEach((it, i) => fade(ease((s - 0.9 - i * 0.9) / 0.6), () => {
+    const y = top + i * 118;
+    g.beginPath(); g.arc(158, y - 12, 9, 0, Math.PI * 2); g.fillStyle = labColor; g.fill();
+    wrap(it, 196, y, 880, font(500, 32), C.ink, 44);
+  }));
+  if (img) { const ph = 900; fade(ease((s - 0.2) / 0.8), () => phone(img, 1260, (H - ph - 28) / 2, ph, 0)); }
+}
+function foryou(t) {
+  bg(0.14, "R");
+  const s = local(t, "foryou");
+  label("What you get", 140, 210);
+  fade(ease(s / 0.7), () => {
+    const y = wrap("A one-page plan, and a file for your system", 140, 300, 820, font(800, 62, "Syne"), C.ink, 74);
+    wrap("The plan by phase, the latest PHQ scores and the current status, ready to print. Plus a FHIR R4 export. The patient decides whether to share either.", 140, y + 80, 780, font(400, 34), C.ink2, 50);
+  });
+  fade(ease((s - 0.5) / 0.9), () => {
+    const w = 820, h = w * (GPIMG.height / GPIMG.width);
+    g.save(); g.translate(1450, 540);
+    g.save(); g.shadowColor = "rgba(29,19,32,.25)"; g.shadowBlur = 50; g.shadowOffsetY = 20; rr(-w / 2, -h / 2, w, h, 10, "#fff"); g.restore();
+    g.drawImage(GPIMG, -w / 2, -h / 2, w, h);
+    g.restore();
+  });
+  fade(ease((s - 2) / 0.6), () => { rr(140, 820, 360, 70, 35, C.greenBg, "#cfe7d6", 2); text("FHIR R4 · JSON", 180, 866, font(700, 28), C.green); });
+}
+function iphone(t) {
+  bg(0.3, "R");
+  const s = local(t, "iphone");
+  fade(ease(s / 0.7), () => {
+    logo(140, 330, 56);
+    label("Coming to the App Store", 140, 420);
+    const y = wrap("Everything you saw is the iPhone app", 140, 510, 1100, font(800, 64, "Syne"), C.ink, 76);
+    wrap("It reads Apple Health and runs Apple\u2019s on-device model. It is built and in testing, and I\u2019m preparing it for launch on the App Store.", 140, y + 80, 1000, font(400, 36), C.ink2, 52);
+  });
+  fade(ease((s - 1.2) / 0.8), () => {
+    rr(140, 820, 760, 84, 42, C.tint, C.mag, 2.5);
+    text("Until then: try the demo in your browser", 180, 874, font(600, 32), C.deep);
+  });
+}
+function ask(t) {
+  bg(0.32, "R");
+  const s = local(t, "ask");
+  label("Your view would help", 140, 200);
+  fade(ease(s / 0.7), () => text("Two questions", 140, 290, font(800, 70, "Syne"), C.ink));
+  const qs = ["Would you recommend this to a patient?", "What is missing, or worrying?"];
+  qs.forEach((q, i) => fade(ease((s - 1 - i * 0.8) / 0.6), () => {
+    rr(140, 360 + i * 104, 1000, 84, 24, "rgba(255,255,255,.94)", C.line, 2);
+    text(q, 180, 415 + i * 104, font(600, 34), C.ink);
+  }));
+  fade(ease((s - 4.5) / 0.8), () => {
+    text("Try the demo here: " + SITE, 140, 700, font(700, 40), C.mag);
+    text("In your browser, with a simulated person. No account needed.", 140, 752, font(400, 28), C.ink2);
+    text("A few lines in reply to my email help a lot.", 140, 880, font(600, 32), C.ink);
+    text("Interested in the project? I\u2019m happy to arrange a 15-minute call.", 140, 930, font(400, 30), C.ink2);
+    rr(1360, 300, 400, 470, 30, "#fff", C.line, 2);
+    g.drawImage(QR, 1400, 340, 320, 320);
+    text("Try Hearth", 1560, 720, font(700, 30), C.ink, "center");
+  });
+}
+
+// ---------- render ----------
+const ORDER = ["intro", "gap", "what", "s1", "s2", "s3", "s4", "s5", "science", "safety", "privacy", "foryou", "iphone", "ask"];
+function render(t) {
+  const name = ORDER.find((k) => t >= T[k][0] && t < T[k][1]) ?? "ask";
+  switch (name) {
+    case "intro": intro(t); break;
+    case "gap": gap(t); break;
+    case "what": what(t); break;
+    case "s1": step(t, "s1", 1, "They write their plan in their own words", "With their therapist, or on their own: the early signs they, or people close to them, notice first, and what helps. They can type it, speak it, or tick signs many people notice.", [IOS.write]); break;
+    case "s2": step(t, "s2", 2, "A model on the phone turns it into cards", "Signs Hearth can watch, questions for their check-ins, and what helps. Every card keeps their exact words. A suggestion that was not in their own words is left out, and Hearth says so. They untick anything that isn\u2019t right, then save.", [IOS.cards]); break;
+    case "s3": step(t, "s3", 3, "It learns their usual days", "For about two weeks Hearth only learns: sleep timing, activity, daily rhythm, resting heart rate (with a watch) and, optionally, places. Each day is compared with their own usual range.", [IOS.trends]); break;
+    case "s4": step(t, "s4", 4, "A drift gets a gentle check-in", "When their days stay outside that range for several days, Hearth asks how they are: three taps and their own questions. Why? shows which signals moved. A holiday they confirm is set aside.", [IOS.today, IOS.checkin, IOS.why], [5, 10]); break;
+    case "s5": step(t, "s5", 5, "Their own plan comes back", "Hearth opens their plan with what fits today on top, and one tap to the people they chose. If the change persists, it offers the PHQ-2, then the PHQ-9, word for word.", [IOS.plan]); break;
+    case "science": science(t); break;
+    case "safety": bullets(t, "safety", "Clinical boundaries", "Safety comes first", ["No diagnostic language: “a change from your usual pattern”.", "PHQ-9 item 9 or crisis words open a safety screen with local crisis lines, also offline.", "“I need help now” is always one tap away.", "Hearth never contacts anyone. The patient decides."], IOS.safety, C.amber); break;
+    case "privacy": bullets(t, "privacy", "Private by design", "Their words stay on their phone", ["The plan, notes and check-ins are read only by the model on the device.", "The cloud sees weekly numbers only, and only with consent.", "Every model call is listed in the privacy ledger."], IOS.ledger); break;
+    case "foryou": foryou(t); break;
+    case "iphone": iphone(t); break;
+    default: ask(t);
+  }
+  for (const k of ORDER) {
+    const a = T[k][0]; if (a === 0) continue;
+    if (t >= a && t < a + 0.45) { g.save(); g.globalAlpha = 1 - ease((t - a) / 0.45); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.restore(); }
+  }
+}
+
+let LOGO, FLOWER, FLOWER_L, QR, GPIMG; const SHOT = {}, IOS = {};
+(async () => {
+  const load = async (src) => { const im = new Image(); im.src = src; await im.decode(); return im; };
+  LOGO = await load("../../apps/web/src/assets/hearth-logo.png");
+  FLOWER = await load("../../apps/web/src/assets/flower-right.webp");
+  FLOWER_L = await load("../../apps/web/src/assets/flower-left.webp");
+  QR = await load("../demo/assets/qr-website.png");
+  GPIMG = await load("../demo/assets/gp-page.png");
+  for (const k of ["write", "cards", "trends", "today", "checkin", "why", "plan", "safety", "ledger"]) IOS[k] = await load(`assets/ios-${k}.jpg`);
+  layout();
+  await document.fonts.load('800 40px "Syne"'); await document.fonts.load('700 40px "Syne"'); await document.fonts.load('400 30px "Outfit"'); await document.fonts.load('700 30px "Outfit"');
+  window.TOTAL = TOTAL; window.render = render; window.SECTIONS = T; window.ready = true;
+  render(0);
+})();
+</script>
+</body>
+</html>

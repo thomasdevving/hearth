@@ -34,6 +34,11 @@ struct PlanSetupView: View {
       guard !loaded else { return }
       loaded = true
       if let src = app.store.all(PlanSource.self).first { warning = src.warning; helps = src.helps }
+      #if DEBUG
+      // Screenshots: Sam's words typed in, and optionally "Turn into my plan" pressed.
+      if UserDefaults.standard.bool(forKey: "HearthPlanPrefill") { warning = DemoData.samWarning; helps = DemoData.samHelps }
+      if UserDefaults.standard.bool(forKey: "HearthAutoCards") { Task { try? await Task.sleep(for: .seconds(1)); await makeCards() } }
+      #endif
     }
   }
 

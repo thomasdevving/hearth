@@ -36,7 +36,8 @@ struct HearthApp: App {
     // `-HearthRoute why:rest_midpoint` opens that screen on top of the tab; `helped_new` the
     // "What helped" screen; `checkin` a new random check-in; `plan_print` the plan on one page;
     // `share` the summary for a clinician; `weekly` the weekly reflection; `science` the
-    // science page; `plan_setup` the plan form; `context_confirm` a holiday found in a note.
+    // science page; `plan_setup` the plan form; `context_confirm` a holiday found in a note;
+    // `safety` the safety screen, as after "I need help now".
     switch UserDefaults.standard.string(forKey: "HearthRoute") {
     case let r? where r.hasPrefix("why:"): model.path = [.why(String(r.dropFirst(4)))]
     case "helped_new": model.path = [.helpedNew(nil)]
@@ -45,6 +46,7 @@ struct HearthApp: App {
     case "weekly": model.path = [.weekly]
     case "science": model.path = [.science]
     case "plan_setup": model.path = [.planSetup(first: false)]
+    case "safety": model.openSafety("button")
     case "context_confirm":
       DemoData.addContextConfirm(store: model.store)
       if let id = model.store.openInbox().last(where: { $0.type == "context_confirm" })?.id { model.path = [.contextConfirm(id)] }
