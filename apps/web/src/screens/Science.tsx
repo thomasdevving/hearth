@@ -171,8 +171,11 @@ r is capped at 3`}</F>
       <h3>3. Average within a group, then across groups</h3>
       <F>{`G_k = Σ a_j · r_j / Σ a_j
       over the signals in group k
-D   = mean of G_k over the groups present
-      (at least ${c.minDomains} groups)`}</F>
+D   = Σ u_k · G_k / Σ u_k
+      over the groups present
+      (at least ${c.minDomains} groups)
+u_k = 1 until Hearth has learned
+      your own weights (step 6)`}</F>
       <p>The groups are activity, rhythm, sleep, heart, places and phone. Signals inside one group move together, so they are averaged and four changing movement signals count as one change, not four.</p>
 
       <h3>4. Watch the trend, not one day</h3>
@@ -194,6 +197,37 @@ changed when S_d > UCL or C_d > ${c.cusumH}
         <li>A PHQ-2 is offered only if the change persists ({c.persistDays} of {c.persistWindow} days on one-day signals), or if 2 of your last 3 check-ins were low, or if your baseline itself has drifted more than {c.driftThreshold} spread from where it started.</li>
         <li>A PHQ-9 that reaches {c.phq9Cutoff} keeps the plan and the share option in view until a later one does not.</li>
       </ol>
+
+      <h3 id="sci-weights">6. Learn which groups go with your low days</h3>
+      <p>
+        Not everyone's low days show up in the same place: for one person it is sleep, for another it is staying home. So Hearth learns, per person,
+        how much each group counts. It learns only from the random check-ins: the triggered ones were chosen by the current weights, so learning
+        from them would only confirm what the model already does. Each answered random check-in is one example: your answer to "Right now, I feel
+        down" (1 to 7) and, for each group, its average over that day and the {c.weightSampleDays - 1} days before.
+      </p>
+      <F>{`y   = "I feel down" on a random check-in
+x_k = mean of G_k over that day and
+      the ${c.weightSampleDays - 1} days before
+
+ŷ   = a + Σ_k β_k · x_k
+β   = argmin Σ (y − ŷ)² + λ · Σ_k (β_k − β̄)²
+      β̄ = mean of the β_k
+λ   = ${c.weightShrinkage} · trace(XᵀX) / K
+
+u_k = β_k / β̄, kept between ${c.weightMin} and ${c.weightMax},
+      rescaled so the mean stays 1`}</F>
+      <p>
+        This is ridge regression with one change: the penalty pulls every slope towards the slopes' common mean instead of towards zero. With
+        few answers all slopes come out nearly equal and every group keeps weight 1; only a link that keeps showing up pulls them apart. The
+        result is still a weighted average, so "Why?" can still name the signal behind every alert.
+      </p>
+      <ul className="plain-list">
+        <li><strong>Enough answers.</strong> At least {c.weightMinSamples} random check-ins (at one in three days, about two months), at most {c.weightMaxSamples} from the last {c.weightWindowDays} days.</li>
+        <li><strong>The alerts must mean something.</strong> The self-test below must say the triggered check-ins are informative for you.</li>
+        <li><strong>It must predict better.</strong> Leave-one-out: each check-in is predicted by a model fitted on all the others. The weighted model must predict "I feel down" at least {Math.round(c.weightMinGain * 100)}% better (squared error) than one with equal weights. Once the weights are on, not worse is enough, so they do not switch on and off.</li>
+        <li><strong>Slow and steady.</strong> Weights move at most {c.weightMaxStep} a week towards the new fit, and stay put while your days look changed, like your usual range. That range is recomputed with the same weights, so a change of weights never moves the limit by itself.</li>
+      </ul>
+      <p>Trends shows what Hearth has learned for you, or how many check-ins it still needs.</p>
 
       <details className="sci-more">
         <summary>Rhythm formulas (van Someren)</summary>
@@ -273,6 +307,8 @@ absolutist = 19 words such as always,
             <tr><td>False alarms on stable data (150 days, 50 people)</td><td>1.03 "Changed" days per 100 days; 39 of 50 had none, the highest had 12 (2.59 before sleep and heart data from a watch were added)</td></tr>
             <tr><td>Holiday week, "Changed" days (20 people)</td><td>0 when confirmed, 92 when not</td></tr>
             <tr><td>Effect of the person's own plan</td><td>median 7 days with it, 8 without</td></tr>
+            <tr><td>Personal weights on stable data and on Sam (50 people each)</td><td>never switched on; false alarms and detection unchanged</td></tr>
+            <tr><td>Personal weights, a person whose mood follows activity (20 people)</td><td>switched on before the decline in 10 of 20, with activity weighing most in 9; the decline was seen earlier in 7 and later in 1, at about 0.4 extra "Changed" days per 100 days. With no such link: on in 2 of 20, no extra alarms</td></tr>
             <tr><td>Requests leaving the browser with the cloud off</td><td>0, and 0 containing your text</td></tr>
             <tr><td>Crisis sentences opening the support screen (keywords)</td><td>20 of 20, 0 of 20 neutral ones; the list was extended after a first run found 13 of 20, so this is not an unbiased estimate</td></tr>
             <tr><td>Full demo script holding on every seed</td><td>16 of 20 (target was 18), counting the person's own signs over the first 3 days of the change; 10 of 20 if only the first day counts</td></tr>
@@ -284,6 +320,7 @@ absolutist = 19 words such as always,
       <h2>What we do not know yet</h2>
       <ul className="plain-list">
         <li>The thresholds have not been tested on real people going through a real decline.</li>
+        <li>Personal weights have only been tried on simulated people, and need weeks of answers before they do anything.</li>
         <li>Rest from phone stillness is a rough stand-in for sleep.</li>
         <li>Without location or a watch, only activity, rhythm and rest are available.</li>
         <li>English only.</li>

@@ -135,8 +135,11 @@ struct ScienceView: View {
     SciFormula([
       "G_k = Σ a_j · r_j / Σ a_j",
       "      over the signals in group k",
-      "D   = mean of G_k over the groups present",
+      "D   = Σ u_k · G_k / Σ u_k",
+      "      over the groups present",
       "      (at least \(c.n("minDomains")) groups)",
+      "u_k = 1 until Hearth has learned",
+      "      your own weights (step 6)",
     ])
     SciPara("The groups are activity, rhythm, sleep, heart, places and phone. Signals inside one group move together, so they are averaged and four changing movement signals count as one change, not four.")
 
@@ -166,6 +169,38 @@ struct ScienceView: View {
       SciListRow(marker: "4.", text:
         Text("A PHQ-9 that reaches \(c.n("phq9Cutoff")) keeps the plan and the share option in view until a later one does not."))
     }
+
+    SciH3("6. Learn which groups go with your low days")
+    SciPara("Not everyone's low days show up in the same place: for one person it is sleep, for another it is staying home. So Hearth learns, per person, how much each group counts. It learns only from the random check-ins: the triggered ones were chosen by the current weights, so learning from them would only confirm what the model already does. Each answered random check-in is one example: your answer to \"Right now, I feel down\" (1 to 7) and, for each group, its average over that day and the \(c.minus1("weightSampleDays")) days before.")
+    SciFormula([
+      "y   = \"I feel down\" on a random check-in",
+      "x_k = mean of G_k over that day and",
+      "      the \(c.minus1("weightSampleDays")) days before",
+      "",
+      "ŷ   = a + Σ_k β_k · x_k",
+      "β   = argmin Σ (y − ŷ)² + λ · Σ_k (β_k − β̄)²",
+      "      β̄ = mean of the β_k",
+      "λ   = \(c.n("weightShrinkage")) · trace(XᵀX) / K",
+      "",
+      "u_k = β_k / β̄, kept between \(c.n("weightMin")) and \(c.n("weightMax")),",
+      "      rescaled so the mean stays 1",
+    ])
+    SciPara("This is ridge regression with one change: the penalty pulls every slope towards the slopes' common mean instead of towards zero. With few answers all slopes come out nearly equal and every group keeps weight 1; only a link that keeps showing up pulls them apart. The result is still a weighted average, so \"Why?\" can still name the signal behind every alert.")
+    VStack(alignment: .leading, spacing: 8) {
+      SciListRow(marker: "•", text:
+        Text("Enough answers.").font(HearthFont.body(16, weight: "SemiBold"))
+        + Text(" At least \(c.n("weightMinSamples")) random check-ins (at one in three days, about two months), at most \(c.n("weightMaxSamples")) from the last \(c.n("weightWindowDays")) days."))
+      SciListRow(marker: "•", text:
+        Text("The alerts must mean something.").font(HearthFont.body(16, weight: "SemiBold"))
+        + Text(" The self-test below must say the triggered check-ins are informative for you."))
+      SciListRow(marker: "•", text:
+        Text("It must predict better.").font(HearthFont.body(16, weight: "SemiBold"))
+        + Text(" Leave-one-out: each check-in is predicted by a model fitted on all the others. The weighted model must predict \"I feel down\" at least \(c.percent("weightMinGain"))% better (squared error) than one with equal weights. Once the weights are on, not worse is enough, so they do not switch on and off."))
+      SciListRow(marker: "•", text:
+        Text("Slow and steady.").font(HearthFont.body(16, weight: "SemiBold"))
+        + Text(" Weights move at most \(c.n("weightMaxStep")) a week towards the new fit, and stay put while your days look changed, like your usual range. That range is recomputed with the same weights, so a change of weights never moves the limit by itself."))
+    }
+    SciPara("Trends shows what Hearth has learned for you, or how many check-ins it still needs.")
 
     // One line between two folds, not two (as on Plan).
     VStack(alignment: .leading, spacing: 0) {
@@ -266,6 +301,8 @@ struct ScienceView: View {
     ("False alarms on stable data (150 days, 50 people)", "1.03 \"Changed\" days per 100 days; 39 of 50 had none, the highest had 12 (2.59 before sleep and heart data from a watch were added)"),
     ("Holiday week, \"Changed\" days (20 people)", "0 when confirmed, 92 when not"),
     ("Effect of the person's own plan", "median 7 days with it, 8 without"),
+    ("Personal weights on stable data and on Sam (50 people each)", "never switched on; false alarms and detection unchanged"),
+    ("Personal weights, a person whose mood follows activity (20 people)", "switched on before the decline in 10 of 20, with activity weighing most in 9; the decline was seen earlier in 7 and later in 1, at about 0.4 extra \"Changed\" days per 100 days. With no such link: on in 2 of 20, no extra alarms"),
     ("Requests leaving the browser with the cloud off", "0, and 0 containing your text"),
     ("Crisis sentences opening the support screen (keywords)", "20 of 20, 0 of 20 neutral ones; the list was extended after a first run found 13 of 20, so this is not an unbiased estimate"),
     ("Full demo script holding on every seed", "16 of 20 (target was 18), counting the person's own signs over the first 3 days of the change; 10 of 20 if only the first day counts"),
@@ -296,6 +333,7 @@ struct ScienceView: View {
     SectionTitle(text: "What we do not know yet")
     VStack(alignment: .leading, spacing: 8) {
       SciListRow(marker: "•", text: Text("The thresholds have not been tested on real people going through a real decline."))
+      SciListRow(marker: "•", text: Text("Personal weights have only been tried on simulated people, and need weeks of answers before they do anything."))
       SciListRow(marker: "•", text: Text("Rest from phone stillness is a rough stand-in for sleep."))
       SciListRow(marker: "•", text: Text("Without location or a watch, only activity, rhythm and rest are available."))
       SciListRow(marker: "•", text: Text("English only."))
@@ -368,6 +406,12 @@ private struct SciConfig: Sendable {
   }
 
   /// `Math.round(value * 100)`.
+  /// The value minus one, e.g. "the 2 days before" for a 3-day window.
+  func minus1(_ key: String) -> String {
+    guard let v = values[key] else { return "?" }
+    return JSONText.number(v - 1)
+  }
+
   func percent(_ key: String) -> String {
     guard let v = values[key] else { return "?" }
     return JSONText.number((v * 100).rounded(.toNearestOrAwayFromZero))
