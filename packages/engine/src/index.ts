@@ -6,6 +6,7 @@ export * from "./config";
 export * from "./features/index";
 export * from "./baseline";
 export * from "./index-score";
+export * from "./weights";
 export * from "./control";
 export * from "./context";
 export * from "./state";

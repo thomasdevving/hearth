@@ -940,3 +940,32 @@ Found on the first run on a real iPhone: the app said "changed" right after onbo
   §8.1): they build the reference, are never flagged, and detection starts on the install
   day. iOS stores the install day as `liveFrom`. The web replay is unchanged.
 
+## Personal domain weights (2026-11-24)
+
+Until now the only personal weighting was a flat 2× on the signs the user named. Hearth now
+learns, per person, which domains go with their low days (docs/04 §4.4).
+
+- **Random check-ins only.** Triggered check-ins are chosen by the current weights; learning
+  from them would only confirm what the model already does. The same reasoning is behind the
+  self-audit (§9).
+- **Few labels, few parameters.** About one random check-in every three days gives 30–40 labels
+  in 90 days: enough for six domain weights pulled hard towards equal (ridge towards the mean
+  slope), not for thirty feature weights. Weights stay in [0.5, 2], mean 1, move at most 0.25
+  a week, and are frozen while the state is ELEVATED or CONFIRMED, like the reference.
+- **Three gates:** at least 20 samples; the self-audit says "informative"; leave-one-out
+  validation beats equal weights by at least 5 % (once active: is not worse, so weights do not
+  flicker). The gate was chosen from a sweep: a looser 2 % gate found more real links but also
+  switched on more often without one.
+- **Opt-in input.** `dailyUpdate` only learns when the app passes `personal: { audit }`. Without it
+  the output is identical to before, so all golden fixtures and earlier evaluation numbers hold.
+- **Consistency.** The reference days are re-weighted from their stored domain scores, so a
+  weight change never moves the limit on its own. `D_daily` stays equally weighted.
+- **What the data showed.** On the stable persona and on Sam the weights never switch on (Sam's
+  mood in the simulation does not follow one domain), and nothing changes. Mood that follows
+  bed time showed up mostly in the "daily rhythm" domain when rest is estimated from steps, so
+  the activity-sensitive person is the clean test case. There, earlier detection costs about
+  0.4 extra false "changed" days per 100 (docs/10 metric 6b).
+- **UI.** Trends shows "What counts most for you" (status, or bars with the 1× line); "Why?" adds
+  one sentence when the signal's domain weighs more or less than 1. iOS has a debug-only
+  `-HearthDemoWeights YES` that writes an example active state, for screenshots only.
+

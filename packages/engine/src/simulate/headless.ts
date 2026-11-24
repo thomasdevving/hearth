@@ -21,6 +21,7 @@ import { verifyContext, verifyPlan } from "../guardrails/verify";
 import { scoreQuestionnaire, remissionScore } from "../questionnaires";
 import { onCheckinCompleted } from "../checkin";
 import { pickPlace } from "../places";
+import { selfAudit } from "../audit";
 import { personaTimestamp, scriptedCheckin, scriptedQuestionnaire } from "./persona";
 
 export interface HeadlessOptions {
@@ -29,6 +30,7 @@ export interface HeadlessOptions {
   confirmContexts?: boolean; // the user confirms what task H finds (default true)
   days?: number; // stop after this many days
   withPlan?: boolean; // accept the scripted plan on day 1 (default true)
+  personal?: boolean; // opt in to personal domain weights, with the real self-audit (docs/04 §4.4)
 }
 
 export interface HeadlessDay {
@@ -125,6 +127,7 @@ export function runHeadless(data: ReplayData, opts: HeadlessOptions = {}): Headl
       checkins: checkins.filter((c) => dateOfTimestamp(c.scheduledAt) > addDays(date, -14)),
       questionnaires,
       cfg,
+      ...(opts.personal ? { personal: { audit: selfAudit(checkins, cfg) } } : {}),
     });
     state = out.state;
     records.push(out.record);

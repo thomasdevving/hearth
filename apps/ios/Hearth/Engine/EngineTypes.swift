@@ -42,6 +42,20 @@ struct EngineStateValue: Codable {
   var places: [Place]
   var homePlaceId: String?
   var lastProcessedDate: String?
+  /// Personal domain weights (docs/04 §4.4); nil until the app opted in.
+  var personal: PersonalWeightsValue?
+}
+
+/// docs/04 §4.4: learned per person from random check-ins; a missing domain weighs 1.
+struct PersonalWeightsValue: Codable {
+  var weights: [String: Double]
+  var target: [String: Double]
+  var status: String // collecting | waiting_for_audit | no_clear_pattern | active
+  var n: Int
+  var gain: Double?
+  var updatedOn: String?
+  var isActive: Bool { status == "active" && !weights.isEmpty }
+  func weight(_ domain: String) -> Double { weights[domain] ?? 1 }
 }
 
 struct PlanRuleValue: Codable, Hashable {

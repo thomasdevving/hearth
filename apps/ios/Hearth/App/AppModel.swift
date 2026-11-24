@@ -55,6 +55,9 @@ final class AppModel {
       pendingRun = false
       await collect()
       await processDays()
+      #if DEBUG
+      DemoData.injectWeightsIfAsked(store: store)
+      #endif
       buildWeeks()
       closeStale()
       changed()
@@ -133,6 +136,8 @@ final class AppModel {
     let contexts = store.all(ContextLabel.self).filter(\.confirmed).map { RawJSON($0.json) }
     let questionnaires = store.all(QuestionnaireRecord.self).map { RawJSON($0.json) }
     let cfg = Shared.config
+    // Personal domain weights (docs/04 §4.4): the self-audit over every check-in up to the day.
+    let allCheckins = store.all(CheckinRecord.self).map { (date: String($0.scheduledAt.prefix(10)), json: $0.json) }
     if todo.count > 1 { progress = (0, todo.count) }
     defer { progress = nil }
 
@@ -145,6 +150,7 @@ final class AppModel {
         "date": d, "raws": windowRaws, "history": history.map { RawJSON($0) }, "state": RawJSON(stateJSON),
         "rules": rules, "contexts": contexts, "checkins": checkins, "questionnaires": questionnaires, "cfg": cfg,
         "learnOnly": !DemoData.enabled && d < liveFrom,
+        "personal": ["audit": RawJSON((try? Engine.shared.call("selfAudit", allCheckins.filter { $0.date <= d }.map { RawJSON($0.json) }, cfg)) ?? #"{"status":"collecting","nTriggered":0,"nRandom":0,"delta":null,"p":null}"#)],
       ]
       let out: String
       do { out = try await Engine.shared.callAsync("dailyUpdate", argsJSON: JSONText.array([input])) } catch {

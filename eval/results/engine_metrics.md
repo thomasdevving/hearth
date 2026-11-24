@@ -29,3 +29,14 @@ Seeds 1–20: 0 days with, 92 without (sum over seeds).
 ## Metric 6 · Personal rules effect on detection delay (default, seeds 1–50)
 With Sam's confirmed rules: median 7 (range 3–8), not detected 0.
 Without rules: median 8 (range 0–10), not detected 0.
+
+## Metric 7 · Personal domain weights (docs/04 §4.4)
+Learned only from random check-ins, gated by the real self-audit and leave-one-out validation.
+Stable persona, seeds 1–50: ELEVATED days per 100 days 1.03 with weights vs 1.03 without (max 11.76 vs 11.76); weights active at the end in 0 / 50.
+Sam (default), seeds 1–50: detection delay median 7 (range 3–8), not detected 0, earlier false alarm 6; without weights median 7 (range 3–8), not detected 0, earlier false alarm 6.
+| Activity-sensitive person, seeds 1–20 | Mood follows activity | No link (control) |
+|---|---|---|
+| Weights active before the decline | 10 / 20 (activity weighs most in 9) | 2 / 20 |
+| Decline seen earlier / later than equal weights | 7 / 1 | 3 / 0 |
+| Decline detected (with / without weights) | 20 / 18 | 19 / 18 |
+| False ELEVATED days, days 31–134 (with / without) | 65 / 57 | 57 / 57 |

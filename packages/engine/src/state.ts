@@ -23,6 +23,7 @@ import { computeFeatures, indexRaws } from "./features/index";
 import { featureDef } from "./features/catalogue";
 import { findHome, learnPlaces } from "./features/mobility";
 import { buildContributors, directionOf, scoreFromZ } from "./index-score";
+import { updatePersonal, weightedIndex } from "./weights";
 
 export function initialState(seed = 1): EngineState {
   return {
@@ -182,11 +183,14 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
   // 2. Masks.
   const masks = maskedDomains(date, contexts, cfg);
 
-  // 3–4. Reference sets, z, r, domain scores, index.
+  // 3–4. Reference sets, z, r, domain scores, index. Personal domain weights (docs/04 §4.4)
+  // apply once they have moved away from equal.
+  const learned = state.personal?.weights;
+  const weights = learned && Object.keys(learned).length > 0 ? learned : null;
   const eligible = buildEligibility(history, date, contexts, questionnaires, cfg);
   const refs = makeRefProvider(eligible, cfg);
   const z = zScores(features, new Set(masks), domainsMaskedInWindow(date, contexts, stored, cfg), refs, cfg);
-  const scores = scoreFromZ(z, rules, cfg);
+  const scores = scoreFromZ(z, rules, cfg, weights);
   const contributors = buildContributors(
     z,
     scores.r,
@@ -200,6 +204,7 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     },
     features.values,
     features.restSource,
+    weights,
   );
 
   // 5. In-control parameters, then EWMA and CUSUM.
@@ -210,12 +215,14 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     for (const day of eligible) {
       if (ds.length >= cfg.baselineWindowDays) break;
       if (!day.base) continue;
-      let D = day.record.D;
+      // With personal weights the reference days are re-weighted from their stored domain
+      // scores, so a weight change does not move the limit by itself (docs/04 §4.4).
+      let D = weights && day.record.D !== null ? weightedIndex(day.record.domainScores, weights, cfg.minDomains) : day.record.D;
       let Dd = day.record.D_daily;
       if (D === null && day.record.state === "WARM_UP") {
         // Warm-up days have no stored index. Score them against today's reference so the
         // in-control parameters exist as soon as the features are usable.
-        const past = scoreFromZ(zScores(day.record.features, day.masked, domainsMaskedInWindow(day.record.date, contexts, stored, cfg), refs, cfg), rules, cfg);
+        const past = scoreFromZ(zScores(day.record.features, day.masked, domainsMaskedInWindow(day.record.date, contexts, stored, cfg), refs, cfg), rules, cfg, weights);
         D = past.D;
         Dd = past.D_daily;
       }
@@ -358,6 +365,18 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     if (c.confirmed && CONTEXT_TABLE[c.type]?.kind === "explains_sensors" && addDays(effectiveEnd(c, cfg), 1) === date) {
       actions.push({ type: "context_expired", contextId: c.id });
     }
+  }
+
+  // Personal domain weights: new samples, and the weekly update in MONITOR (docs/04 §4.4).
+  if (input.personal) {
+    state.personal = updatePersonal(state.personal, {
+      date,
+      state: state.state,
+      checkins,
+      days: [...history.map((r) => ({ date: r.date, domainScores: r.domainScores })), { date, domainScores: scores.domainScores }],
+      audit: input.personal.audit,
+      cfg,
+    });
   }
 
   state.lastProcessedDate = date;

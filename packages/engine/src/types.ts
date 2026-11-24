@@ -100,6 +100,26 @@ export interface EngineState {
   ignoredStreak: number;
   rngState: number; // seeded PRNG state
   lastProcessedDate: string | null;
+  /** Personal domain weights (docs/04 §4.4). Present only once the app opted in. */
+  personal?: PersonalWeights;
+}
+
+// ---------- docs/04 §4.4 personal domain weights ----------
+export type WeightStatus = "collecting" | "waiting_for_audit" | "no_clear_pattern" | "active";
+export interface WeightSample {
+  checkinId: string;
+  date: string; // the day the random check-in was scheduled
+  y: number; // mood_low, 1–7
+  x: Partial<Record<Domain, number>>; // mean domain score over the days up to `date`
+}
+export interface PersonalWeights {
+  weights: Partial<Record<Domain, number>>; // used in D; a missing domain weighs 1
+  target: Partial<Record<Domain, number>>; // where the weights are heading; {} = equal
+  status: WeightStatus;
+  n: number; // samples kept
+  gain: number | null; // leave-one-out improvement over equal weights (0.1 = 10 % lower error)
+  updatedOn: string | null;
+  samples: WeightSample[];
 }
 
 export type RuleDirection = "higher" | "lower" | "later" | "earlier" | "less_regular";
@@ -210,6 +230,11 @@ export interface DailyUpdateInput {
    * reference but is never flagged, and gives no actions (docs/04 §8.1).
    */
   learnOnly?: boolean;
+  /**
+   * Opt-in to personal domain weights (docs/04 §4.4): the self-audit over all check-ins up to
+   * this date. Without it no samples are taken and no weights are learned.
+   */
+  personal?: { audit: AuditResult };
 }
 export interface DailyUpdateOutput {
   record: DayRecord;
@@ -366,6 +391,18 @@ export interface Config {
   minSameDayType: number;
   minDomains: number;
   personalWeight: number;
+  // Personal domain weights (docs/04 §4.4)
+  weightMinSamples: number;
+  weightWindowDays: number;
+  weightMaxSamples: number;
+  weightSampleDays: number;
+  weightSampleLookbackDays: number;
+  weightUpdateDays: number;
+  weightShrinkage: number;
+  weightMin: number;
+  weightMax: number;
+  weightMaxStep: number;
+  weightMinGain: number;
   sigmaFloor: number;
   ewmaLambda: number;
   ewmaL: number;

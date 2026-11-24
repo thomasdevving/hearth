@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import type uPlot from "uplot";
-import type { ContextLabel, DayRecord, DiaryMarkers, Domain, QuestionnaireRecord } from "@hearth/engine";
+import { DOMAINS, defaultConfig, type ContextLabel, type DayRecord, type DiaryMarkers, type Domain, type PersonalWeights, type QuestionnaireRecord } from "@hearth/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
 import { Screen, Sparkline } from "../ui/kit";
 import { UChart } from "../ui/UChart";
-import { CONTEXT_LABEL, featureLabel, formatValue, prettyDate, ruleFeature } from "../app/labels";
+import { CONTEXT_LABEL, DOMAIN_NAME, featureLabel, formatValue, prettyDate, ruleFeature, weightText } from "../app/labels";
 import { getEngineState } from "../app/runtime";
 import { Ask } from "./Ask";
 
@@ -168,6 +168,55 @@ function markerChart(diary: { date: string; markers: DiaryMarkers | null }[]) {
   return { opts, data };
 }
 
+/**
+ * "What counts most for you": the personal domain weights (docs/04 §4.4), or where the
+ * learning stands. Plain words; every number comes from the engine.
+ */
+function WeightsSection({ personal, domainsSeen }: { personal: PersonalWeights | undefined; domainsSeen: Domain[] }) {
+  if (!personal) return null;
+  const need = defaultConfig.weightMinSamples;
+  const active = personal.status === "active" && Object.keys(personal.weights).length > 0;
+  const rows = DOMAINS.filter((d) => domainsSeen.includes(d)).map((d) => ({ d, w: personal.weights[d] ?? 1 }));
+  const top = [...rows].sort((a, b) => b.w - a.w)[0];
+  return (
+    <section className="weights" aria-labelledby="weights-h">
+      <h2 id="weights-h">What counts most for you</h2>
+      {active && top ? (
+        <>
+          <p className="muted">
+            Learned from {personal.n} random check-ins: your low days went with changes in <strong>{DOMAIN_NAME[top.d]}</strong> most. Hearth gives that more weight in your total.
+          </p>
+          <ul className="weight-bars">
+            {rows.map(({ d, w }) => (
+              <li key={d}>
+                <span className="weight-name">{DOMAIN_LABEL[d]}</span>
+                <span className="weight-track" aria-hidden="true">
+                  <span className="weight-equal" />
+                  <span className="weight-fill" style={{ width: `${(w / 2) * 100}%`, background: DOMAIN_COLOR[d] }} />
+                </span>
+                <span className="weight-value">{weightText(w)}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="muted small">The line marks equal weight (1×). Each weight stays between 0.5× and 2×, changes at most once a week, and stays put while your days look changed.</p>
+        </>
+      ) : personal.status === "collecting" || personal.n < need ? (
+        <>
+          <p className="muted">Hearth learns which signals go with your low days, from your answers to random check-ins. Until then every kind of signal counts the same.</p>
+          <div className="weight-progress" role="progressbar" aria-valuemin={0} aria-valuemax={need} aria-valuenow={Math.min(personal.n, need)} aria-label="Random check-ins answered">
+            <span style={{ width: `${(Math.min(personal.n, need) / need) * 100}%` }} />
+          </div>
+          <p className="muted small">{Math.min(personal.n, need)} of {need} random check-ins</p>
+        </>
+      ) : personal.status === "waiting_for_audit" ? (
+        <p className="muted">Enough check-ins. Hearth waits until your check-ins show that its alerts mean something for you; until then every kind of signal counts the same.</p>
+      ) : (
+        <p className="muted">Every kind of signal counts the same for you: on your random check-ins, no one kind went with your low days more than the others.</p>
+      )}
+    </section>
+  );
+}
+
 export function Trends() {
   const d = useData(async () => {
     const [records, contexts, qs, rules, state, diary] = await Promise.all([db.day_records.orderBy("date").toArray(), db.contexts.toArray(), db.questionnaires.orderBy("takenAt").toArray(), db.plan_rules.toArray(), getEngineState(), db.diary.orderBy("date").toArray()]);
@@ -189,6 +238,7 @@ export function Trends() {
       <h2>By domain</h2>
       <p className="muted">Which kind of signal moved, as a 7-day average.</p>
       <UChart opts={charts.domains.opts} data={charts.domains.data} ariaLabel="Change per domain, 7-day average" />
+      <WeightsSection personal={state?.personal} domainsSeen={DOMAINS.filter((dom) => records.some((r) => r.domainScores[dom] !== undefined))} />
       <h2>Questionnaires</h2>
       {qs.length === 0 ? (
         <p className="muted">None yet.</p>

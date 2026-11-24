@@ -52,6 +52,15 @@ interface EngineState {
   ignoredStreak: number
   rngState: number                 // seeded PRNG state
   lastProcessedDate: string | null
+  personal?: {                     // personal domain weights (docs/04 §4.4), once the app opts in
+    weights: Partial<Record<Domain, number>>   // used in D; a missing domain weighs 1
+    target: Partial<Record<Domain, number>>    // where the weights are heading; {} = equal
+    status: "collecting" | "waiting_for_audit" | "no_clear_pattern" | "active"
+    n: number                      // samples kept
+    gain: number | null            // leave-one-out improvement over equal weights
+    updatedOn: string | null
+    samples: { checkinId: string; date: string; y: number; x: Partial<Record<Domain, number>> }[]
+  }
 }
 
 interface Place { id: string; lat: number; lon: number; minutes: number; label: string | null }

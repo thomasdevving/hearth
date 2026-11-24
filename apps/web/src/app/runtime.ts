@@ -12,6 +12,7 @@ import {
   datesOfIsoWeek,
   simulatePersona,
   scriptedCheckin,
+  selfAudit,
   type Config,
   type ReplayData,
   type Scenario,
@@ -111,7 +112,8 @@ export async function processDay(date: string, hooks: DayHooks = {}): Promise<vo
   const history = await db.day_records.toArray();
   const settings = await getSettings();
   const since14 = addDays(date, -14);
-  const checkins = (await db.checkins.toArray()).filter((c) => dateOfTimestamp(c.scheduledAt) > since14);
+  const allCheckins = await db.checkins.toArray();
+  const checkins = allCheckins.filter((c) => dateOfTimestamp(c.scheduledAt) > since14);
   const out = dailyUpdate({
     date,
     raws,
@@ -122,6 +124,8 @@ export async function processDay(date: string, hooks: DayHooks = {}): Promise<vo
     checkins,
     questionnaires: await db.questionnaires.toArray(),
     cfg,
+    // Personal domain weights (docs/04 §4.4), gated by the self-audit over every check-in so far.
+    personal: { audit: selfAudit(allCheckins.filter((c) => dateOfTimestamp(c.scheduledAt) <= date), cfg) },
   });
   await db.day_records.put(out.record);
   await putSingleton(db.engine_state, out.state);

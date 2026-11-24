@@ -33,7 +33,9 @@ sending your words anywhere.
    into plan cards, each with the exact quote it came from. Anything you did not write is
    removed in code.
 2. **It learns your usual days.** For about two weeks Hearth only learns. After that each day
-   is compared with your own usual range, never with anyone else. The signs you named weigh more.
+   is compared with your own usual range, never with anyone else. The signs you named weigh more,
+   and over time Hearth learns from your answers to random check-ins which kind of signal goes
+   with your low days, and weighs that more for you (still linear, so "Why?" explains every alert).
 3. **A change gets a gentle check-in.** When your days stay outside your range for a few days,
    Hearth asks how you are (three taps and your own questions), shows *why* it asked, and opens
    your plan with what fits today on top. A holiday you confirm is set aside, not counted.
@@ -126,6 +128,9 @@ ones that missed their target:
 - **7 days** median to notice the gradual change (range 3–8; slow version 12), none missed.
 - **1.0** false "changed" days per 100 on 50 stable people.
 - **0 vs 92** holiday alarm days with and without confirming the holiday, across 20 people.
+- **Personal weights:** for a simulated person whose mood follows activity, Hearth learned that
+  in 9 of 20 cases before their decline and saw the decline earlier in 7 (later in 1); on 50
+  stable people the false alarm rate stayed exactly the same.
 - Task accuracy with Gemini Nano (plan reading, context, crisis wording) is not measured yet;
   the sets and an in-app scorer are ready (Settings → "Test how Hearth reads a plan").
 
@@ -151,6 +156,8 @@ Firebase JS SDK) and AI coding assistants.
   confirmation catch invented entries, but not every missed one.
 - Once a change is detected, the reference is frozen; a lasting harmless change can keep the
   state "changed" until it returns (`docs/DECISIONS.md`).
+- Personal weights learn only from random check-ins, so they need weeks of answers and stay
+  equal for many people; their effect is measured on simulated people only.
 
 ## Repository
 

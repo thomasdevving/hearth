@@ -64,6 +64,27 @@ enum DemoData {
     store.save()
   }
 
+  /// `-HearthDemoWeights YES`: an example of active personal domain weights, written into the
+  /// engine state after the daily run, so the "What counts most for you" section and the line
+  /// on "Why?" can be screenshotted. Not learned; screenshots only.
+  static var weightsExample: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoWeights") }
+
+  @MainActor static func injectWeightsIfAsked(store: Store) {
+    guard weightsExample, let st = store.engineState, var obj = JSONText.object(st.json) as? [String: Any] else { return }
+    let w: [String: Double] = ["sleep": 1.6, "activity": 0.9, "rhythm": 0.8, "mobility": 0.85, "body": 0.85]
+    var personal = (obj["personal"] as? [String: Any]) ?? [:]
+    personal["weights"] = w
+    personal["target"] = w
+    personal["status"] = "active"
+    personal["n"] = 34
+    personal["gain"] = 0.11
+    personal["updatedOn"] = obj["lastProcessedDate"] ?? NSNull()
+    if personal["samples"] == nil { personal["samples"] = [Any]() }
+    obj["personal"] = personal
+    st.json = JSONText.encode(obj)
+    store.save()
+  }
+
   /// `-HearthDemoPick YES`: a stand-in for the on-device model for task K only (the Simulator
   /// has none). It picks the first action; the output still goes through the router's
   /// verification and ledger.
@@ -87,6 +108,12 @@ enum DemoData {
   static var spoken: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoSpoken") }
   /// `-HearthDemoScan YES`: stand-in for task G2 (it returns the recognised text as it is).
   static var scan: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoScan") }
+  /// `-HearthDemoCards YES`: stand-in for task G (plan cards from Sam's words). It adds one
+  /// sign Sam never wrote ("I stop walking my dog"), so the quote check visibly drops it.
+  static var cards: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoCards") }
+  /// Sam's words for the plan, used by `-HearthPlanPrefill YES` (screenshots).
+  static let samWarning = "When things go wrong I keep going to bed later, I skip the gym, I stay inside more and I eat badly. I also stop replying to messages."
+  static let samHelps = "Calling my sister helps, and so does a walk in the morning."
   /// `-HearthDemoCloud YES`: routing treats the cloud as reachable, so the payload preview of
   /// the weekly reflection can be checked. The call itself still needs a configured cloud.
   static var cloudReachable: Bool { enabled && UserDefaults.standard.bool(forKey: "HearthDemoCloud") }
@@ -94,7 +121,7 @@ enum DemoData {
   /// Whether a stand-in answers this task.
   static func stubs(_ task: String) -> Bool {
     (pick && task == "K") || (recall && (task == "R" || task == "T")) || (ask && (task == "Q_classify" || task == "Q_phrase"))
-      || (note && task == "P") || (spoken && task == "I") || (scan && task == "G2")
+      || (note && task == "P") || (spoken && task == "I") || (scan && task == "G2") || (cards && task == "G")
   }
 
   static func stub(_ task: String, _ input: [String: Any]) -> String {
@@ -106,8 +133,19 @@ enum DemoData {
     case "P": return JSONText.encode(["themes": ["sleep", "activity"], "note": "A slower week with late nights and less energy. Short walks helped a little."])
     case "I": return stubI(input)
     case "G2": return JSONText.encode(["text": input["text"] as? String ?? ""])
+    case "G": return stubG()
     default: return stubK(input)
     }
+  }
+
+  static func stubG() -> String {
+    let rule = { (f: String, d: String, p: String, q: String) -> [String: Any] in ["feature": f, "direction": d, "place_label": p, "quote": q] }
+    return JSONText.encode([
+      "rules": [rule("rest_midpoint", "later", "", "going to bed later"), rule("place_visits", "lower", "gym", "I skip the gym"),
+                rule("home_stay", "higher", "", "I stay inside more"), rule("steps", "lower", "", "I stop walking my dog")],
+      "personal_checkin_items": [["question": "Did you eat well today?", "quote": "I eat badly"], ["question": "Did you reply to messages today?", "quote": "stop replying to messages"]],
+      "actions": [["text": "Call my sister", "quote": "Calling my sister helps"], ["text": "A walk in the morning", "quote": "a walk in the morning"]],
+    ] as [String: Any])
   }
 
   /// Keywords instead of a model; the output is checked like a model's.

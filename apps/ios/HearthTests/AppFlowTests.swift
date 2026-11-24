@@ -173,6 +173,30 @@ final class AppFlowTests: XCTestCase {
     XCTAssertTrue(app.store.records().allSatisfy { $0.state != "ELEVATED" })
   }
 
+  /// Personal domain weights (docs/04 §4.4): the app opts in every day, so the engine state
+  /// carries a `personal` block that Swift decodes; until there are enough random check-ins it
+  /// is collecting and every domain weighs 1.
+  func testPersonalWeightsAreCollected() async {
+    insertDriftingHistory()
+    await app.processDays()
+    let p = app.engineState?.personal
+    XCTAssertNotNil(p)
+    XCTAssertTrue(["collecting", "waiting_for_audit", "no_clear_pattern", "active"].contains(p?.status ?? ""))
+    XCTAssertEqual(p?.weight("sleep"), 1)
+    XCTAssertFalse(p?.isActive ?? true)
+  }
+
+  func testWeightSentenceOnlyWhenActive() throws {
+    let active = try JSONText.decode(PersonalWeightsValue.self, #"{"weights":{"sleep":1.6,"activity":0.9},"target":{},"status":"active","n":34,"gain":0.11,"updatedOn":"2026-11-20","samples":[]}"#)
+    XCTAssertEqual(Copy.weightText(1.6), "1.6×")
+    XCTAssertTrue(Copy.weightSentence(domain: "sleep", personal: active)?.contains("1.6×") == true)
+    XCTAssertTrue(Copy.weightSentence(domain: "activity", personal: active)?.contains("less than") == true)
+    XCTAssertNil(Copy.weightSentence(domain: "rhythm", personal: active)) // weighs 1
+    var waiting = active
+    waiting.status = "waiting_for_audit"
+    XCTAssertNil(Copy.weightSentence(domain: "sleep", personal: waiting))
+  }
+
   /// The onboarding PHQ-9 is a starting point: a high score does not make the state CONFIRMED.
   func testOnboardingPhq9IsAStartingPoint() async {
     insertDriftingHistory()

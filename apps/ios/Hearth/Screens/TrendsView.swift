@@ -25,6 +25,9 @@ struct TrendsView: View {
         legend([("Daily index", Color(hex: 0x8B8A85)), ("Smoothed", Theme.magenta), ("Your usual range (limit)", Theme.ink)])
         SectionTitle(text: "By domain")
         domainChart(records)
+        if let personal = app.engineState?.personal {
+          WeightsSection(personal: personal, domains: Self.domains.filter { d in records.contains { $0.domainScores[d] != nil } }, colors: Self.domainColors)
+        }
       }
       questionnaires
       if !all.isEmpty { stateCounts(all) }
@@ -33,9 +36,12 @@ struct TrendsView: View {
     }
   }
 
+  static let domains = ["activity", "rhythm", "sleep", "body", "mobility", "phone"]
+  static let domainColors: [String: Color] = ["activity": Theme.magenta, "rhythm": Color(hex: 0x2F6DB5), "sleep": Color(hex: 0x6B4FA0), "body": Theme.changed, "mobility": Theme.steady, "phone": Theme.muted]
+
   private func domainChart(_ records: [DayRecordValue]) -> some View {
-    let colors: [String: Color] = ["activity": Theme.magenta, "rhythm": Color(hex: 0x2F6DB5), "sleep": Color(hex: 0x6B4FA0), "body": Theme.changed, "mobility": Theme.steady, "phone": Theme.muted]
-    let used = ["activity", "rhythm", "sleep", "body", "mobility", "phone"].filter { d in records.contains { $0.domainScores[d] != nil } }
+    let colors = Self.domainColors
+    let used = Self.domains.filter { d in records.contains { $0.domainScores[d] != nil } }
     return VStack(alignment: .leading) {
       Chart {
         ForEach(used, id: \.self) { dom in
@@ -110,6 +116,50 @@ struct TrendsView: View {
         }
         .accessibilityElement(children: .combine)
       }
+    }
+  }
+}
+
+/// "What counts most for you" (docs/04 §4.4): the personal domain weights, or where the
+/// learning stands. Every number comes from the engine.
+struct WeightsSection: View {
+  let personal: PersonalWeightsValue
+  let domains: [String]
+  let colors: [String: Color]
+  private let need = 20 // weightMinSamples in shared/config/defaults.json
+
+  var body: some View {
+    SectionTitle(text: "What counts most for you")
+    if personal.isActive, let top = domains.max(by: { personal.weight($0) < personal.weight($1) }) {
+      Muted("Learned from \(personal.n) random check-ins: your low days went with changes in \((Copy.domain[top] ?? top).lowercased()) most. Hearth gives that more weight in your total.")
+      VStack(spacing: 10) {
+        ForEach(domains, id: \.self) { d in
+          HStack(spacing: 12) {
+            Text(Copy.domain[d] ?? d).font(HearthFont.body(15, weight: "SemiBold")).frame(width: 96, alignment: .leading)
+            GeometryReader { geo in
+              ZStack(alignment: .leading) {
+                Capsule().fill(Theme.line)
+                Capsule().fill(colors[d] ?? Theme.magenta).frame(width: geo.size.width * min(1, personal.weight(d) / 2))
+                Rectangle().fill(Theme.ink.opacity(0.55)).frame(width: 2, height: 18).offset(x: geo.size.width / 2 - 1)
+              }
+            }
+            .frame(height: 10)
+            Text(Copy.weightText(personal.weight(d))).font(HearthFont.body(15, weight: "SemiBold")).monospacedDigit().frame(width: 44, alignment: .trailing)
+          }
+          .accessibilityElement(children: .combine)
+          .accessibilityLabel("\(Copy.domain[d] ?? d): \(Copy.weightText(personal.weight(d)))")
+        }
+      }
+      .padding(.vertical, 6)
+      Muted("The line marks equal weight (1×). Each weight stays between 0.5× and 2×, changes at most once a week, and stays put while your days look changed.")
+    } else if personal.status == "collecting" || personal.n < need {
+      Muted("Hearth learns which signals go with your low days, from your answers to random check-ins. Until then every kind of signal counts the same.")
+      ProgressView(value: Double(min(personal.n, need)), total: Double(need)).tint(Theme.magenta)
+      Muted("\(min(personal.n, need)) of \(need) random check-ins")
+    } else if personal.status == "waiting_for_audit" {
+      Muted("Enough check-ins. Hearth waits until your check-ins show that its alerts mean something for you; until then every kind of signal counts the same.")
+    } else {
+      Muted("Every kind of signal counts the same for you: on your random check-ins, no one kind went with your low days more than the others.")
     }
   }
 }

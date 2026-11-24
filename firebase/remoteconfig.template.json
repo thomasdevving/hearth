@@ -30,6 +30,72 @@
       },
       "valueType": "NUMBER"
     },
+    "weightMinSamples": {
+      "defaultValue": {
+        "value": "20"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightWindowDays": {
+      "defaultValue": {
+        "value": "180"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightMaxSamples": {
+      "defaultValue": {
+        "value": "120"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightSampleDays": {
+      "defaultValue": {
+        "value": "3"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightSampleLookbackDays": {
+      "defaultValue": {
+        "value": "7"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightUpdateDays": {
+      "defaultValue": {
+        "value": "7"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightShrinkage": {
+      "defaultValue": {
+        "value": "2"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightMin": {
+      "defaultValue": {
+        "value": "0.5"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightMax": {
+      "defaultValue": {
+        "value": "2"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightMaxStep": {
+      "defaultValue": {
+        "value": "0.25"
+      },
+      "valueType": "NUMBER"
+    },
+    "weightMinGain": {
+      "defaultValue": {
+        "value": "0.05"
+      },
+      "valueType": "NUMBER"
+    },
     "sigmaFloor": {
       "defaultValue": {
         "value": "0.15"

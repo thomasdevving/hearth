@@ -75,15 +75,69 @@ usable feature is absent that day.
 
 ### 4.3 Index
 ```
-D = mean of G_k over the domains present
+D = Σ_k w_k · G_k / Σ_k w_k        over the domains present
 ```
-Domains are weighted equally. The day is **insufficient** if fewer than `minDomains` (2)
+Domains are weighted equally (`w_k = 1`) until personal domain weights have been learned
+(§4.4). The day is **insufficient** if fewer than `minDomains` (2)
 domains are present; then D is `null` and the control statistics are frozen (§5.3).
 
 Also compute, for display only:
 - `D_daily`: the same, using only `win = day` features (used in §7.3);
 - `P`: the weighted mean of `r_j` over personal-rule features (the "your signals" line);
-- `contributors`: the features sorted by `a_j · r_j`, top 3 with `r_j ≥ 1`.
+- `contributors`: the features sorted by `w_k · a_j · r_j`, top 3 with `r_j ≥ 1`.
+
+`D_daily` stays equally weighted: it only decides the "persistent" PHQ-2 offer (§7.3).
+
+### 4.4 Personal domain weights
+The only personal weighting so far is `a_j` for the signs the user named. Hearth also learns,
+per person, which domains go together with their low days, from their own answers. The
+model stays linear, so the contributors on "Why?" still explain every alert, and it runs on
+the device as part of `dailyUpdate`.
+
+**Opt-in.** Learning happens only when the app passes `personal: { audit }` (the self-audit of
+§9 over all check-ins) to `dailyUpdate`. Without it nothing below runs and the output is
+exactly as before.
+
+**Samples.** Only answered **random** check-ins are used. Triggered check-ins are chosen by the
+current weights, so learning from them would only reinforce what the model already does.
+For a random check-in scheduled on day `s` (taken once, by id, while `s` is within the last
+`weightSampleLookbackDays` days):
+```
+y   = mood_low (1–7)
+x_k = mean of G_k over the stored days s − (weightSampleDays − 1) … s that have it
+```
+A sample with no domain value is skipped. Samples older than `weightWindowDays` are dropped;
+at most `weightMaxSamples` are kept.
+
+**Fit** (once every `weightUpdateDays`, only in `MONITOR`). Domains present in at least half
+the samples take part; a missing `x_k` is replaced by that domain's sample mean. With X and y
+centred:
+```
+β = argmin ‖y − Xβ‖² + λ ‖β − β̄·1‖²        β̄ = mean of β
+λ = weightShrinkage · trace(XᵀX) / K       K = number of domains taking part
+```
+The penalty pulls every slope towards their common mean: with little or noisy data the
+weights stay close to equal. Then `u_k = β_k / β̄`, clamped to `[weightMin, weightMax]` and
+rescaled so the mean weight is 1.
+
+**Gates.** The target weights are used only when all hold:
+1. at least `weightMinSamples` samples;
+2. the self-audit says `informative` (the triggers are meaningful for this person at all);
+3. `β̄ > 0`, and in leave-one-out validation the weighted model predicts `mood_low` at least
+   `weightMinGain` better (mean squared error) than the equal-weight model. Once active, the
+   weights stay active while they predict no worse than equal weights (gain ≥ 0), so they do
+   not switch on and off around the threshold.
+
+When a gate fails the target is equal weights. Either way the current weights move towards
+the target by at most `weightMaxStep` per update, so a weight never jumps.
+
+**Consistency.** The in-control parameters (§5.1) are recomputed from the stored domain scores
+of the reference days with the current weights, so a weight change does not move the limit
+by itself. While `ELEVATED` or `CONFIRMED` the weights are frozen, like the reference.
+
+**Output.** `state.personal = { weights, target, status, n, gain, updatedOn, samples }`, with
+`status` one of `collecting`, `waiting_for_audit`, `no_clear_pattern`, `active`. The app
+shows the weights and, on "Why?", one sentence when a contributor's domain weighs more than 1.
 
 ## 5. Control statistics
 
@@ -255,3 +309,4 @@ user decides.
 | Idempotence | Re-running a processed day returns the same record and no actions. |
 | Determinism | Same seed and inputs → identical outputs. |
 | Self-audit | Each status is reachable with a constructed set of check-ins. |
+| Personal weights | Only answered random check-ins are sampled, once each; with mood following one domain the weights favour it within [0.5, 2] and mean 1; unrelated mood gives no weights; the audit gate, the 7-day cadence and the freeze outside MONITOR hold; without the opt-in the state has no `personal` (`test/weights.test.ts`). |

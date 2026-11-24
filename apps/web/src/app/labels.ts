@@ -1,4 +1,4 @@
-import { datesOfIsoWeek, type FeatureId, type PlanRule, type Place, type State, type WeekAggregate } from "@hearth/engine";
+import { datesOfIsoWeek, type Domain, type FeatureId, type PersonalWeights, type PlanRule, type Place, type State, type WeekAggregate } from "@hearth/engine";
 
 export const STATE_LABEL: Record<State, string> = {
   WARM_UP: "Learning your pattern",
@@ -114,7 +114,7 @@ export function weekLabel(isoWeek: string): string {
   return `the week of ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}`;
 }
 
-const DOMAIN_WORD: Record<string, string> = { activity: "activity", rhythm: "daily rhythm", sleep: "rest", body: "heart", mobility: "places", phone: "phone use" };
+const DOMAIN_WORD: Record<string, string> = { activity: "activity", rhythm: "daily rhythm", sleep: "sleep", body: "heart", mobility: "places", phone: "phone use" };
 
 /**
  * A weekly aggregate in the words the person sees in the app, for task D and E. Same numbers,
@@ -142,4 +142,26 @@ export function readableWeek(w: WeekAggregate, reader: "person" | "clinician" = 
     "what was going on": w.contexts.map((c) => CONTEXT_LABEL[c] ?? c),
     "note in the person's own words": w.note?.text ?? null,
   };
+}
+
+/** Domain names inside a sentence (docs/04 §4.2). */
+export const DOMAIN_NAME: Record<Domain, string> = { activity: "activity", rhythm: "daily rhythm", sleep: "sleep", body: "heart", mobility: "places", phone: "phone use" };
+
+/** "1.6×", one decimal. */
+export function weightText(w: number): string {
+  return `${(Math.round(w * 10) / 10).toFixed(1)}×`;
+}
+
+/**
+ * One sentence for "Why?" when a signal's domain weighs more or less than 1 for this person
+ * (docs/04 §4.4). Null when it weighs 1 or the weights are not active.
+ */
+export function weightSentence(domain: Domain, personal: PersonalWeights | null | undefined): string | null {
+  if (!personal || personal.status !== "active") return null;
+  const w = personal.weights[domain] ?? 1;
+  if (Math.abs(w - 1) < 0.05) return null;
+  const name = DOMAIN_NAME[domain];
+  return w > 1
+    ? `For you, ${name} counts ${weightText(w)} in the total: on your random check-ins, your low days went with changes in ${name}.`
+    : `For you, ${name} counts ${weightText(w)} in the total: on your random check-ins, it went with your low days less than your other signals.`;
 }

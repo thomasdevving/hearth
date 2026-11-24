@@ -1,8 +1,9 @@
-import type { Action, CheckinRecord, Config, ContextLabel, DayRaw, DayRecord, EngineState, PlanRule, QuestionnaireRecord, Visit } from "../src/types";
+import type { Action, AuditResult, CheckinRecord, Config, ContextLabel, DayRaw, DayRecord, EngineState, PlanRule, QuestionnaireRecord, Visit } from "../src/types";
+import { selfAudit } from "../src/audit";
 import { defaultConfig } from "../src/config";
 import { dailyUpdate, initialState } from "../src/state";
 import { gaussian, mulberry32 } from "../src/stats";
-import { addDays, dayTypeOf } from "../src/time";
+import { addDays, dayTypeOf, daysBetween } from "../src/time";
 
 // A small synthetic person for the detection tests: fully controlled, no simulator.
 
@@ -100,6 +101,10 @@ export interface RunOptions {
   state?: EngineState;
   /** Days before this date are scored with `learnOnly` (history read at install). */
   learnOnlyBefore?: string;
+  /** Opt in to personal domain weights: a fixed audit result, or "audit" for the real self-audit. */
+  personal?: AuditResult | "audit";
+  /** Called after every day, e.g. to inspect the state. */
+  onDay?: (date: string, state: EngineState, record: DayRecord) => void;
 }
 export interface RunResult {
   records: DayRecord[];
@@ -128,9 +133,11 @@ export function runDays(raws: DayRaw[], opts: RunOptions = {}): RunResult {
       questionnaires: opts.questionnaires ?? [],
       cfg,
       ...(opts.learnOnlyBefore && date < opts.learnOnlyBefore ? { learnOnly: true } : {}),
+      ...(opts.personal ? { personal: { audit: opts.personal === "audit" ? selfAudit(checkins, cfg) : opts.personal } } : {}),
     });
     state = out.state;
     records.push(out.record);
+    opts.onDay?.(date, out.state, out.record);
     actions.push(out.actions);
     for (const a of out.actions) {
       if (a.type !== "schedule_checkin") continue;
@@ -151,3 +158,37 @@ export function runDays(raws: DayRaw[], opts: RunOptions = {}): RunResult {
 }
 
 export const START = "2026-06-18"; // a Thursday
+
+/**
+ * A person whose mood follows mild day-to-day changes in activity, while their sleep timing
+ * varies without affecting mood (docs/04 §4.4, docs/10 metric 7). From `declineFrom` on, steps
+ * fall 1.2 % a day and mood worsens. `effect` = 0 removes the link between activity and mood.
+ */
+export function activitySensitive(seed: number, declineFrom = 0, effect = 1, days = 175) {
+  const r = mulberry32(seed * 7 + 1);
+  const act: number[] = [];
+  const late: number[] = [];
+  for (let d = 0; d <= days + 2; d++) {
+    act.push(gaussian(r));
+    late.push(gaussian(r));
+  }
+  const raws = makeDays(
+    START,
+    days,
+    seed,
+    (day) => {
+      const k = declineFrom && day >= declineFrom ? day - declineFrom + 1 : 0;
+      return { steps: Math.max(1500, (8000 + 1100 * act[day]) * (1 - 0.012 * k)), restEnd: 420 + 25 * late[day], nextRestStart: 1380 + 35 * late[day] };
+    },
+    0.5,
+  );
+  const r2 = mulberry32(seed * 13 + 5);
+  const answer = (date: string): CheckinRecord["answers"] => {
+    const day = daysBetween(START, date) + 1;
+    const low = -((act[day] ?? 0) + (act[day - 1] ?? 0) + (act[day - 2] ?? 0)) / 3;
+    const k = declineFrom && day >= declineFrom ? (day - declineFrom) / 8 : 0;
+    const mood = Math.max(1, Math.min(7, Math.round(2.5 + effect * 1.2 * low + k + 0.6 * gaussian(r2))));
+    return { mood_low: mood, enjoyment: 7 - mood, energy: 7 - mood };
+  };
+  return { raws, answer };
+}

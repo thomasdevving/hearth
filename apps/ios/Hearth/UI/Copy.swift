@@ -55,6 +55,20 @@ enum Copy {
     "exams": "Exams", "new_job": "New job", "loss": "A loss", "other_stress": "Something stressful",
   ]
 
+  /// "1.6×", one decimal (docs/04 §4.4).
+  static func weightText(_ w: Double) -> String { String(format: "%.1f×", (w * 10).rounded() / 10) }
+
+  /// One sentence for "Why?" when a signal's domain weighs more or less than 1 for this person.
+  static func weightSentence(domain: String, personal: PersonalWeightsValue?) -> String? {
+    guard let p = personal, p.isActive else { return nil }
+    let w = p.weight(domain)
+    guard abs(w - 1) >= 0.05 else { return nil }
+    let name = (Copy.domain[domain] ?? domain).lowercased()
+    return w > 1
+      ? "For you, \(name) counts \(weightText(w)) in the total: on your random check-ins, your low days went with changes in \(name)."
+      : "For you, \(name) counts \(weightText(w)) in the total: on your random check-ins, it went with your low days less than your other signals."
+  }
+
   static let domain: [String: String] = [
     "activity": "Activity", "rhythm": "Daily rhythm", "sleep": "Rest", "body": "Heart", "mobility": "Places", "phone": "Phone",
   ]

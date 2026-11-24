@@ -1,6 +1,6 @@
 import type { Config, Contributor, DayRecord, Domain, FeatureId, Place, PlanRule } from "./types";
-import { mean } from "./stats";
 import { DOMAINS, catalogueId, featureDef, placeVisitsFeatureId, type Direction } from "./features/catalogue";
+import { weightOf, type DomainWeights } from "./weights";
 
 /** The feature a confirmed rule watches, or null (inactive, or a place rule without a place). */
 export function ruleFeatureId(rule: PlanRule): FeatureId | null {
@@ -56,7 +56,7 @@ export interface Scores {
   P: number | null;
 }
 
-function indexFrom(z: Record<FeatureId, number | null>, r: Record<FeatureId, number | null>, rules: PlanRule[], cfg: Config, dailyOnly: boolean) {
+function indexFrom(z: Record<FeatureId, number | null>, r: Record<FeatureId, number | null>, rules: PlanRule[], cfg: Config, dailyOnly: boolean, weights: DomainWeights | null) {
   const sums = new Map<Domain, { num: number; den: number }>();
   for (const feature of Object.keys(z)) {
     const rv = r[feature];
@@ -75,17 +75,31 @@ function indexFrom(z: Record<FeatureId, number | null>, r: Record<FeatureId, num
     const s = sums.get(d);
     if (s && s.den > 0) domainScores[d] = s.num / s.den;
   }
-  const present = Object.values(domainScores) as number[];
-  const D = present.length >= cfg.minDomains ? (mean(present) as number) : null;
+  // docs/04 §4.3: equal weights unless personal domain weights were learned (§4.4).
+  let num = 0;
+  let den = 0;
+  let present = 0;
+  for (const d of DOMAINS) {
+    const g = domainScores[d];
+    if (g === undefined) continue;
+    const w = weights ? weightOf(weights, d) : 1;
+    num += w * g;
+    den += w;
+    present++;
+  }
+  const D = present >= cfg.minDomains && den > 0 ? num / den : null;
   return { domainScores, D };
 }
 
-/** From z-scores of the usable, unmasked features to r, domain scores, D, D_daily and P (docs/04 §4). */
-export function scoreFromZ(z: Record<FeatureId, number | null>, rules: PlanRule[], cfg: Config): Scores {
+/**
+ * From z-scores of the usable, unmasked features to r, domain scores, D, D_daily and P
+ * (docs/04 §4). Personal domain weights (§4.4) apply to D only; D_daily stays equal.
+ */
+export function scoreFromZ(z: Record<FeatureId, number | null>, rules: PlanRule[], cfg: Config, weights: DomainWeights | null = null): Scores {
   const r: Record<FeatureId, number | null> = {};
   for (const [feature, zv] of Object.entries(z)) r[feature] = zv === null ? null : riskFromZ(zv, directionOf(feature, rules));
-  const full = indexFrom(z, r, rules, cfg, false);
-  const daily = indexFrom(z, r, rules, cfg, true);
+  const full = indexFrom(z, r, rules, cfg, false, weights);
+  const daily = indexFrom(z, r, rules, cfg, true, null);
   let num = 0;
   let den = 0;
   for (const feature of Object.keys(r)) {
@@ -146,7 +160,7 @@ export function contributorPhrase(feature: FeatureId, z: number, opts: { days?: 
   return base;
 }
 
-/** Top 3 features with r ≥ 1, sorted by weight · r (docs/04 §4.3). */
+/** Top 3 features with r ≥ 1, sorted by domain weight · personal weight · r (docs/04 §4.3). */
 export function buildContributors(
   z: Record<FeatureId, number | null>,
   r: Record<FeatureId, number | null>,
@@ -157,12 +171,15 @@ export function buildContributors(
   refMedian: (feature: FeatureId) => number | null,
   values: Record<FeatureId, number | null>,
   restSource: "healthkit" | "steps" | null = null,
+  weights: DomainWeights | null = null,
 ): Contributor[] {
   const rows: { feature: FeatureId; r: number; w: number }[] = [];
   for (const feature of Object.keys(r)) {
     const rv = r[feature];
     if (rv === null || rv === undefined || rv < 1) continue;
-    rows.push({ feature, r: rv, w: (personalRuleFor(feature, rules) ? cfg.personalWeight : 1) * rv });
+    const domain = featureDef(feature)?.domain;
+    const dw = weights && domain ? weightOf(weights, domain) : 1;
+    rows.push({ feature, r: rv, w: dw * (personalRuleFor(feature, rules) ? cfg.personalWeight : 1) * rv });
   }
   rows.sort((a, b) => b.w - a.w || (a.feature < b.feature ? -1 : 1));
   const past = [...history].sort((a, b) => (a.date < b.date ? 1 : -1));

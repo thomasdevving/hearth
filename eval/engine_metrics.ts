@@ -57,12 +57,12 @@ log(`ELEVATED days per 100 days: mean ${(fa.reduce((a, b) => a + b, 0) / fa.leng
 log(`Episodes (entries into ELEVATED) per 150 days: mean ${(episodes.reduce((a, b) => a + b, 0) / episodes.length).toFixed(2)}; seeds with none: ${episodes.filter((e) => e === 0).length} / 50`);
 
 // Metrics 4 and 6
-function delays(scenario: Scenario, start: number, withPlan: boolean) {
+function delays(scenario: Scenario, start: number, withPlan: boolean, personal = false) {
   const ds: number[] = [];
   let missed = 0;
   let early = 0;
   for (const seed of range(1, 50)) {
-    const r = runHeadless(simulatePersona(seed, scenario), { seed, withPlan });
+    const r = runHeadless(simulatePersona(seed, scenario), { seed, withPlan, personal });
     const fe = r.records.findIndex((x, i) => i + 1 >= start && x.state === "ELEVATED") + 1;
     if (r.records.slice(14, start - 1).some((x) => x.state === "ELEVATED")) early++;
     if (fe === 0) missed++;
@@ -91,6 +91,63 @@ log("\n## Metric 6 · Personal rules effect on detection delay (default, seeds 1
 const d6 = delays("default", 103, false);
 log(`With Sam's confirmed rules: median ${d4.median} (range ${d4.min}–${d4.max}), not detected ${d4.missed}.`);
 log(`Without rules: median ${d6.median} (range ${d6.min}–${d6.max}), not detected ${d6.missed}.`);
+
+// Metric 7 · Personal domain weights (docs/04 §4.4)
+log("\n## Metric 7 · Personal domain weights (docs/04 §4.4)");
+log("Learned only from random check-ins, gated by the real self-audit and leave-one-out validation.");
+const stableP = range(1, 50).map((seed) => runHeadless(simulatePersona(seed, "stable"), { seed, personal: true }));
+const faP = stableP.map((r) => (elevatedDays(r, 15) / (r.records.length - 14)) * 100);
+const activeStable = stableP.filter((r) => Object.keys(r.state.personal?.weights ?? {}).length > 0).length;
+log(`Stable persona, seeds 1–50: ELEVATED days per 100 days ${(faP.reduce((a, b) => a + b, 0) / faP.length).toFixed(2)} with weights vs ${(fa.reduce((a, b) => a + b, 0) / fa.length).toFixed(2)} without (max ${Math.max(...faP).toFixed(2)} vs ${Math.max(...fa).toFixed(2)}); weights active at the end in ${activeStable} / 50.`);
+const d7 = delays("default", 103, true, true);
+log(`Sam (default), seeds 1–50: detection delay median ${d7.median} (range ${d7.min}–${d7.max}), not detected ${d7.missed}, earlier false alarm ${d7.early}; without weights median ${d4.median} (range ${d4.min}–${d4.max}), not detected ${d4.missed}, earlier false alarm ${d4.early}.`);
+
+// A person whose mood follows activity, not sleep timing (test/helpers.ts activitySensitive).
+// The self-audit gate is held at "informative" here so the learning itself is measured.
+import { activitySensitive, runDays } from "../packages/engine/test/helpers";
+const informativeAudit = { status: "informative" as const, nTriggered: 10, nRandom: 20, delta: 1, p: 0.01 };
+function personalised(effect: number) {
+  let earlier = 0, later = 0, detW = 0, detE = 0, falseW = 0, falseE = 0, activeBefore = 0, rightDomain = 0;
+  for (const seed of range(1, 20)) {
+    const a = activitySensitive(seed, 135, effect);
+    let before = false;
+    let top = "";
+    const w = runDays(a.raws, {
+      answer: (d) => a.answer(d),
+      personal: informativeAudit,
+      onDay: (d, st) => {
+        const ws = st.personal?.weights ?? {};
+        if (d < "2026-10-30" && Object.keys(ws).length > 0) {
+          before = true;
+          top = Object.entries(ws).sort((x, y) => (y[1] as number) - (x[1] as number))[0][0];
+        }
+      },
+    });
+    const b = activitySensitive(seed, 135, effect);
+    const e = runDays(b.raws, { answer: (d) => b.answer(d) });
+    const first = (recs: typeof w.records) => {
+      const i = recs.findIndex((x, j) => j >= 134 && x.state === "ELEVATED");
+      return i < 0 ? Infinity : i + 1;
+    };
+    const fw = first(w.records), fe = first(e.records);
+    if (fw < fe) earlier++;
+    if (fw > fe) later++;
+    if (fw < Infinity) detW++;
+    if (fe < Infinity) detE++;
+    falseW += w.records.slice(30, 134).filter((x) => x.state === "ELEVATED").length;
+    falseE += e.records.slice(30, 134).filter((x) => x.state === "ELEVATED").length;
+    if (before) { activeBefore++; if (top === "activity") rightDomain++; }
+  }
+  return { earlier, later, detW, detE, falseW, falseE, activeBefore, rightDomain };
+}
+const p1 = personalised(1);
+const p0 = personalised(0);
+log("| Activity-sensitive person, seeds 1–20 | Mood follows activity | No link (control) |");
+log("|---|---|---|");
+log(`| Weights active before the decline | ${p1.activeBefore} / 20 (activity weighs most in ${p1.rightDomain}) | ${p0.activeBefore} / 20 |`);
+log(`| Decline seen earlier / later than equal weights | ${p1.earlier} / ${p1.later} | ${p0.earlier} / ${p0.later} |`);
+log(`| Decline detected (with / without weights) | ${p1.detW} / ${p1.detE} | ${p0.detW} / ${p0.detE} |`);
+log(`| False ELEVATED days, days 31–134 (with / without) | ${p1.falseW} / ${p1.falseE} | ${p0.falseW} / ${p0.falseE} |`);
 
 import { writeFileSync } from "node:fs";
 writeFileSync(new URL("./results/engine_metrics.md", import.meta.url), out.join("\n") + "\n");

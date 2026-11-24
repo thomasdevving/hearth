@@ -871,3 +871,16 @@ button.demo-btn::before { content: "Demo: "; color: var(--muted); font-weight: 4
 @media (max-width: 860px) {
   .land-faq { padding: var(--s6) var(--s6) var(--s7); }
 }
+
+/* Personal domain weights (docs/04 §4.4) */
+.weights { margin-top: var(--s5); }
+.weight-bars { list-style: none; padding: 0; margin: var(--s3) 0; display: grid; gap: var(--s2); }
+.weight-bars li { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 3rem; align-items: center; gap: var(--s3); }
+.weight-name { font-weight: 600; font-size: 0.92rem; }
+.weight-track { position: relative; height: 10px; border-radius: 999px; background: var(--line); overflow: visible; }
+.weight-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; }
+.weight-equal { position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; background: var(--ink); opacity: 0.55; z-index: 1; }
+.weight-value { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+.weight-progress { height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: var(--s3); }
+.weight-progress > span { display: block; height: 100%; background: var(--magenta); border-radius: 999px; }
+.why-weight { border-left: 3px solid var(--magenta); padding-left: var(--s3); }

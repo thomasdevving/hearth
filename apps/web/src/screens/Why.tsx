@@ -1,13 +1,13 @@
 import { useMemo } from "react";
 import type uPlot from "uplot";
-import { addDays, usualRangeSeries, whyTimeline, type EngineState, type FeatureId } from "@hearth/engine";
+import { addDays, featureDef, usualRangeSeries, whyTimeline, type EngineState, type FeatureId } from "@hearth/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
 import { Screen } from "../ui/kit";
 import { UChart } from "../ui/UChart";
 import { cfg, getEngineState } from "../app/runtime";
 import { navigate } from "../app/events";
-import { featureLabel, formatValue, prettyDate, ruleFeature } from "../app/labels";
+import { featureLabel, formatValue, prettyDate, ruleFeature, weightSentence } from "../app/labels";
 import { axes, indexChart, sec } from "./Trends";
 
 /** How many days the "Why?" charts show. */
@@ -78,7 +78,7 @@ export function Why({ params }: { params: Record<string, string> }) {
       db.plan_rules.toArray(),
       getEngineState() as Promise<EngineState | null>,
     ]);
-    return { records, contexts, qs, rules, places: state?.places ?? [] };
+    return { records, contexts, qs, rules, places: state?.places ?? [], personal: state?.personal };
   }, [feature]);
 
   const view = useMemo(() => {
@@ -134,6 +134,9 @@ export function Why({ params }: { params: Record<string, string> }) {
   const { why, lastPoint, rule } = view;
   const label = featureLabel(feature, d.places);
   const outside = lastPoint?.z !== null && lastPoint?.z !== undefined && Math.abs(lastPoint.z) > 1;
+  const domain = featureDef(feature)?.domain;
+  const weightLine = domain ? weightSentence(domain, d.personal) : null;
+  const weighted = d.personal?.status === "active" && Object.keys(d.personal.weights).length > 0;
 
   return (
     <Screen title="Why?" back="home" backLabel="Today">
@@ -142,6 +145,7 @@ export function Why({ params }: { params: Record<string, string> }) {
           <span className="why-num">1</span> {label} against your usual days
         </h2>
         {rule && <p className="quote">Your sign: “{rule.quote}”</p>}
+        {weightLine && <p className="why-weight">{weightLine}</p>}
         {lastPoint ? (
           <p>
             Usually {fmt(feature, lastPoint.median)}, between {fmt(feature, lastPoint.low)} and {fmt(feature, lastPoint.high)}. On {prettyDate(lastPoint.date)}: <strong>{fmt(feature, lastPoint.value)}</strong>,{" "}
@@ -178,7 +182,7 @@ export function Why({ params }: { params: Record<string, string> }) {
             : "Your days are within your usual pattern now."}
         </p>
         <UChart opts={view.index.opts} data={view.index.data} ariaLabel="All your signals together: each day, the trend and your usual limit" />
-        <p className="muted small">Grey: each day. Pink: the trend. Dashed: your usual limit.</p>
+        <p className="muted small">Grey: each day. Pink: the trend. Dashed: your usual limit.{weighted ? " Your signals are combined with your personal weights (see Trends)." : ""}</p>
       </section>
       <p className="muted small">Worked out by Hearth's code, not a model. A change from your usual pattern, not a diagnosis.</p>
     </Screen>

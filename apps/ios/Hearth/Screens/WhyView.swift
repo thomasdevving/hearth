@@ -64,8 +64,13 @@ struct WhyView: View {
   }
 
   #if DEBUG
-  /// `-HearthScrollBottom YES` shows the end of the screen (for screenshots).
-  static var debugAnchor: UnitPoint? { UserDefaults.standard.bool(forKey: "HearthScrollBottom") ? .bottom : nil }
+  /// `-HearthScrollBottom YES` shows the end of the screen; `-HearthScrollTo 0.4` a point in
+  /// between (0 = top, 1 = bottom). For screenshots.
+  static var debugAnchor: UnitPoint? {
+    if UserDefaults.standard.bool(forKey: "HearthScrollBottom") { return .bottom }
+    let y = UserDefaults.standard.double(forKey: "HearthScrollTo")
+    return y > 0 ? UnitPoint(x: 0.5, y: y) : nil
+  }
   #else
   static let debugAnchor: UnitPoint? = nil
   #endif
@@ -77,12 +82,24 @@ struct WhyView: View {
     return feature.hasPrefix("rest") && healthkit ? Copy.feature(feature).replacingOccurrences(of: "Rest", with: "Sleep") : Copy.feature(feature, places: places)
   }
 
+  /// docs/04 §4.4: when this signal's domain weighs more or less than 1 for this person.
+  private var weightLine: String? {
+    guard let json = try? Engine.shared.call("featureDef", feature),
+          let obj = JSONText.object(json) as? [String: Any], let domain = obj["domain"] as? String else { return nil }
+    return Copy.weightSentence(domain: domain, personal: app.engineState?.personal)
+  }
+
   @ViewBuilder private func content(_ d: WhyData) -> some View {
     let rule = app.store.activeRules().first { Copy.ruleFeature($0) == feature }
 
     step(1, "\(label) against your usual days")
     if let rule {
       Text("Your sign: “\(rule.quote)”").font(HearthFont.body(16)).italic().foregroundStyle(Theme.magentaDeep)
+    }
+    if let line = weightLine {
+      Text(line).font(HearthFont.body(16)).fixedSize(horizontal: false, vertical: true)
+        .padding(.leading, 12)
+        .overlay(alignment: .leading) { Rectangle().fill(Theme.magenta).frame(width: 3) }
     }
     if let p = d.lastPoint {
       let outside = p.z.map { abs($0) > 1 } ?? false
