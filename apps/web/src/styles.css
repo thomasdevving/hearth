@@ -883,4 +883,4 @@ button.demo-btn::before { content: "Demo: "; color: var(--muted); font-weight: 4
 .weight-value { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
 .weight-progress { height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: var(--s3); }
 .weight-progress > span { display: block; height: 100%; background: var(--magenta); border-radius: 999px; }
-.why-weight { border-left: 3px solid var(--magenta); padding-left: var(--s3); }
+.why-weight { color: var(--ink-2); }

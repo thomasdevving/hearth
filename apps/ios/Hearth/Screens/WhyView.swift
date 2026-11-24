@@ -97,9 +97,7 @@ struct WhyView: View {
       Text("Your sign: “\(rule.quote)”").font(HearthFont.body(16)).italic().foregroundStyle(Theme.magentaDeep)
     }
     if let line = weightLine {
-      Text(line).font(HearthFont.body(16)).fixedSize(horizontal: false, vertical: true)
-        .padding(.leading, 12)
-        .overlay(alignment: .leading) { Rectangle().fill(Theme.magenta).frame(width: 3) }
+      Text(line).font(HearthFont.body(16)).foregroundStyle(Theme.ink2).fixedSize(horizontal: false, vertical: true)
     }
     if let p = d.lastPoint {
       let outside = p.z.map { abs($0) > 1 } ?? false
