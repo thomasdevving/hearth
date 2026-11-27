@@ -144,7 +144,7 @@ struct HomeView: View {
     case "checkin":
       cardButton(.accent, "Check-in ready", "Three quick questions, about 20 seconds.", cta: "Start check-in") { app.path.append(.checkin(item.checkinId ?? "")) }
     case "questionnaire":
-      cardButton(.accent, item.instrument == "PHQ2" ? "Two short questions" : "A short questionnaire (9 questions)", "About the last two weeks.", cta: "Start") {
+      cardButton(.accent, item.instrument == "PHQ2" ? "Two short questions" : "A short questionnaire (9 questions)", item.reason == "unanswered" ? Copy.unansweredLine : "About the last two weeks.", cta: "Start") {
         app.path.append(.questionnaire(item.instrument ?? "PHQ2"))
       }
     case "context_confirm":

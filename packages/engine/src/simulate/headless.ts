@@ -31,6 +31,7 @@ export interface HeadlessOptions {
   days?: number; // stop after this many days
   withPlan?: boolean; // accept the scripted plan on day 1 (default true)
   personal?: boolean; // opt in to personal domain weights, with the real self-audit (docs/04 §4.4)
+  responses?: boolean; // opt in to the unanswered check-in signal (docs/04 §7.5)
 }
 
 export interface HeadlessDay {
@@ -128,6 +129,7 @@ export function runHeadless(data: ReplayData, opts: HeadlessOptions = {}): Headl
       questionnaires,
       cfg,
       ...(opts.personal ? { personal: { audit: selfAudit(checkins, cfg) } } : {}),
+      ...(opts.responses ? { responses: checkins } : {}),
     });
     state = out.state;
     records.push(out.record);

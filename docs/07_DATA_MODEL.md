@@ -34,6 +34,13 @@ interface DayRecord {
   elevated: boolean
   contributors: Contributor[]
   state: State
+  response?: {                     // unanswered check-ins vs. usual (docs/04 §7.5), once the app opts in
+    status: "collecting" | "usual" | "fewer_answers"
+    nRecent: number; missedRecent: number   // last responseRecentDays
+    nUsual: number; missedUsual: number     // before that, up to responseUsualDays back
+    usualMiss: number                       // (missedUsual + 1) / (nUsual + 2)
+    p: number | null                        // binomial tail
+  }
 }
 
 interface EngineState {

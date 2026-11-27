@@ -28,6 +28,7 @@ struct TrendsView: View {
         if let personal = app.engineState?.personal {
           WeightsSection(personal: personal, domains: Self.domains.filter { d in records.contains { $0.domainScores[d] != nil } }, colors: Self.domainColors)
         }
+        if let response = all.last?.response { ResponseSection(response: response) }
       }
       questionnaires
       if !all.isEmpty { stateCounts(all) }
@@ -160,6 +161,26 @@ struct WeightsSection: View {
       Muted("Enough check-ins. Hearth waits until your check-ins show that its alerts mean something for you; until then every kind of signal counts the same.")
     } else {
       Muted("Every kind of signal counts the same for you: on your random check-ins, no one kind went with your low days more than the others.")
+    }
+  }
+}
+
+/// "Check-ins answered" (docs/04 §7.5): the last `responseRecentDays` against the user's usual.
+/// Leaving more check-ins than usual can itself be an early sign; Hearth then offers PHQ-2.
+struct ResponseSection: View {
+  let response: ResponseSignalValue
+  private var days: String { Shared.configNumber("responseRecentDays") }
+
+  var body: some View {
+    SectionTitle(text: "Check-ins answered")
+    if response.status == "collecting" {
+      Muted("Leaving more check-ins unanswered than usual can be an early sign too. Once there are enough, Hearth compares the last \(days) days with your own usual. Days on a confirmed holiday, trip or illness don't count.")
+    } else {
+      (Text("Last \(days) days: ") + Text("\(response.nRecent - response.missedRecent) of \(response.nRecent)").bold() + Text(". Before that: \(response.nUsual - response.missedUsual) of \(response.nUsual)."))
+        .font(HearthFont.body(16))
+      Muted(response.status == "fewer_answers"
+        ? "That is clearly fewer than usual for you, so Hearth offered two short questions. It can just be a busy time."
+        : "About as usual for you. If you start leaving clearly more than usual, Hearth offers two short questions.")
     }
   }
 }

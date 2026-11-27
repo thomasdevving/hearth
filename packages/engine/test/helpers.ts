@@ -103,6 +103,8 @@ export interface RunOptions {
   learnOnlyBefore?: string;
   /** Opt in to personal domain weights: a fixed audit result, or "audit" for the real self-audit. */
   personal?: AuditResult | "audit";
+  /** Opt in to the unanswered check-in signal (docs/04 §7.5). */
+  responses?: boolean;
   /** Called after every day, e.g. to inspect the state. */
   onDay?: (date: string, state: EngineState, record: DayRecord) => void;
 }
@@ -134,6 +136,7 @@ export function runDays(raws: DayRaw[], opts: RunOptions = {}): RunResult {
       cfg,
       ...(opts.learnOnlyBefore && date < opts.learnOnlyBefore ? { learnOnly: true } : {}),
       ...(opts.personal ? { personal: { audit: opts.personal === "audit" ? selfAudit(checkins, cfg) : opts.personal } } : {}),
+      ...(opts.responses ? { responses: checkins } : {}),
     });
     state = out.state;
     records.push(out.record);

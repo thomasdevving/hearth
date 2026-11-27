@@ -55,6 +55,9 @@ enum Copy {
     "exams": "Exams", "new_job": "New job", "loss": "A loss", "other_stress": "Something stressful",
   ]
 
+  /// docs/04 §7.5: the PHQ-2 offered because more check-ins than usual went unanswered.
+  static let unansweredLine = "You've answered fewer check-ins than usual lately. That can just be a busy time. These two are about the last two weeks."
+
   /// "1.6×", one decimal (docs/04 §4.4).
   static func weightText(_ w: Double) -> String { String(format: "%.1f×", (w * 10).rounded() / 10) }
 

@@ -74,6 +74,19 @@ export interface DayRecord {
   state: State;
   /** Set only on days scored with `learnOnly` (history read at install): no detection ran. */
   learnOnly?: true;
+  /** Unanswered check-ins compared with the person's usual (docs/04 §7.5), once the app opts in. */
+  response?: ResponseSignal;
+}
+
+/** docs/04 §7.5: the share of check-ins left unanswered lately vs. usually. */
+export interface ResponseSignal {
+  status: "collecting" | "usual" | "fewer_answers";
+  nRecent: number; // check-ins in the last `responseRecentDays`
+  missedRecent: number;
+  nUsual: number; // check-ins before that, up to `responseUsualDays` back
+  missedUsual: number;
+  usualMiss: number; // (missedUsual + 1) / (nUsual + 2)
+  p: number | null; // P(at least missedRecent misses | usualMiss), binomial
 }
 
 export interface Place {
@@ -235,6 +248,11 @@ export interface DailyUpdateInput {
    * this date. Without it no samples are taken and no weights are learned.
    */
   personal?: { audit: AuditResult };
+  /**
+   * Opt-in to the unanswered check-in signal (docs/04 §7.5): every check-in so far, answered
+   * and unanswered. Without it the signal is not computed.
+   */
+  responses?: CheckinRecord[];
 }
 export interface DailyUpdateOutput {
   record: DayRecord;
@@ -243,7 +261,7 @@ export interface DailyUpdateOutput {
 }
 export type Action =
   | { type: "schedule_checkin"; kind: "triggered" | "random"; reasons: Contributor[] }
-  | { type: "offer_questionnaire"; id: "PHQ2" | "PHQ9"; reason: "persistent" | "momentary" | "drift" | "interval" }
+  | { type: "offer_questionnaire"; id: "PHQ2" | "PHQ9"; reason: "persistent" | "momentary" | "unanswered" | "drift" | "interval" }
   | { type: "show_plan" }
   | { type: "context_expired"; contextId: string };
 
@@ -419,6 +437,13 @@ export interface Config {
   maxCheckinsPerDay: number;
   maxCheckinsPerWeek: number;
   ignoredBeforeBackoff: number;
+  responseRecentDays: number;
+  responseUsualDays: number;
+  responseMinUsual: number;
+  responseMinRecent: number;
+  responseMinMissed: number;
+  responseMinRise: number;
+  responseAlpha: number;
   quietHours: string;
   emaHigh: number;
   emaLow: number;

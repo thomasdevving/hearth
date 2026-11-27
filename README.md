@@ -131,6 +131,9 @@ ones that missed their target:
 - **Personal weights:** for a simulated person whose mood follows activity, Hearth learned that
   in 9 of 20 cases before their decline and saw the decline earlier in 7 (later in 1); on 50
   stable people the false alarm rate stayed exactly the same.
+- **Unanswered check-ins:** when a simulated person stops answering most check-ins, Hearth
+  offers two short questions after a median 9–13 days; for people who keep answering as usual,
+  about one needless offer per 150–1400 days.
 - Task accuracy with Gemini Nano (plan reading, context, crisis wording) is not measured yet;
   the sets and an in-app scorer are ready (Settings → "Test how Hearth reads a plan").
 
@@ -158,6 +161,8 @@ Firebase JS SDK) and AI coding assistants.
   state "changed" until it returns (`docs/DECISIONS.md`).
 - Personal weights learn only from random check-ins, so they need weeks of answers and stay
   equal for many people; their effect is measured on simulated people only.
+- Leaving check-ins unanswered as an early sign rests on one study, and Hearth's rule for it is
+  tested on simulated answering only.
 
 ## Repository
 

@@ -194,7 +194,7 @@ changed when S_d > UCL or C_d > ${c.cusumH}
       <ol className="plain-list">
         <li><strong>Learning your pattern</strong> until {c.minReferenceDays} days of D exist, then <strong>Steady</strong>.</li>
         <li><strong>Changed</strong> after one day above the limit: a short check-in, and your plan opens. Back to Steady after {c.recoveryDays} ordinary days.</li>
-        <li>A PHQ-2 is offered only if the change persists ({c.persistDays} of {c.persistWindow} days on one-day signals), or if 2 of your last 3 check-ins were low, or if your baseline itself has drifted more than {c.driftThreshold} spread from where it started.</li>
+        <li>A PHQ-2 is offered only if the change persists ({c.persistDays} of {c.persistWindow} days on one-day signals), or if 2 of your last 3 check-ins were low, or if you have left clearly more check-ins unanswered than usual (step 7), or if your baseline itself has drifted more than {c.driftThreshold} spread from where it started.</li>
         <li>A PHQ-9 that reaches {c.phq9Cutoff} keeps the plan and the share option in view until a later one does not.</li>
       </ol>
 
@@ -228,6 +228,32 @@ u_k = β_k / β̄, kept between ${c.weightMin} and ${c.weightMax},
         <li><strong>Slow and steady.</strong> Weights move at most {c.weightMaxStep} a week towards the new fit, and stay put while your days look changed, like your usual range. That range is recomputed with the same weights, so a change of weights never moves the limit by itself.</li>
       </ul>
       <p>Trends shows what Hearth has learned for you, or how many check-ins it still needs.</p>
+
+      <h3 id="sci-unanswered">7. Notice when check-ins go unanswered</h3>
+      <p>
+        Leaving check-ins unanswered more often than usual can itself be an early sign that things are getting harder; a recent review of
+        phone-based depression prediction points to one study where it was. So silence is not only a reason to ask less. Hearth compares the
+        share you left in the last {c.responseRecentDays} days with your own usual share before that.
+      </p>
+      <F>{`recent = check-ins of the last ${c.responseRecentDays} days
+usual  = check-ins before that,
+         up to ${c.responseUsualDays} days back
+         (confirmed holiday, trip or illness
+          days left out)
+
+q = (left_usual + 1) / (n_usual + 2)
+p = P(X ≥ left_recent),
+    X ~ Binomial(n_recent, q)
+
+fewer answers when
+  left_recent ≥ ${c.responseMinMissed},
+  left_recent / n_recent − q ≥ ${c.responseMinRise}
+  and p < ${c.responseAlpha}`}</F>
+      <ul className="plain-list">
+        <li><strong>Your own usual.</strong> Someone who often leaves a check-in is compared with that, not with someone who answers every one. It starts after {c.responseMinUsual} earlier check-ins and {c.responseMinRecent} recent ones; today's check-in never counts, since you may still answer it.</li>
+        <li><strong>Two short questions, nothing more.</strong> When it fires, Hearth offers a PHQ-2, with the same {c.phq2CooldownDays}-day pause as the other reasons. It does not change D or the state: leaving a check-in says nothing about one day's routine.</li>
+        <li><strong>Asking less, later.</strong> Hearth still halves its check-in chances after {c.ignoredBeforeBackoff} unanswered in a row, until you answer one. It used to do that after 2, which often left too few check-ins to notice it in time.</li>
+      </ul>
 
       <details className="sci-more">
         <summary>Rhythm formulas (van Someren)</summary>
@@ -309,6 +335,8 @@ absolutist = 19 words such as always,
             <tr><td>Effect of the person's own plan</td><td>median 7 days with it, 8 without</td></tr>
             <tr><td>Personal weights on stable data and on Sam (50 people each)</td><td>never switched on; false alarms and detection unchanged</td></tr>
             <tr><td>Personal weights, a person whose mood follows activity (20 people)</td><td>switched on before the decline in 10 of 20, with activity weighing most in 9; the decline was seen earlier in 7 and later in 1, at about 0.4 extra "Changed" days per 100 days. With no such link: on in 2 of 20, no extra alarms</td></tr>
+            <tr><td>Unanswered check-ins, stable answering (40 people, 180 days)</td><td>0.07 needless PHQ-2 offers per 100 days for someone who usually leaves 10%, 0.32 at 20%, 0.63 at 30%. A confirmed holiday: 4 offers over 40 people, 34 when not confirmed</td></tr>
+            <tr><td>Unanswered check-ins, a person who stops answering (75% left)</td><td>noticed after a median 9 to 13 days; within 4 weeks in 34 to 38 of 40. Sam, who keeps answering: no offers, detection unchanged</td></tr>
             <tr><td>Requests leaving the browser with the cloud off</td><td>0, and 0 containing your text</td></tr>
             <tr><td>Crisis sentences opening the support screen (keywords)</td><td>20 of 20, 0 of 20 neutral ones; the list was extended after a first run found 13 of 20, so this is not an unbiased estimate</td></tr>
             <tr><td>Full demo script holding on every seed</td><td>16 of 20 (target was 18), counting the person's own signs over the first 3 days of the change; 10 of 20 if only the first day counts</td></tr>
@@ -321,6 +349,7 @@ absolutist = 19 words such as always,
       <ul className="plain-list">
         <li>The thresholds have not been tested on real people going through a real decline.</li>
         <li>Personal weights have only been tried on simulated people, and need weeks of answers before they do anything.</li>
+        <li>Whether people leave more check-ins unanswered before a relapse rests on one study; in Hearth it has only been tried on simulated answering.</li>
         <li>Rest from phone stillness is a rough stand-in for sleep.</li>
         <li>Without location or a watch, only activity, rhythm and rest are available.</li>
         <li>English only.</li>

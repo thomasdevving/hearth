@@ -165,7 +165,7 @@ struct ScienceView: View {
         Text("Changed").font(HearthFont.body(16, weight: "SemiBold"))
         + Text(" after one day above the limit: a short check-in, and your plan opens. Back to Steady after \(c.n("recoveryDays")) ordinary days."))
       SciListRow(marker: "3.", text:
-        Text("A PHQ-2 is offered only if the change persists (\(c.n("persistDays")) of \(c.n("persistWindow")) days on one-day signals), or if 2 of your last 3 check-ins were low, or if your baseline itself has drifted more than \(c.n("driftThreshold")) spread from where it started."))
+        Text("A PHQ-2 is offered only if the change persists (\(c.n("persistDays")) of \(c.n("persistWindow")) days on one-day signals), or if 2 of your last 3 check-ins were low, or if you have left clearly more check-ins unanswered than usual (step 7), or if your baseline itself has drifted more than \(c.n("driftThreshold")) spread from where it started."))
       SciListRow(marker: "4.", text:
         Text("A PHQ-9 that reaches \(c.n("phq9Cutoff")) keeps the plan and the share option in view until a later one does not."))
     }
@@ -201,6 +201,36 @@ struct ScienceView: View {
         + Text(" Weights move at most \(c.n("weightMaxStep")) a week towards the new fit, and stay put while your days look changed, like your usual range. That range is recomputed with the same weights, so a change of weights never moves the limit by itself."))
     }
     SciPara("Trends shows what Hearth has learned for you, or how many check-ins it still needs.")
+
+    SciH3("7. Notice when check-ins go unanswered")
+    SciPara("Leaving check-ins unanswered more often than usual can itself be an early sign that things are getting harder; a recent review of phone-based depression prediction points to one study where it was. So silence is not only a reason to ask less. Hearth compares the share you left in the last \(c.n("responseRecentDays")) days with your own usual share before that.")
+    SciFormula([
+      "recent = check-ins of the last \(c.n("responseRecentDays")) days",
+      "usual  = check-ins before that,",
+      "         up to \(c.n("responseUsualDays")) days back",
+      "         (confirmed holiday, trip or illness",
+      "          days left out)",
+      "",
+      "q = (left_usual + 1) / (n_usual + 2)",
+      "p = P(X ≥ left_recent),",
+      "    X ~ Binomial(n_recent, q)",
+      "",
+      "fewer answers when",
+      "  left_recent ≥ \(c.n("responseMinMissed")),",
+      "  left_recent / n_recent − q ≥ \(c.n("responseMinRise"))",
+      "  and p < \(c.n("responseAlpha"))",
+    ])
+    VStack(alignment: .leading, spacing: 8) {
+      SciListRow(marker: "•", text:
+        Text("Your own usual.").font(HearthFont.body(16, weight: "SemiBold"))
+        + Text(" Someone who often leaves a check-in is compared with that, not with someone who answers every one. It starts after \(c.n("responseMinUsual")) earlier check-ins and \(c.n("responseMinRecent")) recent ones; today's check-in never counts, since you may still answer it."))
+      SciListRow(marker: "•", text:
+        Text("Two short questions, nothing more.").font(HearthFont.body(16, weight: "SemiBold"))
+        + Text(" When it fires, Hearth offers a PHQ-2, with the same \(c.n("phq2CooldownDays"))-day pause as the other reasons. It does not change D or the state: leaving a check-in says nothing about one day's routine."))
+      SciListRow(marker: "•", text:
+        Text("Asking less, later.").font(HearthFont.body(16, weight: "SemiBold"))
+        + Text(" Hearth still halves its check-in chances after \(c.n("ignoredBeforeBackoff")) unanswered in a row, until you answer one. It used to do that after 2, which often left too few check-ins to notice it in time."))
+    }
 
     // One line between two folds, not two (as on Plan).
     VStack(alignment: .leading, spacing: 0) {
@@ -303,6 +333,8 @@ struct ScienceView: View {
     ("Effect of the person's own plan", "median 7 days with it, 8 without"),
     ("Personal weights on stable data and on Sam (50 people each)", "never switched on; false alarms and detection unchanged"),
     ("Personal weights, a person whose mood follows activity (20 people)", "switched on before the decline in 10 of 20, with activity weighing most in 9; the decline was seen earlier in 7 and later in 1, at about 0.4 extra \"Changed\" days per 100 days. With no such link: on in 2 of 20, no extra alarms"),
+    ("Unanswered check-ins, stable answering (40 people, 180 days)", "0.07 needless PHQ-2 offers per 100 days for someone who usually leaves 10%, 0.32 at 20%, 0.63 at 30%. A confirmed holiday: 4 offers over 40 people, 34 when not confirmed"),
+    ("Unanswered check-ins, a person who stops answering (75% left)", "noticed after a median 9 to 13 days; within 4 weeks in 34 to 38 of 40. Sam, who keeps answering: no offers, detection unchanged"),
     ("Requests leaving the browser with the cloud off", "0, and 0 containing your text"),
     ("Crisis sentences opening the support screen (keywords)", "20 of 20, 0 of 20 neutral ones; the list was extended after a first run found 13 of 20, so this is not an unbiased estimate"),
     ("Full demo script holding on every seed", "16 of 20 (target was 18), counting the person's own signs over the first 3 days of the change; 10 of 20 if only the first day counts"),
@@ -334,6 +366,7 @@ struct ScienceView: View {
     VStack(alignment: .leading, spacing: 8) {
       SciListRow(marker: "•", text: Text("The thresholds have not been tested on real people going through a real decline."))
       SciListRow(marker: "•", text: Text("Personal weights have only been tried on simulated people, and need weeks of answers before they do anything."))
+      SciListRow(marker: "•", text: Text("Whether people leave more check-ins unanswered before a relapse rests on one study; in Hearth it has only been tried on simulated answering."))
       SciListRow(marker: "•", text: Text("Rest from phone stillness is a rough stand-in for sleep."))
       SciListRow(marker: "•", text: Text("Without location or a watch, only activity, rhythm and rest are available."))
       SciListRow(marker: "•", text: Text("English only."))
@@ -405,13 +438,13 @@ private struct SciConfig: Sendable {
     return JSONText.number(v)
   }
 
-  /// `Math.round(value * 100)`.
   /// The value minus one, e.g. "the 2 days before" for a 3-day window.
   func minus1(_ key: String) -> String {
     guard let v = values[key] else { return "?" }
     return JSONText.number(v - 1)
   }
 
+  /// `Math.round(value * 100)`.
   func percent(_ key: String) -> String {
     guard let v = values[key] else { return "?" }
     return JSONText.number((v * 100).rounded(.toNearestOrAwayFromZero))

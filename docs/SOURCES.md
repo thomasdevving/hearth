@@ -35,6 +35,11 @@ opened and confirmed before they are quoted in the submission.
 
 ## Signals
 
+- **Unanswered check-ins as a sign.** Vander Zwalmen Y, Maerevoet M, et al. Mobile technology
+  for just-in-time prediction of depression: a scoping review. *Nature Mental Health* 2026. One
+  included study found missed EMA responses predictive; the review suggests EMA missingness as
+  a possible early warning sign (docs/04 §7.5).
+
 - **Mobility and phone use.** Saeb S, et al. Mobile phone sensor correlates of depressive
   symptom severity in daily-life behavior. *JMIR* 2015;17(7):e175. doi:10.2196/jmir.4273.
 - **Within-person direction.** Meyerhoff J, et al. Evaluation of changes in depression,

@@ -24,6 +24,7 @@ import { featureDef } from "./features/catalogue";
 import { findHome, learnPlaces } from "./features/mobility";
 import { buildContributors, directionOf, scoreFromZ } from "./index-score";
 import { updatePersonal, weightedIndex } from "./weights";
+import { responseSignal } from "./response";
 
 export function initialState(seed = 1): EngineState {
   return {
@@ -313,6 +314,9 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     }
   }
 
+  // Unanswered check-ins compared with the person's usual (docs/04 §7.5), when the app opts in.
+  const response = input.responses ? responseSignal(input.responses, contexts, date, cfg) : null;
+
   // 8. Actions.
   const sameDay = (c: CheckinRecord) => dateOfTimestamp(c.scheduledAt) === date;
   const inWeek = (c: CheckinRecord) => {
@@ -355,6 +359,7 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
       }
       if (persistent) actions.push({ type: "offer_questionnaire", id: "PHQ2", reason: "persistent" });
       else if (momentarySignal(checkins, date, cfg)) actions.push({ type: "offer_questionnaire", id: "PHQ2", reason: "momentary" });
+      else if (response?.status === "fewer_answers") actions.push({ type: "offer_questionnaire", id: "PHQ2", reason: "unanswered" });
       else if (drift) actions.push({ type: "offer_questionnaire", id: "PHQ2", reason: "drift" });
     }
   }
@@ -399,6 +404,7 @@ export function dailyUpdate(input: DailyUpdateInput): DailyUpdateOutput {
     contributors,
     state: state.state,
   };
+  if (response) record.response = response;
   if (learnOnly) {
     record.learnOnly = true;
     // Check-ins, questionnaires and plan prompts from before the install were never seen.

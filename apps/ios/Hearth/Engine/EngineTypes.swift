@@ -33,6 +33,19 @@ struct DayRecordValue: Codable {
   var elevated: Bool
   var contributors: [Contributor]
   var state: EngineStateName
+  /// Unanswered check-ins compared with the user's usual (docs/04 §7.5).
+  var response: ResponseSignalValue?
+}
+
+/// docs/04 §7.5: the share of check-ins left unanswered lately vs. usually.
+struct ResponseSignalValue: Codable {
+  var status: String // collecting | usual | fewer_answers
+  var nRecent: Int
+  var missedRecent: Int
+  var nUsual: Int
+  var missedUsual: Int
+  var usualMiss: Double
+  var p: Double?
 }
 
 struct Place: Codable, Hashable { var id: String; var lat: Double; var lon: Double; var minutes: Double; var label: String? }

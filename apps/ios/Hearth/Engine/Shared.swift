@@ -32,6 +32,12 @@ enum Shared {
   }()
   static var config: RawJSON { RawJSON(configJSON) }
 
+  /// One number from the engine config, printed as JavaScript would ("14", "0.05").
+  static func configNumber(_ key: String) -> String {
+    guard let n = (JSONText.object(configJSON) as? [String: Any])?[key] as? NSNumber else { return "?" }
+    return JSONText.number(n.doubleValue)
+  }
+
   struct Prompt { let id: String; let version: String; let text: String }
 
   /// shared/prompts/<id>.md with a `version:` first line (docs/05 §6).

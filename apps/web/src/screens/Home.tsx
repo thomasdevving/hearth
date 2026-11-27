@@ -20,6 +20,9 @@ export function HelpButton() {
   );
 }
 
+/** docs/04 §7.5: the PHQ-2 offered because more check-ins than usual went unanswered. */
+export const UNANSWERED_LINE = "You've answered fewer check-ins than usual lately. That can just be a busy time. These two are about the last two weeks.";
+
 function InboxCard({ item }: { item: InboxItem }) {
   switch (item.type) {
     case "checkin":
@@ -34,7 +37,7 @@ function InboxCard({ item }: { item: InboxItem }) {
       return (
         <Card tone="accent" onClick={() => navigate("questionnaire", { instrument: item.instrument })} label={`Open ${item.instrument}`}>
           <strong>{item.instrument === "PHQ2" ? "Two short questions" : "A short questionnaire (9 questions)"}</strong>
-          <span>About the last two weeks.</span>
+          <span>{item.reason === "unanswered" ? UNANSWERED_LINE : "About the last two weeks."}</span>
           <span className="card-cta" aria-hidden="true">Start</span>
         </Card>
       );

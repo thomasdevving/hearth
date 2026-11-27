@@ -188,7 +188,49 @@
     },
     "ignoredBeforeBackoff": {
       "defaultValue": {
-        "value": "2"
+        "value": "4"
+      },
+      "valueType": "NUMBER"
+    },
+    "responseRecentDays": {
+      "defaultValue": {
+        "value": "14"
+      },
+      "valueType": "NUMBER"
+    },
+    "responseUsualDays": {
+      "defaultValue": {
+        "value": "84"
+      },
+      "valueType": "NUMBER"
+    },
+    "responseMinUsual": {
+      "defaultValue": {
+        "value": "8"
+      },
+      "valueType": "NUMBER"
+    },
+    "responseMinRecent": {
+      "defaultValue": {
+        "value": "3"
+      },
+      "valueType": "NUMBER"
+    },
+    "responseMinMissed": {
+      "defaultValue": {
+        "value": "3"
+      },
+      "valueType": "NUMBER"
+    },
+    "responseMinRise": {
+      "defaultValue": {
+        "value": "0.3"
+      },
+      "valueType": "NUMBER"
+    },
+    "responseAlpha": {
+      "defaultValue": {
+        "value": "0.05"
       },
       "valueType": "NUMBER"
     },

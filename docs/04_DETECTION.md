@@ -209,8 +209,9 @@ Whether a check-in was triggered or random is stored but **not shown** to the us
 they answer; the self-audit (§9) depends on that.
 
 ### 7.2 Limits
-`maxCheckinsPerDay` (1), `maxCheckinsPerWeek` (4). After `ignoredBeforeBackoff` (2)
-consecutive unanswered check-ins, both probabilities are halved until one is answered.
+`maxCheckinsPerDay` (1), `maxCheckinsPerWeek` (4). After `ignoredBeforeBackoff` (4)
+consecutive unanswered check-ins, both probabilities are halved until one is answered. (It
+was 2; that left too few check-ins for §7.5 to notice anything, see docs/10 metric 6c.)
 
 ### 7.3 When PHQ-2 is offered
 At least `phq2CooldownDays` (7) since the last PHQ-2, and any of:
@@ -219,12 +220,39 @@ At least `phq2CooldownDays` (7) since the last PHQ-2, and any of:
   features avoids counting the built-in carry-over of the rolling 7-day features;
 - **momentary signals:** on at least 2 of the last 3 answered check-ins within 7 days,
   `mood_low ≥ emaHigh` (5) or `enjoyment ≤ emaLow` (3);
+- **unanswered check-ins:** the response signal (§7.5) says `fewer_answers` (reason
+  `"unanswered"`; only when the app opts in);
 - **drift:** §3.4.
 
 ### 7.4 Delivery time
 The engine only decides *that* a prompt is due. The app delivers it at the first moment
 that is outside `quietHours` (23:00–08:00) and, on iOS, when the phone is unlocked and the
 user is not driving. This lives in the app, not the engine.
+
+### 7.5 Unanswered check-ins
+Leaving check-ins unanswered more often than usual can itself be an early sign of worsening
+(Vander Zwalmen, Maerevoet et al. 2026, docs/SOURCES.md). `responseSignal` compares the share
+left unanswered recently with the person's own usual share. Opt-in: computed only when the app
+passes `responses` (every check-in so far) to `dailyUpdate`; the result is stored in
+`DayRecord.response`.
+
+```
+recent  = check-ins scheduled in [date − responseRecentDays (14), date − 1]
+usual   = check-ins scheduled in [date − responseUsualDays (84), date − responseRecentDays − 1]
+          both without days inside a confirmed label that explains sensors (§6)
+q       = (missed_usual + 1) / (n_usual + 2)
+p       = P(X ≥ missed_recent), X ~ Binomial(n_recent, q)
+status  = collecting     if n_usual < responseMinUsual (8) or n_recent < responseMinRecent (3)
+          fewer_answers  if missed_recent ≥ responseMinMissed (3)
+                         and missed_recent / n_recent − q ≥ responseMinRise (0.3)
+                         and p < responseAlpha (0.05)
+          usual          otherwise
+```
+
+- Check-ins from `date` itself are left out: they may still be answered.
+- Stressors do not exclude days: exams or a loss are when a change matters.
+- The only effect is the PHQ-2 offer in §7.3 (after persistent and momentary, before drift),
+  with the usual cooldown. `D`, the state and the self-audit are unchanged.
 
 ## 8. `dailyUpdate`
 
@@ -247,7 +275,7 @@ interface DailyUpdateOutput {
 }
 type Action =
   | { type: "schedule_checkin"; kind: "triggered" | "random"; reasons: Contributor[] }
-  | { type: "offer_questionnaire"; id: "PHQ2" | "PHQ9"; reason: "persistent" | "momentary" | "drift" | "interval" }
+  | { type: "offer_questionnaire"; id: "PHQ2" | "PHQ9"; reason: "persistent" | "momentary" | "unanswered" | "drift" | "interval" }
   | { type: "show_plan" }
   | { type: "context_expired"; contextId: string }
 ```

@@ -126,6 +126,8 @@ export async function processDay(date: string, hooks: DayHooks = {}): Promise<vo
     cfg,
     // Personal domain weights (docs/04 §4.4), gated by the self-audit over every check-in so far.
     personal: { audit: selfAudit(allCheckins.filter((c) => dateOfTimestamp(c.scheduledAt) <= date), cfg) },
+    // Unanswered check-ins compared with the user's usual (docs/04 §7.5).
+    responses: allCheckins,
   });
   await db.day_records.put(out.record);
   await putSingleton(db.engine_state, out.state);

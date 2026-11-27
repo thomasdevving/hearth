@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type uPlot from "uplot";
-import { DOMAINS, defaultConfig, type ContextLabel, type DayRecord, type DiaryMarkers, type Domain, type PersonalWeights, type QuestionnaireRecord } from "@hearth/engine";
+import { DOMAINS, defaultConfig, type ContextLabel, type DayRecord, type DiaryMarkers, type Domain, type PersonalWeights, type QuestionnaireRecord, type ResponseSignal } from "@hearth/engine";
 import { db } from "../store/db";
 import { useData } from "../ui/hooks";
 import { Screen, Sparkline } from "../ui/kit";
@@ -217,6 +217,35 @@ function WeightsSection({ personal, domainsSeen }: { personal: PersonalWeights |
   );
 }
 
+/**
+ * "Check-ins answered" (docs/04 §7.5): the last `responseRecentDays` against the user's usual.
+ * Leaving more check-ins than usual can itself be an early sign; Hearth then offers PHQ-2.
+ */
+export function ResponseSection({ response }: { response: ResponseSignal | undefined }) {
+  if (!response) return null;
+  const days = defaultConfig.responseRecentDays;
+  const answered = (n: number, missed: number) => `${n - missed} of ${n}`;
+  return (
+    <section aria-labelledby="response-h">
+      <h2 id="response-h">Check-ins answered</h2>
+      {response.status === "collecting" ? (
+        <p className="muted">Leaving more check-ins unanswered than usual can be an early sign too. Once there are enough, Hearth compares the last {days} days with your own usual. Days on a confirmed holiday, trip or illness don't count.</p>
+      ) : (
+        <>
+          <p>
+            Last {days} days: <strong>{answered(response.nRecent, response.missedRecent)}</strong>. Before that: {answered(response.nUsual, response.missedUsual)}.
+          </p>
+          <p className="muted">
+            {response.status === "fewer_answers"
+              ? "That is clearly fewer than usual for you, so Hearth offered two short questions. It can just be a busy time."
+              : "About as usual for you. If you start leaving clearly more than usual, Hearth offers two short questions."}
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
+
 export function Trends() {
   const d = useData(async () => {
     const [records, contexts, qs, rules, state, diary] = await Promise.all([db.day_records.orderBy("date").toArray(), db.contexts.toArray(), db.questionnaires.orderBy("takenAt").toArray(), db.plan_rules.toArray(), getEngineState(), db.diary.orderBy("date").toArray()]);
@@ -239,6 +268,7 @@ export function Trends() {
       <p className="muted">Which kind of signal moved, as a 7-day average.</p>
       <UChart opts={charts.domains.opts} data={charts.domains.data} ariaLabel="Change per domain, 7-day average" />
       <WeightsSection personal={state?.personal} domainsSeen={DOMAINS.filter((dom) => records.some((r) => r.domainScores[dom] !== undefined))} />
+      <ResponseSection response={records[records.length - 1]?.response} />
       <h2>Questionnaires</h2>
       {qs.length === 0 ? (
         <p className="muted">None yet.</p>

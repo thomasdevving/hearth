@@ -40,3 +40,17 @@ Sam (default), seeds 1–50: detection delay median 7 (range 3–8), not detecte
 | Decline seen earlier / later than equal weights | 7 / 1 | 3 / 0 |
 | Decline detected (with / without weights) | 20 / 18 | 19 / 18 |
 | False ELEVATED days, days 31–134 (with / without) | 65 / 57 | 57 / 57 |
+
+## Metric 8 · Unanswered check-ins (docs/04 §7.5)
+Stable sensors, seeds 1–40, 180 days. False episodes: entries into "fewer answers" with no change in the share left. Stops: from day 120 the person leaves 75 %.
+| Usually left | False episodes per 100 days | Stops: median days to the signal | Stops: signal within 28 days |
+|---|---|---|---|
+| 10 % | 0.07 | 9 | 38 / 40 |
+| 20 % | 0.32 | 11 | 35 / 40 |
+| 30 % | 0.63 | 13 | 34 / 40 |
+With the old back-off (halve after 2 unanswered instead of 4):
+| 10 % | 0.07 | 11 | 34 / 40 |
+| 20 % | 0.33 | 14 | 33 / 40 |
+| 30 % | 0.57 | 12 | 27 / 40 |
+Holiday (days 90–100, 80 % left, usually 10 %), seeds 1–40: 4 false episodes with the holiday confirmed, 34 without.
+Sam (answers almost every check-in), seeds 1–50 with the signal on: 0 "unanswered" PHQ-2 offers; first ELEVATED day unchanged in 50 / 50.

@@ -149,5 +149,62 @@ log(`| Decline seen earlier / later than equal weights | ${p1.earlier} / ${p1.la
 log(`| Decline detected (with / without weights) | ${p1.detW} / ${p1.detE} | ${p0.detW} / ${p0.detE} |`);
 log(`| False ELEVATED days, days 31–134 (with / without) | ${p1.falseW} / ${p1.falseE} | ${p0.falseW} / ${p0.falseE} |`);
 
+// Metric 8 · Unanswered check-ins as a signal (docs/04 §7.5)
+// Stable sensor data (test/helpers.ts makeDays), so only the response pattern can fire. Each
+// person leaves a fixed share of check-ins at random; in the "stops" runs that share rises to
+// 75 % from day 120. How often real people stop answering before a relapse is not known: this
+// measures the rule, not the clinical claim.
+import { defaultConfig } from "../packages/engine/src/config";
+import { mulberry32 } from "../packages/engine/src/stats";
+import { addDays } from "../packages/engine/src/time";
+import { makeDays, START } from "../packages/engine/test/helpers";
+import type { Config, ContextLabel } from "../packages/engine/src/types";
+log("\n## Metric 8 · Unanswered check-ins (docs/04 §7.5)");
+const raws8 = makeDays(START, 180, 4);
+const ok8 = { mood_low: 2, enjoyment: 5, energy: 5 };
+function response8(cfg: Config, seed: number, base: number, after: number, from: number, contexts: ContextLabel[] = [], holiday: [number, number] | null = null) {
+  const rand = mulberry32(seed * 97 + Math.round(base * 100));
+  const fromDate = addDays(START, from - 1);
+  const inHoliday = (d: string) => holiday !== null && d >= addDays(START, holiday[0] - 1) && d <= addDays(START, holiday[1] - 1);
+  const r = runDays(raws8, { seed, cfg, contexts, responses: true, answer: (d) => (rand() < (d >= fromDate ? after : inHoliday(d) ? 0.8 : base) ? null : ok8) });
+  const on = r.records.map((x) => x.response?.status === "fewer_answers");
+  let falseEp = 0;
+  for (let i = 1; i < Math.min(from - 1, on.length); i++) if (on[i] && !on[i - 1]) falseEp++;
+  const det = on.findIndex((x, i) => i >= from - 1 && x);
+  return { falseEp, delay: det < 0 ? null : det - (from - 1) };
+}
+function table8(cfg: Config) {
+  const rows: string[] = [];
+  for (const base of [0.1, 0.2, 0.3]) {
+    let fe = 0, late = 0;
+    const ds: number[] = [];
+    for (const seed of range(1, 40)) {
+      fe += response8(cfg, seed, base, base, 999).falseEp;
+      const b = response8(cfg, seed, base, 0.75, 120);
+      if (b.delay === null || b.delay > 28) late++;
+      else ds.push(b.delay);
+    }
+    rows.push(`| ${base * 100} % | ${(fe / 40 / 1.8).toFixed(2)} | ${median(ds)} | ${40 - late} / 40 |`);
+  }
+  return rows;
+}
+log("Stable sensors, seeds 1–40, 180 days. False episodes: entries into \"fewer answers\" with no change in the share left. Stops: from day 120 the person leaves 75 %.");
+log("| Usually left | False episodes per 100 days | Stops: median days to the signal | Stops: signal within 28 days |");
+log("|---|---|---|---|");
+for (const row of table8(defaultConfig)) log(row);
+log(`With the old back-off (halve after ${2} unanswered instead of ${defaultConfig.ignoredBeforeBackoff}):`);
+for (const row of table8({ ...defaultConfig, ignoredBeforeBackoff: 2 })) log(row);
+let hWith = 0, hWithout = 0;
+for (const seed of range(1, 40)) {
+  const ctx: ContextLabel = { id: "h", type: "holiday", kind: "explains_sensors", start: addDays(START, 89), end: addDays(START, 99), quote: null, source: "manual", confirmed: true };
+  hWith += response8(defaultConfig, seed, 0.1, 0.1, 999, [ctx], [90, 100]).falseEp;
+  hWithout += response8(defaultConfig, seed, 0.1, 0.1, 999, [], [90, 100]).falseEp;
+}
+log(`Holiday (days 90–100, 80 % left, usually 10 %), seeds 1–40: ${hWith} false episodes with the holiday confirmed, ${hWithout} without.`);
+const sam8 = range(1, 50).map((seed) => runHeadless(simulatePersona(seed, "default"), { seed, responses: true }));
+const samUnanswered = sam8.reduce((a, r) => a + r.days.filter((d) => d.actions.some((x) => x.type === "offer_questionnaire" && x.reason === "unanswered")).length, 0);
+const samSame = sam8.filter((r, i) => firstElevated(r) === firstElevated(runHeadless(simulatePersona(i + 1, "default"), { seed: i + 1 }))).length;
+log(`Sam (answers almost every check-in), seeds 1–50 with the signal on: ${samUnanswered} "unanswered" PHQ-2 offers; first ELEVATED day unchanged in ${samSame} / 50.`);
+
 import { writeFileSync } from "node:fs";
 writeFileSync(new URL("./results/engine_metrics.md", import.meta.url), out.join("\n") + "\n");

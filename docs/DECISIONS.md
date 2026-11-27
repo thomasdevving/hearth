@@ -969,3 +969,30 @@ learns, per person, which domains go with their low days (docs/04 §4.4).
   one sentence when the signal's domain weighs more or less than 1. iOS has a debug-only
   `-HearthDemoWeights YES` that writes an example active state, for screenshots only.
 
+## Unanswered check-ins as a signal (2026-11-24)
+
+Until now an unanswered check-in only made Hearth ask less. A scoping review on just-in-time
+prediction of depression (docs/SOURCES.md) points to one study where missed EMA responses were
+themselves predictive, and suggests missingness as an early warning sign. Hearth now uses it
+(docs/04 §7.5).
+
+- **Against the person's own usual.** Some people leave many check-ins; the recent share is
+  compared with theirs (binomial tail, with the usual share smoothed by +1/+2), plus a minimum
+  of 3 misses and a rise of at least 0.3, so one busy week with two misses does not count.
+- **A PHQ-2 offer, not a change of state.** Leaving a check-in says nothing about one day's
+  routine, and it has a few data points a month, so it does not enter `D` (which "Why?" must
+  explain per signal). It is one more reason to offer two questions, like momentary signals.
+- **Holidays.** Days inside a confirmed holiday, travel, visitors, ill or moving label are left
+  out, as for the sensors. Stressors are not: they are when a change matters.
+- **Back-off after 4 instead of 2.** Halving the check-in chances after two misses starved the
+  signal: a person who stopped answering was noticed within 28 days in 27–34 of 40 runs,
+  against 34–38 after four (docs/10 metric 6c). Four unanswered in a row is about two weeks.
+- **Thresholds from a sweep.** A stricter p < 0.01, or a 21–28 day window, halved the false
+  episodes but missed a third to half of the people who stopped answering within 28 days. A
+  false episode costs one offer of two questions, so the looser setting was kept: 0.07–0.63
+  false offers per 100 days, higher for people who usually leave more.
+- **Opt-in input.** `dailyUpdate` only computes it when the app passes `responses`. Without it
+  output is identical, so golden fixtures and earlier evaluation numbers hold (checked: metrics
+  2–7 unchanged after the back-off change, since the personas never leave two in a row).
+- **UI.** The PHQ-2 card says why when this is the reason; Trends shows "Check-ins answered"
+  (last 14 days vs. before). Simulated answering only: real non-response is burstier.

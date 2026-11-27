@@ -150,6 +150,9 @@ final class AppModel {
         "date": d, "raws": windowRaws, "history": history.map { RawJSON($0) }, "state": RawJSON(stateJSON),
         "rules": rules, "contexts": contexts, "checkins": checkins, "questionnaires": questionnaires, "cfg": cfg,
         "learnOnly": !DemoData.enabled && d < liveFrom,
+        // Unanswered check-ins compared with the user's usual (docs/04 §7.5); the engine only
+        // counts check-ins from before the day it scores.
+        "responses": allCheckins.map { RawJSON($0.json) },
         "personal": ["audit": RawJSON((try? Engine.shared.call("selfAudit", allCheckins.filter { $0.date <= d }.map { RawJSON($0.json) }, cfg)) ?? #"{"status":"collecting","nTriggered":0,"nRandom":0,"delta":null,"p":null}"#)],
       ]
       let out: String
