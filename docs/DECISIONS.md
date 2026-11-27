@@ -996,3 +996,39 @@ themselves predictive, and suggests missingness as an early warning sign. Hearth
   2–7 unchanged after the back-off change, since the personas never leave two in a row).
 - **UI.** The PHQ-2 card says why when this is the reason; Trends shows "Check-ins answered"
   (last 14 days vs. before). Simulated answering only: real non-response is burstier.
+
+## End-to-end check before the feature freeze (2026-11-27)
+
+The whole chain was walked on the web app (browser, no on-device model, then the cloud) and in
+the iOS Simulator. Only bugs were fixed; no features were added.
+
+- **Safety first.** Web: a positive PHQ-9 item 9 opened the safety screen, but the result
+  screen replaced it at once; it now comes on top of the result. iOS: two quick taps in a
+  questionnaire could skip a question and then crash (index out of range), which could lose an
+  item-9 answer; a tap now moves at most one page, and taps in the first 0.4 s of a new
+  question (or screen) are ignored. After a crisis sentence the check-in shows its saved state
+  instead of an editable copy that could be saved and logged twice (both platforms).
+- **Privacy promises kept.** With the cloud allowed but the first upload not yet reviewed, the
+  web weekly reflection used Gemini and uploaded the report anyway, while the app said "nothing
+  is sent until you confirm". The reflection now stays plain until the preview is confirmed, and
+  reports are only uploaded after it. Turning consent off no longer signs out (that orphaned the
+  uploaded data); "Delete everything" restores the session if needed, deletes weeks, reports
+  and share links, and says so when the cloud could not be reached instead of claiming success.
+  Failed model calls are marked as failed in the ledger and no longer counted as "on this
+  device" or "in the cloud"; iOS also records the payload of a refused cloud request.
+- **Flows.** "Writing…" no longer hangs when the cloud fails; iOS says the cloud was not
+  reachable. A positive PHQ-2 within a week of a PHQ-9 no longer promises a questionnaire that
+  does not come. A period cannot end before it starts. Editing a plan brings the saved cards
+  back, ticked, instead of silently deleting them (and keeps each action's smaller step).
+  Without a model, the words under "What helps" carry into the manual form. iOS: the baseline
+  PHQ-9 was stacked twice on first run; "Allow Health access" no longer claims success when the
+  request fails, and Today says when Health is not connected. Phone numbers need a few digits.
+- **Copy and layout.** Prompts D and E wrote "over the number of weeks"; they now write the
+  number. Share links that are incomplete, expired or unreachable get a plain message. Sharing
+  without the cloud points to the one-page plan. The Why chart axis no longer cuts off numbers;
+  iOS onboarding scrolls fully at accessibility text sizes.
+- **Not fixed (known).** iOS keeps deleted text in the SQLite WAL file until a checkpoint;
+  mixed number formats with a Dutch region; the floating back button can cover content; the
+  cloud on localhost or in an automated browser can get an App Check 403 (the live site was
+  fine before; check it in a normal browser).
+

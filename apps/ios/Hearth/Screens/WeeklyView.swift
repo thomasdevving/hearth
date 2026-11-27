@@ -26,6 +26,9 @@ struct WeeklyView: View {
           if let ref {
             if ref.variant == "lite" {
               Muted(keptOnDevice ? "Short version, written on this device." : "Short version, written on this device (you are offline or the cloud was not reachable).")
+            } else if ref.ranOn == "template" && app.settings.cloudConsent && CloudModel.isConfigured && !keptOnDevice {
+              // The cloud was asked but did not answer: say so instead of silently showing the plain text.
+              Muted("The cloud could not be reached, so this is a plain summary written on this device. Try again later.")
             }
             Text(ref.reflection).fixedSize(horizontal: false, vertical: true)
             Text(ref.question).italic().fixedSize(horizontal: false, vertical: true)

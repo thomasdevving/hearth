@@ -54,62 +54,81 @@ struct OnboardingView: View {
 
   // How Hearth works ------------------------------------------------------------------------
 
+  @Environment(\.dynamicTypeSize) private var typeSize
+
   private var about: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      ScrollView {
-        VStack(alignment: .leading, spacing: 0) {
-          Image("Logo").resizable().scaledToFit().frame(width: 44, height: 44).accessibilityHidden(true)
-          Text("How Hearth works").font(HearthFont.display(30)).foregroundStyle(Theme.ink).padding(.top, 16)
-            .accessibilityAddTraits(.isHeader)
-          Text("It does three things for you in the background.").font(HearthFont.body(17)).foregroundStyle(Theme.ink2).padding(.top, 6)
+    Group {
+      if typeSize.isAccessibilitySize {
+        // At very large text the fixed bottom panel would take half the screen: scroll it too.
+        ScrollView {
           VStack(spacing: 0) {
-            row(art: AnyView(UsualArt()), title: "It learns your usual days", text: "Sleep, steps, rhythm, heart rate and places.")
-            row(art: AnyView(DriftArt()), title: "It notices when they change", text: "Compared only with you.")
-            row(art: AnyView(PlanArt()), title: "It brings back your plan", text: "A short check-in, in your own words.")
+            aboutContent
+            aboutPanel
           }
-          .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 1) }
-          .padding(.top, 20)
-
-          Toggle(isOn: $locationOn) {
-            VStack(alignment: .leading, spacing: 2) {
-              Text("Also note the places I visit").font(HearthFont.body(16, weight: "SemiBold"))
-              Muted("Only visits, never your route. Needs location “Always”.")
-            }
-          }
-          .tint(Theme.magenta).padding(.top, 20)
         }
-        .padding(.horizontal, 20).padding(.top, 24)
-      }
-
-      VStack(spacing: 12) {
-        DisclosureGroup(isExpanded: $privacyOpen) {
-          VStack(alignment: .leading, spacing: 8) {
-            privacyLine("Your words are read only by the model on this iPhone.")
-            privacyLine("Every model call is listed in the privacy ledger.")
-            privacyLine("Hearth is not a diagnosis or a crisis service. “I need help now” works offline.")
-            if CloudModel.isConfigured {
-              Toggle(isOn: Binding(get: { app.settings.cloudConsent }, set: { app.settings.cloudConsent = $0; app.changed() })) {
-                Text("Allow a longer weekly reflection by Gemini in the cloud, from weekly numbers only.").font(HearthFont.body(15))
-              }
-              .tint(Theme.magenta)
-            }
-          }
-          .padding(.top, 8)
-        } label: {
-          Label("Learn more about privacy", systemImage: "lock.fill")
-            .font(HearthFont.body(16, weight: "Medium")).foregroundStyle(Theme.magentaDeep)
+      } else {
+        VStack(alignment: .leading, spacing: 0) {
+          ScrollView { aboutContent }
+          aboutPanel
         }
-        .tint(Theme.magentaDeep)
-        Button(asking ? "One moment…" : "Allow Health access") { Task { await finish() } }
-          .buttonStyle(.primary).disabled(asking)
-        Muted("Hearth only reads from Health. Nothing leaves this iPhone without your consent.")
-          .multilineTextAlignment(.center).frame(maxWidth: .infinity)
       }
-      .padding(.horizontal, 20).padding(.vertical, 16)
-      .background(Color.white)
-      .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 1) }
     }
     .foregroundStyle(Theme.ink)
+  }
+
+  private var aboutContent: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      Image("Logo").resizable().scaledToFit().frame(width: 44, height: 44).accessibilityHidden(true)
+      Text("How Hearth works").font(HearthFont.display(30)).foregroundStyle(Theme.ink).padding(.top, 16)
+        .accessibilityAddTraits(.isHeader)
+      Text("It does three things for you in the background.").font(HearthFont.body(17)).foregroundStyle(Theme.ink2).padding(.top, 6)
+      VStack(spacing: 0) {
+        row(art: AnyView(UsualArt()), title: "It learns your usual days", text: "Sleep, steps, rhythm, heart rate and places.")
+        row(art: AnyView(DriftArt()), title: "It notices when they change", text: "Compared only with you.")
+        row(art: AnyView(PlanArt()), title: "It brings back your plan", text: "A short check-in, in your own words.")
+      }
+      .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 1) }
+      .padding(.top, 20)
+
+      Toggle(isOn: $locationOn) {
+        VStack(alignment: .leading, spacing: 2) {
+          Text("Also note the places I visit").font(HearthFont.body(16, weight: "SemiBold"))
+          Muted("Only visits, never your route. Needs location “Always”.")
+        }
+      }
+      .tint(Theme.magenta).padding(.top, 20)
+    }
+    .padding(.horizontal, 20).padding(.top, 24)
+  }
+
+  private var aboutPanel: some View {
+    VStack(spacing: 12) {
+      DisclosureGroup(isExpanded: $privacyOpen) {
+        VStack(alignment: .leading, spacing: 8) {
+          privacyLine("Your words are read only by the model on this iPhone.")
+          privacyLine("Every model call is listed in the privacy ledger.")
+          privacyLine("Hearth is not a diagnosis or a crisis service. “I need help now” works offline.")
+          if CloudModel.isConfigured {
+            Toggle(isOn: Binding(get: { app.settings.cloudConsent }, set: { app.settings.cloudConsent = $0; app.changed() })) {
+              Text("Allow a longer weekly reflection by Gemini in the cloud, from weekly numbers only.").font(HearthFont.body(15))
+            }
+            .tint(Theme.magenta)
+          }
+        }
+        .padding(.top, 8)
+      } label: {
+        Label("Learn more about privacy", systemImage: "lock.fill")
+          .font(HearthFont.body(16, weight: "Medium")).foregroundStyle(Theme.magentaDeep)
+      }
+      .tint(Theme.magentaDeep)
+      Button(asking ? "One moment…" : "Allow Health access") { Task { await finish() } }
+        .buttonStyle(.primary).disabled(asking)
+      Muted("Hearth only reads from Health. Nothing leaves this iPhone without your consent.")
+        .multilineTextAlignment(.center).frame(maxWidth: .infinity)
+    }
+    .padding(.horizontal, 20).padding(.vertical, 16)
+    .background(Color.white)
+    .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 1) }
   }
 
   private func row(art: AnyView, title: String, text: String) -> some View {

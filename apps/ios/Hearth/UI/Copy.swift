@@ -109,11 +109,15 @@ enum Copy {
     "severe": "Your answers are in the highest range.",
   ]
 
-  static func resultTemplate(_ r: QuestionnaireResult) -> String {
+  /// A positive PHQ-2 within a week of a PHQ-9: the longer questionnaire is not repeated yet.
+  static let phq9Recent = "You answered the longer questionnaire less than a week ago, so Hearth does not ask it again yet."
+
+  static func resultTemplate(_ r: QuestionnaireResult, phq9Next: Bool = true) -> String {
     if r.id == "PHQ2" {
-      return r.positive
-        ? "Your total is \(r.total) out of 6. That is higher than usual, so the next step is a slightly longer questionnaire."
-        : "Your total is \(r.total) out of 6. Your answers are in the usual range."
+      if !r.positive { return "Your total is \(r.total) out of 6. Your answers are in the usual range." }
+      return phq9Next
+        ? "Your total is \(r.total) out of 6. That is a higher score, so the next step is a slightly longer questionnaire."
+        : "Your total is \(r.total) out of 6. That is a higher score. \(phq9Recent)"
     }
     var parts = ["Your total is \(r.total) out of 27.", bandText[r.band ?? ""] ?? ""]
     if let c = r.changeFromReference {

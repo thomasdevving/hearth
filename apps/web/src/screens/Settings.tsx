@@ -19,7 +19,7 @@ async function exportAll(): Promise<void> {
   a.href = URL.createObjectURL(blob);
   a.download = "hearth-export.json";
   a.click();
-  URL.revokeObjectURL(a.href);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000); // revoking at once can cancel the download
 }
 
 export function Settings() {
@@ -151,11 +151,14 @@ export function Settings() {
         className="danger"
         onClick={async () => {
           if (!confirm("Delete everything on this device and in the cloud? This cannot be undone.")) return;
-          await deleteCloudData();
+          const cloudOk = await deleteCloudData();
+          if (!cloudOk && !confirm("Hearth could not reach the cloud, so your uploaded weekly summaries and share links were not deleted. If you go on, Hearth cannot delete them later. Delete everything on this device anyway? Choose Cancel to try again when you are online.")) {
+            setMsg("Nothing was deleted. Try again when you are online.");
+            return;
+          }
           const meta = await getMeta();
           await clearAll();
           await loadPersona(meta?.scenario ?? "default", meta?.seed ?? 1);
-          setMsg("Everything was deleted.");
           navigate("onboarding");
         }}
       >

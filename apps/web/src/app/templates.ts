@@ -14,13 +14,18 @@ const BAND_TEXT: Record<string, string> = {
   severe: "Your answers are in the highest range.",
 };
 
+/** A positive PHQ-2 within a week of a PHQ-9: the longer questionnaire is not repeated yet. */
+export const PHQ9_RECENT = "You answered the longer questionnaire less than a week ago, so Hearth does not ask it again yet.";
+
 /**
  * Fallback explanation for the result page. The page already shows the total and the change
  * from the user's own score, so this only adds what they mean (no repeated numbers).
  */
-export function resultTemplate(r: QuestionnaireResult): string {
+export function resultTemplate(r: QuestionnaireResult, phq9Next = true): string {
   if (r.id === "PHQ2") {
-    return r.positive ? "That is a higher score, so the next step is a slightly longer questionnaire." : "Your answers are in the usual range.";
+    if (!r.positive) return "Your answers are in the usual range.";
+    // Within a week of a PHQ-9 the longer questionnaire is not asked again (cooldown).
+    return phq9Next ? "That is a higher score, so the next step is a slightly longer questionnaire." : `That is a higher score. ${PHQ9_RECENT}`;
   }
   const parts = [BAND_TEXT[r.band ?? ""] ?? ""];
   if (r.flagged) parts.push("This is a clear change, so your plan is shown next. It may be a good moment to talk to your GP or clinician.");

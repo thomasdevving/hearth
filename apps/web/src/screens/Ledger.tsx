@@ -31,8 +31,10 @@ const CLASS_TEXT: Record<string, string> = {
 };
 
 function where(e: LedgerEntry): string {
-  if (e.ranOn === "on_device") return "on this device";
-  if (e.ranOn === "cloud") return "cloud (left this device)";
+  // A refused or failed request still left the device, so it says both.
+  const failed = e.outcome === "error" ? ", failed" : e.outcome === "invalid_output" ? ", answer not usable" : "";
+  if (e.ranOn === "on_device") return `on this device${failed}`;
+  if (e.ranOn === "cloud") return `cloud (left this device${failed})`;
   return "no model (fallback)";
 }
 
@@ -47,7 +49,9 @@ export function Ledger() {
   const d = useData(async () => ({ ledger: (await db.ledger.orderBy("at").reverse().toArray()), net: await db.network_log.orderBy("id").reverse().limit(200).toArray() }));
   if (!d) return <Screen title="Privacy ledger">Loading…</Screen>;
   const rows = d.ledger.filter((e) => !leftOnly || e.ranOn === "cloud" || e.bytesSent > 0);
-  const counts = { device: d.ledger.filter((e) => e.ranOn === "on_device").length, cloud: d.ledger.filter((e) => e.ranOn === "cloud").length, none: d.ledger.filter((e) => e.ranOn === "none").length };
+  // Counted by what actually produced the text: a failed model call counts as "without a model".
+  const ok = (e: (typeof d.ledger)[number]) => e.outcome === "ok";
+  const counts = { device: d.ledger.filter((e) => e.ranOn === "on_device" && ok(e)).length, cloud: d.ledger.filter((e) => e.ranOn === "cloud" && ok(e)).length, none: d.ledger.filter((e) => e.ranOn === "none" || !ok(e)).length };
   return (
     <Screen title="Privacy ledger">
       <p className="muted">Every model call: which task, where it ran and exactly what was sent.</p>

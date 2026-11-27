@@ -113,7 +113,9 @@ function emptyLabel(date: string, text = ""): ContextLabel {
 
 export async function confirmContextLabel(label: ContextLabel, inboxId?: string): Promise<void> {
   const kind = CONTEXT_TABLE[label.type]?.kind ?? label.kind;
-  await db.contexts.put({ ...label, kind, confirmed: true });
+  // A period that ends before it starts would never take effect; keep at least its first day.
+  const end = label.end < label.start ? label.start : label.end;
+  await db.contexts.put({ ...label, end, kind, confirmed: true });
   if (inboxId) {
     await closeInbox(inboxId, "done");
     await resumeAfterNote(); // a day waiting for this confirmation is processed now
@@ -189,7 +191,12 @@ export async function skipCheckin(checkinId: string): Promise<void> {
 }
 
 // ---------- questionnaires ----------
-export async function submitQuestionnaire(instrument: "PHQ2" | "PHQ9", answers: number[], opts: { baseline?: boolean } = {}): Promise<QuestionnaireRecord> {
+/**
+ * Scores and stores a questionnaire. A positive PHQ-9 item 9 opens the safety screen, unless the
+ * caller shows a result screen first and opens it itself (`deferSafety`), so the result does not
+ * replace the safety screen.
+ */
+export async function submitQuestionnaire(instrument: "PHQ2" | "PHQ9", answers: number[], opts: { baseline?: boolean; deferSafety?: boolean } = {}): Promise<QuestionnaireRecord> {
   const date = getToday();
   const qs = await db.questionnaires.toArray();
   const result = scoreQuestionnaire(instrument, answers, remissionScore(qs, date), cfg);
@@ -202,7 +209,7 @@ export async function submitQuestionnaire(instrument: "PHQ2" | "PHQ9", answers: 
   const recent9 = qs.some((q) => q.instrument === "PHQ9" && addDays(dateOfTimestamp(q.takenAt), cfg.phq2CooldownDays) > date);
   if (instrument === "PHQ2" && result.positive && !recent9) await addInbox({ date, type: "questionnaire", instrument: "PHQ9", reason: "persistent" });
   emitChange();
-  if (result.safetyItemPositive) await openSafety("phq9_item9");
+  if (result.safetyItemPositive && !opts.deferSafety) await openSafety("phq9_item9");
   return rec;
 }
 
@@ -220,6 +227,8 @@ export interface CardChoice<T> {
 export async function savePlan(source: { warning: string; helps: string }, plan: VerifiedPlan, choices: { rules: boolean[]; items: boolean[]; actions: boolean[] }, placePicks: Record<number, { lat: number; lon: number } | null>): Promise<void> {
   await putSingleton(db.plan_source, source);
   let state = await getEngineState();
+  // The user's own smaller versions stay with their action when the plan is saved again.
+  const smaller = new Map((await db.plan_actions.toArray()).filter((a) => a.smaller).map((a) => [a.text.toLowerCase(), a.smaller!]));
   await db.plan_rules.clear();
   await db.personal_items.clear();
   await db.plan_actions.clear();
@@ -245,7 +254,8 @@ export async function savePlan(source: { warning: string; helps: string }, plan:
   for (let i = 0; i < plan.actions.length; i++) {
     if (!choices.actions[i]) continue;
     const a = plan.actions[i];
-    await db.plan_actions.put({ id: newId("action"), text: a.text, quote: a.quote, active: true });
+    const small = smaller.get(a.text.toLowerCase());
+    await db.plan_actions.put({ id: newId("action"), text: a.text, quote: a.quote, active: true, ...(small ? { smaller: small } : {}) });
   }
   await updateSettings({ planDone: true });
   emitChange();

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { QUESTIONNAIRES, scriptedQuestionnaire } from "@hearth/engine";
 import { Screen } from "../ui/kit";
-import { submitQuestionnaire, dismissQuestionnaire } from "../app/actions";
+import { submitQuestionnaire, dismissQuestionnaire, openSafety } from "../app/actions";
 import { navigate } from "../app/events";
 import { currentReplay } from "../app/runtime";
 import { getToday } from "../app/clock";
@@ -22,9 +22,12 @@ export function QuestionnairePages({ instrument, onDone, baseline }: { instrumen
   const item = def.items[page];
   const finish = async (a: number[]) => {
     setBusy(true);
-    const rec = await submitQuestionnaire(instrument, a, { baseline });
+    const rec = await submitQuestionnaire(instrument, a, { baseline, deferSafety: true });
     setBusy(false);
     onDone(rec.id);
+    // PHQ-9 item 9 above 0: the safety screen comes on top of the result (docs/06 §4), so
+    // going back from it lands on the result.
+    if (rec.result.safetyItemPositive) await openSafety("phq9_item9");
   };
   return (
     <div className="questionnaire" data-instrument={instrument}>

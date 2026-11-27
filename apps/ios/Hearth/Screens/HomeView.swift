@@ -81,6 +81,12 @@ struct HomeView: View {
       VStack(alignment: .leading, spacing: 6) {
         Text(Copy.stateLabel[st] ?? "").font(HearthFont.display(22)).foregroundStyle(Theme.stateColor(st))
         Text(Copy.stateText[st] ?? "").fixedSize(horizontal: false, vertical: true)
+        // Without Health access there is nothing to learn from; say so instead of "two weeks".
+        if st == .WARM_UP && !app.settings.healthAuthorized && !DemoData.enabled {
+          Button("Health is not connected, so Hearth has no data to learn from yet. Allow access in Settings ›") { app.selectedTab = .settings }
+            .buttonStyle(.link)
+            .multilineTextAlignment(.leading)
+        }
         if (st == .ELEVATED || st == .CONFIRMED), let last {
           Button(why ? "Hide" : "Why?") { why.toggle() }.buttonStyle(.link)
           if why {

@@ -160,7 +160,9 @@ struct LedgerView: View {
     let _ = app.revision
     let all = app.store.all(LedgerEntry.self, sort: [SortDescriptor(\.at, order: .reverse)]).compactMap(\.value)
     let rows = all.filter { !leftOnly || $0.ranOn == "cloud" || $0.bytesSent > 0 }
-    let device = all.filter { $0.ranOn == "on_device" }.count, cloud = all.filter { $0.ranOn == "cloud" }.count, none = all.filter { $0.ranOn == "none" }.count
+    // Counted by what actually produced the text: a failed model call counts as "without a model".
+    let ok = { (e: LedgerEntryValue) in e.outcome == "ok" }
+    let device = all.filter { $0.ranOn == "on_device" && ok($0) }.count, cloud = all.filter { $0.ranOn == "cloud" && ok($0) }.count, none = all.filter { $0.ranOn == "none" || !ok($0) }.count
     ScreenScroll(title: "Privacy ledger") {
       Muted("Every model call: which task, where it ran and exactly what was sent.")
       Text("\(device) on this device · \(cloud) in the cloud · \(none) without a model").font(HearthFont.body(16, weight: "Medium"))
@@ -184,7 +186,8 @@ struct LedgerView: View {
   }
 
   static func `where`(_ e: LedgerEntryValue) -> String {
-    e.ranOn == "on_device" ? "on this device" : e.ranOn == "cloud" ? "cloud (left this device)" : "no model (fallback)"
+    let failed = e.outcome == "error" ? ", failed" : e.outcome == "invalid_output" ? ", answer not usable" : ""
+    return e.ranOn == "on_device" ? "on this device\(failed)" : e.ranOn == "cloud" ? "cloud (left this device\(failed))" : "no model (fallback)"
   }
 
   /// Readable date and time; the technical details stay in the stored entry.

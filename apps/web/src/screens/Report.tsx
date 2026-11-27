@@ -11,9 +11,19 @@ export function Report({ params }: { params: Record<string, string> }) {
   const [data, setData] = useState<{ weeks: WeekAggregate[]; report: Rep | null } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
-    loadShare(params.id ?? "")
+    const id = params.id ?? "";
+    // Share ids are 32 hex characters (createShare); anything else is a broken link.
+    if (!/^[0-9a-f]{32}$/.test(id)) {
+      setErr("This link is incomplete. Ask for the link again.");
+      return;
+    }
+    loadShare(id)
       .then((d) => (d ? setData({ weeks: d.weeks as WeekAggregate[], report: (d.report as Rep) ?? null }) : setErr("This link has expired or does not exist.")))
-      .catch((e) => setErr((e as Error).message));
+      .catch((e) => {
+        console.warn("share", e);
+        // An expired share is refused by the rules rather than missing.
+        setErr((e as { code?: string }).code === "permission-denied" ? "This link has expired or does not exist." : "This summary could not be loaded right now. Check your connection and try again.");
+      });
   }, [params.id]);
   if (err) return <Screen title="Shared summary"><p>{err}</p></Screen>;
   if (!data) return <Screen title="Shared summary">Loading…</Screen>;

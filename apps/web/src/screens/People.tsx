@@ -11,6 +11,7 @@ const empty = (): Draft => ({ name: "", phone: "", goodFor: "", message: DEFAULT
 export function People() {
   const [rows, setRows] = useState<Draft[] | null>(null);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     getPeople().then((ps) => setRows(ps.length ? ps.map(({ name, phone, goodFor, message }) => ({ name, phone, goodFor, message })) : [empty()]));
   }, []);
@@ -57,6 +58,13 @@ export function People() {
         <button
           className="primary"
           onClick={async () => {
+            // A number with fewer than 3 digits would show Call and Message buttons that dial nothing.
+            const bad = rows.find((r) => r.phone.trim() && r.phone.replace(/\D/g, "").length < 3);
+            if (bad) {
+              setError(`Check the phone number for ${bad.name.trim() || "this person"}: it needs at least a few digits.`);
+              return;
+            }
+            setError(null);
             await savePeople(rows);
             setSaved(true);
           }}
@@ -68,6 +76,7 @@ export function People() {
         </button>
       </div>
       {saved && <p role="status">Saved on this device.</p>}
+      {error && <p role="alert">{error}</p>}
     </Screen>
   );
 }

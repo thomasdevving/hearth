@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { cfg, currentReplay } from "../app/runtime";
+import { cfg, currentReplay, getEngineState } from "../app/runtime";
 import { savePlan, openSafety } from "../app/actions";
 import { db, getSettings, getSingleton } from "../store/db";
 import { navigate } from "../app/events";
@@ -57,6 +57,21 @@ export function mergePlans(a: VerifiedPlan, b: VerifiedPlan): VerifiedPlan {
   return { ...a, rules, personal_checkin_items: items };
 }
 
+/**
+ * Editing a plan: the cards already saved come back, ticked, next to the new ones, so saving
+ * never drops a sign, question or action the user did not untick.
+ */
+export function withExisting(plan: VerifiedPlan, existing: VerifiedPlan | null): VerifiedPlan {
+  if (!existing) return plan;
+  const rules = [...existing.rules];
+  for (const r of plan.rules) if (!rules.some((x) => x.feature === r.feature && (x.place_label ?? null) === (r.place_label ?? null))) rules.push(r);
+  const items = [...existing.personal_checkin_items];
+  for (const it of plan.personal_checkin_items) if (!items.some((x) => x.question.toLowerCase() === it.question.toLowerCase())) items.push(it);
+  const actions = [...existing.actions];
+  for (const a of plan.actions) if (!actions.some((x) => x.text.toLowerCase() === a.text.toLowerCase())) actions.push(a);
+  return { ...plan, rules, personal_checkin_items: items, actions };
+}
+
 const SUGGESTION_TEXTS = new Set([...SUGGESTED_SIGNS.map((x) => x.text), ...SUGGESTED_ITEMS.map((x) => x.text)]);
 
 function emptyPlan(): VerifiedPlan {
@@ -74,6 +89,7 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
   const [places, setPlaces] = useState<PersonaPlace[]>([]);
   const [picks, setPicks] = useState<Record<number, string>>({});
   const [scripted, setScripted] = useState<{ text: string; expected: unknown; places?: Record<string, string> } | null>(null);
+  const [existing, setExisting] = useState<VerifiedPlan | null>(null);
   // fallback form
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [manualPlaces, setManualPlaces] = useState<boolean[]>(PLACE_SIGNS.map(() => false));
@@ -83,6 +99,17 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
   // A new view (writing, cards, by hand) starts at the top, not where the last one was scrolled.
   useEffect(() => {
     window.scrollTo({ top: 0 });
+    // By hand: what the user already wrote under "What helps" starts the list, one per line.
+    if (status.kind === "fallback" && !manualActions.trim() && helps.trim()) {
+      setManualActions(
+        helps
+          .split(/\n|(?<=[.!?])\s+/)
+          .map((x) => x.trim().replace(/[.!?]+$/, ""))
+          .filter(Boolean)
+          .join("\n"),
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status.kind]);
 
   useEffect(() => {
@@ -92,6 +119,20 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
         setWarning(src.warning);
         setHelps(src.helps);
       }
+      if (!first) {
+        const st = await getEngineState();
+        const rules = (await db.plan_rules.toArray()).filter((r) => r.active);
+        const items = (await db.personal_items.toArray()).filter((x) => x.active);
+        const acts = (await db.plan_actions.toArray()).filter((x) => x.active);
+        if (rules.length + items.length + acts.length > 0)
+          setExisting({
+            rules: rules.map((r) => ({ feature: r.feature, direction: r.direction, place_label: r.placeId ? (st?.places.find((p) => p.id === r.placeId)?.label ?? null) : null, quote: r.quote })),
+            personal_checkin_items: items.map((x) => ({ question: x.question, quote: x.quote })),
+            actions: acts.map((x) => ({ text: x.text, quote: x.quote })),
+            dropped: 0,
+            valid: true,
+          });
+      }
       const data = await currentReplay();
       setPlaces(data?.places.filter((p) => !["hotel", "beach", "old town", "market"].includes(p.label)) ?? []);
       const ev = data?.script.find((e) => e.type === "plan_text");
@@ -99,7 +140,8 @@ export function PlanSetup({ params }: { params: Record<string, string> }) {
     })();
   }, []);
 
-  const showCards = (plan: VerifiedPlan, ranOn: "on_device" | "cloud" | "template") => {
+  const showCards = (fresh: VerifiedPlan, ranOn: "on_device" | "cloud" | "template") => {
+    const plan = withExisting(fresh, existing);
     setRulesOk(plan.rules.map(() => true));
     setItemsOk(plan.personal_checkin_items.map(() => true));
     setActionsOk(plan.actions.map(() => true));

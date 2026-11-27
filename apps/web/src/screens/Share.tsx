@@ -21,9 +21,15 @@ export function Share() {
       <Screen title="Share with your clinician" back="home">
         <p>A private link to your weekly summaries, without notes, places or names. It expires after 7 days.</p>
         <p className="muted">{cloudConfigured ? "This needs your permission for the cloud in Settings." : "Sharing is not available in this build (no Firebase project configured)."}</p>
-        <button className="secondary" onClick={() => navigate("settings")}>
-          Settings
-        </button>
+        <div className="row">
+          <button className="secondary" onClick={() => navigate("settings")}>
+            Settings
+          </button>
+          <button className="secondary" onClick={() => navigate("plan_print")}>
+            Print my plan on one page
+          </button>
+        </div>
+        <p className="muted">The one-page plan needs no cloud: print it or save it as a PDF and bring it along.</p>
       </Screen>
     );
   return (
@@ -47,7 +53,8 @@ export function Share() {
             const id = await createShare(d.weeks, res.ok ? res.value : null);
             setLink(`${location.origin}${location.pathname}#/report?id=${id}`);
           } catch (e) {
-            setErr((e as Error).message);
+            console.warn("share", e);
+            setErr("The link could not be created: the cloud was not reachable. Nothing was shared. Try again later, or print your plan on one page instead.");
           }
           setBusy(false);
         }}

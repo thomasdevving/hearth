@@ -10,6 +10,10 @@ struct QuestionnairePages: View {
   var onDone: (QuestionnaireRecordValue) -> Void
   @State private var page = 0
   @State private var answers: [Int?] = []
+  @State private var submitting = false
+  /// A tap that started on the previous screen or question (a quick second tap) must not answer
+  /// the question that has just appeared.
+  @State private var appearedAt = Date.distantFuture
 
   var body: some View {
     let def = Shared.questionnaire(instrument)
@@ -23,9 +27,13 @@ struct QuestionnairePages: View {
         ForEach(def.options, id: \.value) { o in
           let selected = answers[safe: page] == o.value
           Button {
-            answers[page] = o.value
-            if page < def.items.count - 1 {
-              DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { page += 1 }
+            // A second quick tap must not skip a question or run past the last one: the page
+            // only moves from the page that was tapped, once.
+            let tapped = page
+            guard tapped < def.items.count, tapped < answers.count, Date().timeIntervalSince(appearedAt) > 0.4 else { return }
+            answers[tapped] = o.value
+            if tapped < def.items.count - 1 {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { if page == tapped { page = tapped + 1 } }
             }
           } label: {
             Text(o.label)
@@ -44,14 +52,21 @@ struct QuestionnairePages: View {
         if page > 0 { Button("Previous") { page -= 1 }.buttonStyle(.secondary) }
         if page == def.items.count - 1 {
           Button("Done") {
-            if let rec = app.submitQuestionnaire(instrument, answers: answers.compactMap { $0 }, baseline: baseline) { onDone(rec) }
+            guard !submitting else { return }
+            submitting = true
+            if let rec = app.submitQuestionnaire(instrument, answers: answers.compactMap { $0 }, baseline: baseline) { onDone(rec) } else { submitting = false }
           }
           .buttonStyle(.primary)
-          .disabled(answers.contains { $0 == nil })
+          .disabled(submitting || answers.count != def.items.count || answers.contains { $0 == nil })
         }
       }
     }
-    .onAppear { if answers.count != def.items.count { answers = Array(repeating: nil, count: def.items.count) } }
+    .onAppear {
+      if answers.count != def.items.count { answers = Array(repeating: nil, count: def.items.count) }
+      appearedAt = Date()
+    }
+    // The same guard per question: a quick second tap must not answer the next one as well.
+    .onChange(of: page) { _, _ in appearedAt = Date() }
   }
 }
 
@@ -139,17 +154,19 @@ struct ResultView: View {
   private func explain(_ rec: QuestionnaireRecordValue?) async {
     guard let rec, text == nil else { return }
     let r = rec.result
+    // "A longer questionnaire comes next" only when one was actually offered (cooldown).
+    let phq9Next = r.nextStep != "offer_phq9" || app.store.openInbox().contains { $0.type == "questionnaire" && $0.instrument == "PHQ9" }
     let contributors = app.latestRecord?.contributors.map(\.phrase) ?? []
     let input: [String: Any] = [
       "instrument": rec.instrument, "total": r.total, "band": r.band.map { $0 as Any } ?? NSNull(),
       "changeFromReference": r.changeFromReference.map { $0 as Any } ?? NSNull(), "flagged": r.flagged,
-      "contributors": contributors, "nextStep": Copy.nextText[r.nextStep] ?? "",
+      "contributors": contributors, "nextStep": phq9Next ? (Copy.nextText[r.nextStep] ?? "") : Copy.phq9Recent,
     ]
     let res = await app.router.run("C", input: input)
     if res.ok, let obj = JSONText.object(res.json ?? "") as? [String: Any], let e = obj["explanation"] as? String {
       text = (e, res.ranOn)
     } else {
-      text = (Copy.resultTemplate(r), "template")
+      text = (Copy.resultTemplate(r, phq9Next: phq9Next), "template")
     }
   }
 }

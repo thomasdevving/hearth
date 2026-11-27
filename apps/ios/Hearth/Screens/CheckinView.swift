@@ -156,7 +156,12 @@ struct CheckinView: View {
     let sub = AppModel.CheckinSubmission(mood_low: vals["mood_low"] ?? 1, enjoyment: vals["enjoyment"] ?? 1, energy: vals["energy"] ?? 1, company: who, personal: personal, freeText: text.isEmpty ? nil : text)
     let res = await app.completeCheckin(id: id, sub)
     busy = false
-    if res.safety { return }
+    // The safety screen is open; coming back shows the saved state, never an editable copy that
+    // could be saved (and logged) a second time.
+    if res.safety {
+      done = "Your answers are saved."
+      return
+    }
     // "What helped me last time": recall by meaning, on this device, from what was just written.
     let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
     recall = t.isEmpty ? HelpedRecall.none : await app.recallFromText(t)

@@ -64,6 +64,7 @@ export function ContextConfirm({ params }: { params: Record<string, string> }) {
   if (item.type !== "context_confirm" || !label) return null;
   const picker = !label.type;
   const kind = CONTEXT_TABLE[label.type]?.kind;
+  const datesOk = !!label.start && !!label.end && label.start <= label.end;
   return (
     <Screen title={picker ? "Is something changing your routine?" : "One quick check"} back="home" badge={!picker ? <ModelBadge ranOn={item.ranOn === "none" ? "template" : item.ranOn} /> : undefined}>
       {!picker && (
@@ -87,12 +88,13 @@ export function ContextConfirm({ params }: { params: Record<string, string> }) {
       )}
       <div className="row">
         <label>
-          From <input type="date" value={label.start} onChange={(e) => setLabel({ ...label, start: e.target.value })} />
+          From <input type="date" value={label.start} max={label.end || undefined} onChange={(e) => setLabel({ ...label, start: e.target.value })} />
         </label>
         <label>
-          until <input type="date" value={label.end} onChange={(e) => setLabel({ ...label, end: e.target.value })} />
+          until <input type="date" value={label.end} min={label.start || undefined} onChange={(e) => setLabel({ ...label, end: e.target.value })} />
         </label>
       </div>
+      {!datesOk && <p className="muted" role="alert">The end date must be on or after the start date.</p>}
       {label.type && (
         <p className="muted">
           {kind === "explains_sensors"
@@ -103,7 +105,7 @@ export function ContextConfirm({ params }: { params: Record<string, string> }) {
       <div className="row">
         <button
           className="primary"
-          disabled={!label.type}
+          disabled={!label.type || !datesOk}
           onClick={async () => {
             await confirmContextLabel({ ...label, source: picker ? "manual" : label.source }, item.id);
             navigate("home");

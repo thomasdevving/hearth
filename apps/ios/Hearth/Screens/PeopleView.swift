@@ -9,6 +9,7 @@ struct PeopleView: View {
   @State private var loaded = false
   @State private var picking: Int?
   @State private var saved = false
+  @State private var error: String?
 
   var body: some View {
     ScreenScroll(title: "My people") {
@@ -29,8 +30,19 @@ struct PeopleView: View {
       if rows.count < People.max {
         Button("Add another person") { rows.append(People.Draft()) }.buttonStyle(.secondary)
       }
-      Button("Save on this iPhone") { People.save(rows, store: app.store); app.changed(); saved = true }.buttonStyle(.primary)
+      Button("Save on this iPhone") {
+        // A number with fewer than 3 digits would show Call and Message buttons that dial nothing.
+        if let bad = rows.first(where: { !$0.phone.trimmingCharacters(in: .whitespaces).isEmpty && $0.phone.filter(\.isNumber).count < 3 }) {
+          let who = bad.name.trimmingCharacters(in: .whitespaces)
+          error = "Check the phone number for \(who.isEmpty ? "this person" : who): it needs at least a few digits."
+          saved = false
+          return
+        }
+        error = nil
+        People.save(rows, store: app.store); app.changed(); saved = true
+      }.buttonStyle(.primary)
       if saved { Text("Saved on this iPhone.").foregroundStyle(Theme.steady) }
+      if let error { Text(error).foregroundStyle(Theme.changed) }
     }
     .onAppear {
       guard !loaded else { return }

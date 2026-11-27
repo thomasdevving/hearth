@@ -181,6 +181,9 @@ extension AppModel {
     if let src = store.all(PlanSource.self).first { src.warning = warning; src.helps = helps } else {
       store.context.insert(PlanSource(warning: warning, helps: helps))
     }
+    // The user's own smaller versions stay with their action when the plan is saved again.
+    var smaller: [String: String] = [:]
+    for a in store.all(PlanAction.self).compactMap(\.value) { if let s = a.smaller, !s.isEmpty { smaller[a.text.lowercased()] = s } }
     for r in store.all(PlanRule.self) { store.context.delete(r) }
     for r in store.all(PersonalItem.self) { store.context.delete(r) }
     for r in store.all(PlanAction.self) { store.context.delete(r) }
@@ -205,7 +208,9 @@ extension AppModel {
     }
     for (i, a) in plan.actions.enumerated() where keepActions[safe: i] == true {
       let id = newId("action")
-      store.context.insert(PlanAction(id: id, json: JSONText.encode(["id": id, "text": a.text, "quote": a.quote, "active": true])))
+      var obj: [String: Any] = ["id": id, "text": a.text, "quote": a.quote, "active": true]
+      if let s = smaller[a.text.lowercased()] { obj["smaller"] = s }
+      store.context.insert(PlanAction(id: id, json: JSONText.encode(obj)))
     }
     settings.planDone = true
     changed()

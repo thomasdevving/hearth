@@ -4,7 +4,7 @@ import { db, updateSettings } from "../store/db";
 import { Card, ModelBadge, Screen } from "../ui/kit";
 import { navigate } from "../app/events";
 import { router } from "../inference";
-import { resultTemplate } from "../app/templates";
+import { PHQ9_RECENT, resultTemplate } from "../app/templates";
 import { finishOnboardingDay } from "../app/actions";
 import { openInbox } from "../app/runtime";
 
@@ -25,7 +25,10 @@ export function Result({ params }: { params: Record<string, string> }) {
       const r = (await db.questionnaires.get(params.id)) ?? null;
       setRec(r);
       if (!r) return;
-      setPhq9Open((await openInbox()).some((i) => i.type === "questionnaire" && i.instrument === "PHQ9"));
+      const open9 = (await openInbox()).some((i) => i.type === "questionnaire" && i.instrument === "PHQ9");
+      setPhq9Open(open9);
+      // "A longer questionnaire comes next" only when one was actually offered.
+      const phq9Next = r.result.nextStep !== "offer_phq9" || open9;
       const last = (await db.day_records.orderBy("date").last()) ?? null;
       const input = {
         instrument: r.instrument,
@@ -34,11 +37,11 @@ export function Result({ params }: { params: Record<string, string> }) {
         changeFromReference: r.result.changeFromReference,
         flagged: r.result.flagged,
         contributors: last?.contributors.map((c) => c.phrase) ?? [],
-        nextStep: NEXT_TEXT[r.result.nextStep],
+        nextStep: phq9Next ? NEXT_TEXT[r.result.nextStep] : PHQ9_RECENT,
       };
       // Task C sees only the total, band and change, never the item answers (docs/06 §1).
       const res = await router().run<{ explanation: string }>("C", input);
-      setText(res.ok ? { body: res.value.explanation, ranOn: res.ranOn } : { body: resultTemplate(r.result), ranOn: "template" });
+      setText(res.ok ? { body: res.value.explanation, ranOn: res.ranOn } : { body: resultTemplate(r.result, phq9Next), ranOn: "template" });
     })();
   }, [params.id]);
   if (!rec) return <Screen title="Result">Loading…</Screen>;

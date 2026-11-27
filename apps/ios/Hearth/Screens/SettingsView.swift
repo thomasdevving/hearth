@@ -6,6 +6,7 @@ struct SettingsView: View {
   @Environment(AppModel.self) private var app
   @State private var msg: String?
   @State private var confirmDelete = false
+  @State private var healthError: String?
 
   var body: some View {
     let _ = app.revision
@@ -54,13 +55,20 @@ struct SettingsView: View {
       if !s.healthAuthorized {
         Button("Allow Health access") {
           Task {
-            try? await HealthKitCollector.shared.requestAuthorization()
-            s.healthAuthorized = true
-            app.changed()
-            await app.runDaily(reason: "settings")
+            do {
+              try await HealthKitCollector.shared.requestAuthorization()
+              healthError = nil
+              s.healthAuthorized = true
+              app.changed()
+              await app.runDaily(reason: "settings")
+            } catch {
+              // Only a request that went through hides the button.
+              healthError = "Health access could not be requested on this device. You can allow it in the Health app under Sharing → Apps → Hearth."
+            }
           }
         }
         .buttonStyle(.secondary)
+        if let healthError { Muted(healthError) }
       }
       Muted("Health access can also be changed in the Health app under Sharing → Apps → Hearth.")
 

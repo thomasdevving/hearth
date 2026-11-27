@@ -159,6 +159,9 @@ final class InferenceRouter {
           } else if target == "on_device" {
             text = try await OnDeviceModel.generate(instructions: prompt.text + liteNote, prompt: message, schema: schema, name: "Task\(schemaId)")
           } else {
+            // What goes out, recorded before the call so a refused or failed request is in the
+            // ledger with its payload too (it still left the device).
+            payload = Self.cloudText(prompt: prompt.text, message: message)
             let r = try await CloudModel.generate(instructions: prompt.text, prompt: message, schema: schema, name: "Task\(schemaId)")
             text = r.text; payload = r.payload
           }

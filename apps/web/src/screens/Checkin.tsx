@@ -79,7 +79,11 @@ export function Checkin({ params }: { params: Record<string, string> }) {
     setBusy(true);
     const res = await completeCheckin(rec.id, a, { expectedContext });
     setBusy(false);
-    if (res.safety) return;
+    // The safety screen is open; coming back shows the saved state, never an editable copy.
+    if (res.safety) {
+      setDone("Your answers are saved.");
+      return;
+    }
     setSupport(res.support);
     // "What helped me last time": recall by meaning, on this device, from what was just written.
     setRecall(a.freeText?.trim() ? await recallFromText(a.freeText) : { matches: [], ranOn: "none" });

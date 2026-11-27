@@ -105,7 +105,31 @@ struct PlanSetupView: View {
     return out
   }
 
-  private func show(_ plan: VerifiedPlan, ranOn: String) {
+  private func show(_ fresh: VerifiedPlan, ranOn: String) {
+    // Editing: the cards already saved come back, ticked, next to the new ones, so saving never
+    // drops a sign, question or action the user did not untick.
+    var plan = fresh
+    var existingPlaces: [Int: (lat: Double, lon: Double, name: String)] = [:]
+    if !first {
+      let known = app.engineState?.places ?? []
+      let rules = app.store.all(PlanRule.self).compactMap(\.value).filter(\.active)
+      var merged: [VerifiedRule] = []
+      for r in rules {
+        let place = r.placeId.flatMap { id in known.first { $0.id == id } }
+        if place != nil { existingPlaces[merged.count] = (place!.lat, place!.lon, place!.label ?? "a place you visit") }
+        merged.append(VerifiedRule(feature: r.feature, direction: r.direction, place_label: place?.label, quote: r.quote))
+      }
+      for r in fresh.rules where !merged.contains(where: { $0.feature == r.feature && $0.place_label == r.place_label }) { merged.append(r) }
+      var items = app.store.all(PersonalItem.self).compactMap(\.value).filter(\.active).map { VerifiedItem(question: $0.question, quote: $0.quote) }
+      for it in fresh.personal_checkin_items where !items.contains(where: { $0.question.lowercased() == it.question.lowercased() }) { items.append(it) }
+      var acts = app.store.all(PlanAction.self).compactMap(\.value).filter(\.active).map { VerifiedAction(text: $0.text, quote: $0.quote) }
+      for a in fresh.actions where !acts.contains(where: { $0.text.lowercased() == a.text.lowercased() }) { acts.append(a) }
+      plan = VerifiedPlan(rules: merged, personal_checkin_items: items, actions: acts, dropped: fresh.dropped, valid: fresh.valid)
+    }
+    // Saved places keep their spot; new place cards start without one.
+    places = [:]
+    placeNames = [:]
+    for (i, p) in existingPlaces { places[i] = (p.lat, p.lon); placeNames[i] = p.name }
     keepRules = plan.rules.map { _ in true }
     keepItems = plan.personal_checkin_items.map { _ in true }
     keepActions = plan.actions.map { _ in true }
@@ -182,6 +206,14 @@ struct PlanSetupView: View {
   private var fallbackView: some View {
     ScreenScroll(title: "Your plan") {
       Text("The on-device model is not available, so fill this in by hand. It stays on this iPhone.")
+      let wrote = [warning.trimmed, helps.trimmed].filter { !$0.isEmpty }.joined(separator: " ")
+      if !wrote.isEmpty {
+        Card(tone: .plain) {
+          Muted("You wrote")
+          Text("“\(wrote)”").italic().fixedSize(horizontal: false, vertical: true)
+          Button("Edit my text") { mode = .write }.buttonStyle(.link)
+        }
+      }
       SectionTitle(text: "Which of these happen when things start to slip?")
       SuggestionPicker(picked: $picked)
       ForEach(Array(Copy.placeSigns.enumerated()), id: \.offset) { i, m in
@@ -189,6 +221,16 @@ struct PlanSetupView: View {
       }
       TextArea(label: "Other signs to ask about in check-ins (one per line, e.g. “Did you reply to messages today”)", text: $manualItems)
       TextArea(label: "What helps you (one per line)", text: $manualActions)
+        .onAppear {
+          // What the user already wrote under "What helps" starts the list, one per line.
+          if manualActions.trimmed.isEmpty && !helps.trimmed.isEmpty {
+            manualActions = helps
+              .components(separatedBy: CharacterSet(charactersIn: "\n.!?"))
+              .map { $0.trimmingCharacters(in: .whitespaces) }
+              .filter { !$0.isEmpty }
+              .joined(separator: "\n")
+          }
+        }
       Button("Next") {
         var plan = suggestionPlan()
         for (i, m) in Copy.placeSigns.enumerated() where manualPlaces[i] {
@@ -208,7 +250,11 @@ struct PlanSetupView: View {
 
   private func save(_ plan: VerifiedPlan, rules: [Bool], items: [Bool], actions: [Bool]) {
     app.savePlan(warning: warning, helps: helps, plan: plan, keepRules: rules, keepItems: items, keepActions: actions, places: places)
-    if first || !app.settings.baselineDone {
+    if first {
+      // First run: RootView swaps its root to the baseline PHQ-9 once the plan is saved, so
+      // pushing it as well would stack it twice (Back would land on a duplicate).
+      app.path.removeAll()
+    } else if !app.settings.baselineDone {
       app.path = [.baselinePhq]
     } else {
       app.path.removeAll()

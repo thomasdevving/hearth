@@ -101,7 +101,8 @@ export function Why({ params }: { params: Record<string, string> }) {
       scales: { x: { time: true } },
       axes: (() => {
         const a = axes("");
-        a[1] = { ...a[1], label: undefined, size: 64, values: (_u, vals) => vals.map((v) => fmt(feature, v)) };
+        // Wide enough for the longest tick label ("3.5 in 7 days"), so no number is cut off.
+        a[1] = { ...a[1], label: undefined, size: (_u, vals) => Math.max(48, ...(vals ?? []).map((v) => String(v).length * 7 + 18)), values: (_u, vals) => vals.map((v) => fmt(feature, v)) };
         return a;
       })(),
       series: [

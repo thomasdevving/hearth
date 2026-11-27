@@ -52,6 +52,22 @@ export function Weekly({ params }: { params: Record<string, string> }) {
   const write = async () => {
     if (!weeks.length) return;
     setBusy(true);
+    try {
+      await writeReflection();
+    } finally {
+      setBusy(false);
+    }
+  };
+  const writeReflection = async () => {
+    // With the cloud allowed but the first upload not yet reviewed, the weeks stay on this device:
+    // "Nothing is sent until you confirm" holds for Gemini too.
+    const s = await getSettings();
+    if (s.cloudConsent && !s.firstUploadConfirmed) {
+      const r: Reflection = { ...weeklyTemplate(weeks), ranOn: "template", variant: null };
+      setRef(r);
+      await saveReport("weekly", { reflection: r.reflection, open_question: r.open_question, isoWeek: latest }, r.ranOn, `D@${promptFor("D").version}`, r.variant);
+      return;
+    }
     const res = await router().run<{ reflection: string; open_question: string }>("D", { variant: "full", "number of weeks": weeks.length, weeks: weeks.map((w) => readableWeek(w)) }, {
       // The number of weeks is a fact from code, so the model may say "12 weeks" (R2, number
       // check). Weeks go in plain words (readableWeek), oldest first.
@@ -64,12 +80,17 @@ export function Weekly({ params }: { params: Record<string, string> }) {
     const r: Reflection = res.ok ? { ...res.value, ranOn: res.ranOn, variant } : { ...weeklyTemplate(weeks), ranOn: "template", variant: null };
     setRef(r);
     await saveReport("weekly", { reflection: r.reflection, open_question: r.open_question, isoWeek: latest }, r.ranOn, `D@${promptFor("D").version}`, r.variant);
-    setBusy(false);
   };
   useEffect(() => {
     if (latest && !ref && !params.preview) void write();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latest]);
+  // Right after the first upload is confirmed, write the reflection again, now with Gemini.
+  const confirmed = d?.settings.firstUploadConfirmed ?? false;
+  useEffect(() => {
+    if (confirmed && ref?.ranOn === "template" && !params.preview && !busy) void write();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [confirmed, params.preview]);
 
   if (!d) return <Screen title="Weekly reflection">Loading…</Screen>;
   if (params.preview) return <Preview weeks={d.weeks.filter((w) => !w.uploaded).map((w) => w.aggregate)} />;
@@ -77,6 +98,12 @@ export function Weekly({ params }: { params: Record<string, string> }) {
     <Screen title="Weekly reflection" back="home" badge={ref ? <ModelBadge ranOn={ref.ranOn} /> : undefined}>
       {weeks.length === 0 && <p className="muted">No finished week yet.</p>}
       {!d.settings.cloudConsent && <p className="muted">{cloudConfigured ? "Allow the cloud model in Settings for a longer reflection by Gemini." : "A short summary, written on this device."}</p>}
+      {d.settings.cloudConsent && !d.settings.firstUploadConfirmed && weeks.length > 0 && (
+        <p className="muted">
+          Gemini writes a longer reflection once you have checked what would be shared.{" "}
+          <a href="#/weekly?preview=1">Review what would be shared</a>
+        </p>
+      )}
       {ref && (
         <>
           {ref.variant === "lite" && <p className="muted">Short version, written on this device (you are offline or the cloud was not reachable).</p>}
