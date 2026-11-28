@@ -22,13 +22,15 @@ voice-over in any editor (CapCut, iMovie, Premiere, DaVinci).
 | 2 | One sentence, repeated at the end | 0:24 and 2:50 (same sentence) |
 | 3 | A real, live demo with visible effect | 0:30–1:58, the real web app at 1×; then the GP page, 1:58–2:08 |
 | 4 | The agent catches or verifies a mistake, and you say so | 0:44–0:49 "Caught and checked" (quote check); 1:30 recall with a checked quote and Sam's confirmation |
-| 5 | Sponsor models by name, each with a role, architecture slide | 2:26–2:35 |
-| 6 | Human control, safety, privacy | 2:35–2:42 (and in the demo at 0:49, 0:58, 1:43, 1:48 and 1:54) |
+| 5 | Sponsor models by name, each with a role, architecture slide | 2:32–2:42 |
+| 6 | Human control, safety, privacy | 2:32–2:42, a row under the architecture (and in the demo at 0:49, 0:58, 1:43, 1:48 and 1:54) |
 | 7 | Hard numbers | 2:42–2:50 |
 | 8 | Tagline, sponsor, GitHub, QR (to the website), under the limit | 2:50–2:58 |
 
-After the demo: the GP page (1:58–2:08). The tech and theory sit between that and the
-architecture: what Hearth watches (2:08–2:16) and what counts as a drift (2:16–2:26).
+After the demo: the GP page (1:58–2:08). Then the part that should make the jury trust it:
+every signal with its published source (2:08–2:19) and the maths (2:19–2:32). From the
+signals onward, a quiet pill in the bottom right says "See the science behind it →
+hearth-9de01.web.app/science"; the close repeats it under the GitHub link.
 
 ## Script
 
@@ -75,24 +77,34 @@ questionnaires, and the FHIR R4 copy.
 > VO: "For Sam's GP: the plan on one page, each sign in Sam's own words, and a FHIR copy for
 > the practice, made on the device."
 
-### 2:08–2:16 · What Hearth watches, and why
-> VO: "Hearth watches signals research links to harder periods, against your own usual
-> days, and learns which ones matter most for you."
+### 2:08–2:19 · Every signal comes from published research
+Seven tiles (sleep, activity, daily rhythm, heart, places, phone use, check-ins and words),
+each with its direction arrows, one finding and its source (Baglioni 2011, Schuch 2018,
+Lyall 2018, Kemp 2010 and Siddi 2023, Saeb 2015 and Meyerhoff 2021, Eichstaedt 2018), and a
+tile "How they count". The science pill appears after a second.
 
-### 2:16–2:26 · What counts as a drift, and how Hearth helps
-The chart is Sam's real index from the engine. Day 107 spikes but the trend stays inside
-Sam's usual range; on day 109 the trend crosses.
+> VO: "Every signal comes from published research: sleep timing, activity, places, daily
+> rhythm and heart rate. Each one is compared only with your own usual days."
 
-> VO: "Not one bad day: day 107 changed nothing. Only when the trend leaves Sam's range
-> does Hearth step in."
+### 2:19–2:32 · The maths: statistical process control
+Left: Sam's real index from the engine. Day 107 spikes but the trend stays inside Sam's
+usual range; on day 109 the trend crosses. Right, one by one: a robust score per signal
+(z = (today − your median) / (1.4826 · MAD), last 56 usual days, weekdays apart), only the
+direction that matters (personal weights mentioned here, on screen only), EWMA and CUSUM
+trend tests, and "no new normal". Under the chart: the PHQ-2 and PHQ-9 are word for word and
+no model scores them.
 
-### 2:26–2:35 · Architecture
-> VO: "Hybrid through Firebase AI Logic. Code computes every score. Gemini Nano handles your
-> words on the device; cloud Gemini sees only weekly numbers, after you opt in."
+> VO: "The maths is quality control: robust scores against your last eight weeks, then EWMA
+> and CUSUM trend tests. Changed days never join the baseline, so a slow decline can't
+> become normal."
 
-### 2:35–2:42 · Control, safety and privacy
-> VO: "You confirm every card. The cloud stays off until you say yes, and the 988 screen
-> works offline."
+### 2:32–2:42 · Architecture, control and privacy
+The architecture slide, with a row of five checks underneath: you confirm every card, cloud
+off until you say yes, notes count only after a yes, the 988 screen works offline, not a
+diagnosis.
+
+> VO: "Code computes every score. Gemini Nano reads your words on the device; cloud Gemini
+> sees only weekly numbers, after you opt in. You confirm every card."
 
 ### 2:42–2:50 · Numbers
 > VO: "On fifty simulated people: drift noticed in a median of seven days, one false-alarm
@@ -105,9 +117,10 @@ tuning. Swap it in only if the tuned prompt reaches its target.
 
 ### 2:50–2:58 · Close (optional small WEBCAM)
 > VO / WEBCAM: "When your days drift, Hearth notices. Built with Firebase AI Logic and Gemini.
-> Scan to try it."
+> See the science behind it below."
 
-The QR code opens https://hearth-9de01.web.app; the GitHub link is shown under it.
+The QR code opens https://hearth-9de01.web.app. Under it: the GitHub link and "See the
+science behind it: hearth-9de01.web.app/science".
 
 ## Before you submit
 

@@ -26,6 +26,16 @@ const ONE_LINER = "Hearth notices when your days drift from your usual pattern, 
 const GITHUB = "github.com/thomasdevving/hearth";
 const SITE = "hearth-9de01.web.app";
 const SCIENCE_URL = "hearth-9de01.web.app/science";
+/** A quiet pill in the bottom right: the science page, for anyone who wants every formula and source. */
+function sciencePill(alpha = 1) {
+  g.save(); g.globalAlpha *= alpha;
+  const l = "See the science behind it \u2192 " + SCIENCE_URL;
+  g.font = font(600, 21);
+  const w = g.measureText(l).width + 44;
+  rr(1800 - w, 1032, w, 40, 20, "rgba(255,255,255,.92)", "#f3c1dc", 1.5);
+  text(l, 1800 - w + 22, 1059, font(600, 21), C.deep);
+  g.restore();
+}
 
 function text(str, x, y, f, color, align = "left") { g.font = f; g.fillStyle = color; g.textAlign = align; g.textBaseline = "alphabetic"; g.fillText(str, x, y); }
 /** Text centred exactly on (cx, cy), using the glyphs' real bounds. */
@@ -113,7 +123,7 @@ function layout(marks) {
   }
   let cur = 0;
   const seg = (name, len) => { T[name] = [cur, cur + len]; cur += len; };
-  seg("hook", 16); seg("problem", 8); seg("oneliner", 6); seg("demo", demoLen); seg("gp", 10); seg("watches", 8); seg("theory", 10); seg("arch", 9.5); seg("control", 7); seg("numbers", 8); seg("close", 8);
+  seg("hook", 16); seg("problem", 8); seg("oneliner", 6); seg("demo", demoLen); seg("gp", 10); seg("watches", 11); seg("theory", 13); seg("arch", 10.5); seg("numbers", 8); seg("close", 8);
   TOTAL = cur;
 }
 
@@ -263,7 +273,7 @@ function watches(t) {
   bg(0.0);
   const s = t - T.watches[0];
   label("What Hearth watches, and why", 120, 110);
-  text("Every signal that research links to harder periods", 120, 175, font(700, 48, "Syne"), C.ink);
+  text("Every signal comes from published research", 120, 175, font(700, 48, "Syne"), C.ink);
   const G = [
     { name: "Sleep", src: "watch, or phone stillness", sig: [["↕", "sleep length"], ["→", "later (or earlier) sleep"], ["↓", "regular sleep times"]], why: "Insomnia about doubles the odds of later depression.", cite: "Baglioni 2011, 21 studies" },
     { name: "Activity", src: "phone steps", sig: [["↓", "steps"], ["↓", "active hours"], ["↓", "walking pace"]], why: "Active people have lower odds of later depression (OR 0.83).", cite: "Schuch 2018, 49 cohorts" },
@@ -299,13 +309,13 @@ function watches(t) {
     let yy = y + 100;
     lines.forEach((l) => { yy = wrap(l, x + 26, yy, cw - 52, font(500, 21), C.ink, 28) + 44; });
   });
-  fade(ease((s - 6) / 0.6), () => text("Read more: " + SCIENCE_URL, 120, 1055, font(700, 24), C.mag));
+  fade(ease((s - 1) / 0.8), () => sciencePill());
 }
 
 function theory(t) {
   bg(0.0);
   const s = t - T.theory[0];
-  label("What counts as a drift, and what Hearth does then", 120, 120);
+  label("The maths: statistical process control", 120, 120);
   text("Not one bad day: a change that lasts", 120, 190, font(700, 52, "Syne"), C.ink);
   // left: Sam's own index, days 84-116, against Sam's own usual range
   const x0 = 120, y0 = 250, w = 900, h = 400, d0 = 84, d1 = 116;
@@ -357,29 +367,23 @@ function theory(t) {
     chips.forEach((c) => { g.font = font(600, 22); const cw = g.measureText(c).width + 40; rr(cx, 735, cw, 50, 25, C.tint, "#f3c1dc", 1.5); text(c, cx + 20, 768, font(600, 22), C.deep); cx += cw + 12; });
     text("Several of Sam\u2019s signals, for several days. Three are signs Sam wrote down.", x0, 830, font(400, 22), C.ink2);
   });
-  // right: how Hearth helps
+  // right: how it is computed (docs/04 §3–5)
   const steps = [
-    ["Asks, briefly", "A 20-second check-in that says what changed."],
-    ["Opens Sam\u2019s own plan", "\u201cCall my sister\u201d \u00b7 \u201cA walk in the morning\u201d"],
-    ["Checks if it lasts", "Only then a short validated questionnaire, word for word."],
-    ["Support, if Sam wants", "A summary to share with a GP or therapist. 988 always one tap away."],
+    ["A robust score per signal", "z = (today \u2212 your median) / (1.4826 \u00b7 MAD), over your last 56 usual days, weekdays apart from weekends."],
+    ["Only the direction that matters", "Later sleep counts, earlier does not. Signals in one domain are averaged; your own signs, and those that went with your low check-ins, weigh more."],
+    ["Trend tests, not single days", "EWMA and CUSUM, the textbook tools of quality control, on the daily index."],
+    ["No new normal", "Changed days never join your baseline, so a slow decline cannot become your usual."],
   ];
-  fade(ease((s - 5.2) / 0.6), () => text("Then Hearth helps", 1080, 300, font(700, 36, "Syne"), C.ink));
-  steps.forEach(([a, b], k) => fade(ease((s - 5.6 - k * 0.6) / 0.5), () => {
-    const y = 340 + k * 135;
+  fade(ease((s - 4.4) / 0.6), () => text("How it is computed", 1080, 300, font(700, 36, "Syne"), C.ink));
+  steps.forEach(([a, b], k) => fade(ease((s - 4.8 - k * 1.1) / 0.5), () => {
+    const y = 340 + k * 150;
     g.beginPath(); g.arc(1102, y + 32, 22, 0, Math.PI * 2); g.fillStyle = C.mag; g.fill();
     centred(String(k + 1), 1102, y + 32, font(800, 24, "Syne"), "#fff");
     text(a, 1145, y + 40, font(700, 28), C.ink);
-    wrap(b, 1145, y + 78, 640, font(400, 23), C.ink2, 31);
+    wrap(b, 1145, y + 76, 650, font(400, 22), C.ink2, 29);
   }));
-  fade(ease((s - 8.0) / 0.6), () => {
-    g.font = font(700, 28);
-    const l2 = "Read more: " + SCIENCE_URL;
-    const bw = g.measureText(l2).width + 60;
-    rr(120, 900, bw, 70, 35, C.mag);
-    text(l2, 150, 945, font(700, 28), "#fff");
-    text("The signals, every formula and every source.", 120 + bw + 28, 945, font(400, 24), C.ink2);
-  });
+  fade(ease((s - 9.5) / 0.6), () => text("Questionnaires are the validated PHQ-2 and PHQ-9, word for word; no model scores them.", 120, 900, font(500, 24), C.ink2));
+  sciencePill();
 }
 
 function box(x, y, w, h, title, body, tone = "plain", tag) {
@@ -396,41 +400,31 @@ function arch(t) {
   label("Architecture", 120, 110);
   text("One SDK, two places to run: Firebase AI Logic hybrid inference", 120, 170, font(700, 44, "Syne"), C.ink);
   fade(ease(s / 0.6), () => {
-    rr(100, 220, 1100, 800, 30, null, C.line, 2);
+    rr(100, 220, 1100, 730, 30, null, C.line, 2);
     text("On your phone or in Chrome", 130, 265, font(700, 26), C.ink2);
     box(130, 290, 1040, 150, "Hearth engine", "Every score, limit and trigger is plain TypeScript. Compared only with your own usual days. The LLM never computes a number.", "engine", "no LLM");
     box(130, 460, 500, 300, "Gemini Nano", "Reads your plan and notes, recognises your own signs in what you write, drafts the check-in line and your texts. Your words go nowhere else.", "device", "on-device");
     box(670, 460, 500, 300, "Guardrails in code", "JSON schema, every quote checked against your text, every number from the engine, no diagnostic words. If a check fails, a fixed text is used.", "plain");
-    box(130, 780, 1040, 210, "InferenceRouter + privacy ledger", "Each task has a privacy class. Your words, notes and places: on-device only, never a cloud fallback. Every call is logged with where it ran and the exact payload.", "plain");
+    box(130, 780, 1040, 150, "InferenceRouter + privacy ledger", "Your words, notes and places: on-device only, never a cloud fallback. Every call is logged with the exact payload.", "plain");
   });
   fade(ease((s - 1.8) / 0.6), () => {
-    rr(1260, 220, 560, 800, 30, null, "#aecaee", 2, [10, 8]);
+    rr(1260, 220, 560, 730, 30, null, "#aecaee", 2, [10, 8]);
     text("Cloud, only after you say yes", 1290, 265, font(700, 26), C.blue);
     box(1290, 290, 500, 330, "Gemini 3.5 Flash", "Via Firebase AI Logic. A weekly reflection and a report for your GP, written from weekly numbers only. Never your words.", "cloud", "cloud");
-    box(1290, 640, 500, 350, "Firebase", "Anonymous Auth, Firestore for weekly numbers, Remote Config for the model and thresholds. Delete your cloud data with one tap.", "plain");
+    box(1290, 640, 500, 290, "Firebase", "Anonymous Auth, Firestore for weekly numbers, Remote Config. Delete your cloud data with one tap.", "plain");
     g.save(); g.strokeStyle = "#7aa6dd"; g.lineWidth = 3; g.setLineDash([10, 8]); g.beginPath(); g.moveTo(1170, 885); g.lineTo(1290, 455); g.stroke(); g.restore();
     rr(1150, 640, 150, 44, 22, "#fff", "#aecaee", 2); text("consent", 1225, 670, font(600, 20), C.blue, "center");
   });
-}
-function control(t) {
-  bg(0.14, "R");
-  const s = t - T.control[0];
-  label("Control, safety and privacy", 120, 140);
-  const cols = [
-    { title: "Sam stays in control", items: ["Untick any card the model made.", "A note only counts after Sam confirms it.", "The cloud is off until Sam says yes.", "Export or delete everything, any time."] },
-    { title: "Safe and private by design", items: ["Words, notes and places never leave the device.", "Every model call is in the privacy ledger.", "Questionnaires word for word; no model scores.", "The 988 support screen works offline."] },
-  ];
-  cols.forEach((c, ci) => fade(ease((s - ci * 1.2) / 0.6), () => {
-    const x = 120 + ci * 850;
-    text(c.title, x, 250, font(700, 48, "Syne"), C.ink);
-    c.items.forEach((it, i) => fade(ease((s - ci * 1.2 - 0.4 - i * 0.5) / 0.5), () => {
-      const y = 340 + i * 120;
-      g.beginPath(); g.arc(x + 16, y - 12, 16, 0, Math.PI * 2); g.fillStyle = C.tint; g.fill();
-      g.save(); g.strokeStyle = C.mag; g.lineWidth = 3.5; g.lineCap = "round"; g.beginPath(); g.moveTo(x + 8, y - 12); g.lineTo(x + 14, y - 6); g.lineTo(x + 25, y - 19); g.stroke(); g.restore();
-      wrap(it, x + 52, y, 700, font(500, 32), C.ink, 42);
-    }));
+  // Control, safety and privacy, folded into the architecture (was its own slide).
+  const chips = ["You confirm every card", "Cloud off until you say yes", "Notes count only after a yes", "988 screen works offline", "Not a diagnosis"];
+  g.font = font(600, 22);
+  let cx = 100;
+  const placed = chips.map((c) => { const w = g.measureText(c).width + 64; const x = cx; cx += w + 14; return [c, x, w]; });
+  placed.forEach(([c, x, w], i) => fade(ease((s - 4.5 - i * 0.5) / 0.5), () => {
+    rr(x, 968, w, 46, 23, C.tint, "#f3c1dc", 1.5);
+    g.save(); g.strokeStyle = C.mag; g.lineWidth = 3; g.lineCap = "round"; g.beginPath(); g.moveTo(x + 18, 991); g.lineTo(x + 24, 997); g.lineTo(x + 34, 985); g.stroke(); g.restore();
+    text(c, x + 44, 999, font(600, 22), C.deep);
   }));
-  fade(ease((s - 5) / 0.6), () => text("Hearth is a companion for noticing, not a diagnosis and not a crisis service.", 120, 940, font(400, 26), C.muted));
 }
 function numbers(t) {
   bg(0.0);
@@ -468,6 +462,7 @@ function close(t) {
     text("#BuildHybridAI 2026", 140, 748, font(500, 28), C.ink2);
     text(SITE, 140, 820, font(700, 32), C.mag);
     text("Code: " + GITHUB, 140, 870, font(500, 26), C.ink2);
+    text("See the science behind it: " + SCIENCE_URL, 140, 920, font(600, 26), C.deep);
     rr(1300, 160, 380, 440, 28, "#fff", C.line, 2);
     g.drawImage(QR, 1330, 190, 320, 320);
     text("Try Hearth", 1490, 560, font(700, 26), C.ink, "center");
@@ -484,8 +479,7 @@ async function render(t) {
   else if (t < T.watches[0]) gp(t);
   else if (t < T.theory[0]) watches(t);
   else if (t < T.arch[0]) theory(t);
-  else if (t < T.control[0]) arch(t);
-  else if (t < T.numbers[0]) control(t);
+  else if (t < T.numbers[0]) arch(t);
   else if (t < T.close[0]) numbers(t);
   else close(t);
   // cross-fade from white at each section start
