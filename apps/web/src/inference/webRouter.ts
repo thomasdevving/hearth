@@ -88,7 +88,8 @@ export class WebInferenceRouter implements InferenceRouter {
   private async runOne<T>(task: AnyTask, input: object, opts: RunOptions): Promise<TaskResult<T>> {
     const def = TASKS[(task === "Q_classify" || task === "Q_phrase" ? "Q" : task) as TaskId];
     const promptId = task === "Q" ? "Q_classify" : task;
-    const prompt = promptFor(promptId);
+    const builtIn = promptFor(promptId);
+    const prompt = opts.promptText?.trim() ? { ...builtIn, text: opts.promptText.trim(), version: "custom" } : builtIn;
     const schemaId = (task === "Q" ? "Q_classify" : task) as keyof typeof schemas;
     // The question in "ask your data" is raw free text: on-device only (R3).
     const dataClass = task === "Q_classify" || task === "Q" ? Q_CLASSIFY_CLASS : def.dataClass;

@@ -4,7 +4,7 @@ import { Screen } from "../ui/kit";
 import { router } from "../inference";
 import { cfg } from "../app/runtime";
 import { db } from "../store/db";
-import { G_CASES, scoreCase, summarise, type GCaseResult } from "../eval/taskG";
+import { G_CASES, G_SETS, scoreCase, summarise, type GCaseResult, type GSetId } from "../eval/taskG";
 import { promptFor } from "../inference/prompts";
 import { H_CASES, H_TODAY, ledgerStats, scoreH } from "../eval/stats";
 import { useData } from "../ui/hooks";
@@ -17,14 +17,21 @@ export function EvalG() {
   const [results, setResults] = useState<GCaseResult[]>([]);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
+  // Prompt tuning on the device (2026-11-28): another system prompt for task G, this screen only.
+  const builtIn = promptFor("G");
+  const [promptText, setPromptText] = useState(builtIn.text);
+  const [setId, setSetId] = useState<GSetId>("all");
+  const [ranWith, setRanWith] = useState<{ prompt: string; set: GSetId } | null>(null);
+  const custom = promptText.trim() !== builtIn.text.trim();
   const run = async () => {
     setBusy(true);
     setResults([]);
+    setRanWith({ prompt: custom ? "custom prompt" : `built-in G@${builtIn.version}`, set: setId });
     const out: GCaseResult[] = [];
-    for (const c of G_CASES) {
+    for (const c of G_SETS[setId].cases) {
       let raw: unknown = null;
       const t0 = performance.now();
-      const res = await router().run<VerifiedPlan>("G", { text: c.text }, { sourceText: c.text, verify: { sourceText: c.text, cfg }, onRaw: (r) => (raw = r) });
+      const res = await router().run<VerifiedPlan>("G", { text: c.text }, { sourceText: c.text, verify: { sourceText: c.text, cfg }, onRaw: (r) => (raw = r), promptText: custom ? promptText : undefined });
       const ms = Math.round(performance.now() - t0);
       const entry = res.ledgerId ? await db.ledger.get(res.ledgerId) : undefined;
       out.push(scoreCase(c, res.ok ? res.value : null, raw, res.ok ? "ok" : res.reason === "invalid_output" ? "invalid_output" : res.reason === "error" ? "error" : "fallback", res.ok ? res.ranOn : (entry?.ranOn ?? "none"), res.ok ? ms : null));
@@ -66,14 +73,35 @@ export function EvalG() {
     <Screen title="Model evaluation" back="settings">
       <h2>Task G · plans to cards</h2>
       <p className="muted">
-        Runs {G_CASES.length} written plans (eval/task_g.json) through task G with prompt {promptFor("G").id}@{promptFor("G").version}, then scores the cards that pass the guardrails. Everything stays on this device; each run is in the ledger.
+        Runs the {G_CASES.length} written plans (eval/task_g.json), or one part of them, through task G with prompt {builtIn.id}@{builtIn.version} or the one below, then scores the cards that pass the guardrails. Tune a prompt on cases 1–20 and check it once on 21–35. Everything stays on this device; each run is in the ledger.
       </p>
+      <label htmlFor="g-set">Cases</label>
+      <select id="g-set" value={setId} disabled={busy} onChange={(e) => setSetId(e.target.value as GSetId)}>
+        {(Object.keys(G_SETS) as GSetId[]).map((k) => (
+          <option key={k} value={k}>
+            {G_SETS[k].label}
+          </option>
+        ))}
+      </select>
+      <details>
+        <summary>Try another prompt for task G {custom ? "(changed)" : ""}</summary>
+        <p className="muted">For tuning on this device only: the app itself keeps using the built-in prompt. The guardrails and quote check still apply.</p>
+        <textarea aria-label="Prompt for task G" value={promptText} onChange={(e) => setPromptText(e.target.value)} rows={18} style={{ width: "100%", fontFamily: "monospace", fontSize: 13 }} />
+        <button className="secondary" disabled={!custom || busy} onClick={() => setPromptText(builtIn.text)}>
+          Back to the built-in prompt
+        </button>
+      </details>
       <button className="primary" disabled={busy} onClick={run}>
-        {busy ? `Running ${results.length + 1} of ${G_CASES.length}…` : "Run the evaluation"}
+        {busy ? `Running ${results.length + 1} of ${G_SETS[setId].cases.length}…` : "Run the evaluation"}
       </button>
       {results.length > 0 && (
         <>
           <h2>Summary</h2>
+          {ranWith && (
+            <p className="muted">
+              {G_SETS[ranWith.set].label}, {ranWith.prompt}.
+            </p>
+          )}
           <ul className="plain-list">
             <li>Model runs: {s.modelRuns} of {s.cases} (others fell back or failed)</li>
             <li>Rule precision: {pct(s.precision)} (target ≥ 80 %)</li>
@@ -102,6 +130,7 @@ export function EvalG() {
                   <th>Correct</th>
                   <th>Wrong</th>
                   <th>Missed</th>
+                  <th>Questions</th>
                   <th>Quote fails</th>
                   <th>ms</th>
                 </tr>
@@ -112,8 +141,9 @@ export function EvalG() {
                     <td>{r.id}</td>
                     <td>{r.status === "ok" ? r.ranOn : r.status}</td>
                     <td>{r.tp}</td>
-                    <td>{r.predicted.length - r.tp}</td>
-                    <td>{r.expected.length - r.tp}</td>
+                    <td>{r.wrong.length ? `${r.wrong.length}: ${r.wrong.join(", ")}` : 0}</td>
+                    <td>{r.missed.length ? `${r.missed.length}: ${r.missed.join(", ")}` : 0}</td>
+                    <td>{r.questions.length ? `${r.questions.length} of ${r.expectedItems}: ${r.questions.join(" / ")}` : `0 of ${r.expectedItems}`}</td>
                     <td>{r.quoteRejected}</td>
                     <td>{r.latencyMs ?? "–"}</td>
                   </tr>

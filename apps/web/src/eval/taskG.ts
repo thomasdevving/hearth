@@ -10,6 +10,13 @@ export interface GCase {
   actions: string[];
 }
 export const G_CASES: GCase[] = evalSet.cases as GCase[];
+/** Prompt tuning uses cases 1–20 only; 21–35 are kept apart to check the result (docs/10 metric 7). */
+export const G_SETS = {
+  tune: { label: "Tuning set (cases 1–20)", cases: G_CASES.slice(0, 20) },
+  check: { label: "Check set (cases 21–35)", cases: G_CASES.slice(20) },
+  all: { label: "All 35 cases", cases: G_CASES },
+} as const;
+export type GSetId = keyof typeof G_SETS;
 
 export interface GCaseResult {
   id: string;
@@ -18,6 +25,9 @@ export interface GCaseResult {
   predicted: string[]; // accepted rules as keys
   expected: string[];
   tp: number;
+  wrong: string[]; // accepted rules not in the expected mapping
+  missed: string[]; // expected rules not found
+  questions: string[]; // the check-in questions, as written
   rawRules: number;
   quoteRejected: number; // raw rules whose quote is not in the text
   items: number;
@@ -43,13 +53,14 @@ export function scoreCase(c: GCase, plan: VerifiedPlan | null, raw: unknown, sta
   const expected = c.rules.map(([f, d, l]) => ruleKey(f, d, l));
   const predicted = (plan?.rules ?? []).map((r) => ruleKey(r.feature, r.direction, r.place_label));
   const left = [...expected];
+  const wrong: string[] = [];
   let tp = 0;
   for (const p of predicted) {
     const i = left.findIndex((e) => same(p, e));
     if (i >= 0) {
       tp++;
       left.splice(i, 1);
-    }
+    } else wrong.push(p);
   }
   const rawRules = Array.isArray((raw as { rules?: unknown[] })?.rules) ? ((raw as { rules: { quote?: string }[] }).rules) : [];
   return {
@@ -59,6 +70,9 @@ export function scoreCase(c: GCase, plan: VerifiedPlan | null, raw: unknown, sta
     predicted,
     expected,
     tp,
+    wrong,
+    missed: left,
+    questions: (plan?.personal_checkin_items ?? []).map((q) => q.question),
     rawRules: rawRules.length,
     quoteRejected: rawRules.filter((r) => !verifyQuote(r?.quote ?? "", c.text)).length,
     items: plan?.personal_checkin_items.length ?? 0,

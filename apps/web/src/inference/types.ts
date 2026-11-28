@@ -10,6 +10,7 @@ export interface RunOptions {
   variantInput?: (variant: "full" | "lite") => object; // task D: input depends on the variant
   image?: { mimeType: string; data: string }; // base64, task G2 only; never stored
   onRaw?: (raw: unknown, text: string, attempt: number) => void; // evaluation only: the unverified output
+  promptText?: string; // evaluation only (#/eval_g): try another system prompt; logged as "<id>@custom"
 }
 
 /** docs/02 §5: the only way feature code reaches a model (rule R5). */
