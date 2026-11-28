@@ -163,9 +163,11 @@ struct LedgerView: View {
     // Counted by what actually produced the text: a failed model call counts as "without a model".
     let ok = { (e: LedgerEntryValue) in e.outcome == "ok" }
     let device = all.filter { $0.ranOn == "on_device" && ok($0) }.count, cloud = all.filter { $0.ranOn == "cloud" && ok($0) }.count, none = all.filter { $0.ranOn == "none" || !ok($0) }.count
+    // Failed cloud calls still left the device, so they are named next to the counts (web: Ledger.tsx).
+    let cloudFailed = all.filter { $0.ranOn == "cloud" && !ok($0) }.count
     ScreenScroll(title: "Privacy ledger") {
       Muted("Every model call: which task, where it ran and exactly what was sent.")
-      Text("\(device) on this device · \(cloud) in the cloud · \(none) without a model").font(HearthFont.body(16, weight: "Medium"))
+      Text("\(device) on this device · \(cloud) in the cloud · \(none) without a model" + (cloudFailed > 0 ? " (including \(cloudFailed) cloud \(cloudFailed == 1 ? "request" : "requests") that failed)" : "")).font(HearthFont.body(16, weight: "Medium"))
       Toggle("Only show what left this device", isOn: $leftOnly).tint(Theme.magenta)
       if rows.isEmpty { Muted("Nothing yet.") }
       ForEach(all6 ? rows : Array(rows.prefix(6)), id: \.id) { e in

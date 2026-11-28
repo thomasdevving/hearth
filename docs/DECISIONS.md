@@ -1032,3 +1032,21 @@ the iOS Simulator. Only bugs were fixed; no features were added.
   cloud on localhost or in an automated browser can get an App Check 403 (the live site was
   fine before; check it in a normal browser).
 
+
+## When the cloud refuses the browser (2026-11-28)
+
+A run of the live site in a headless browser had App Check return 403 (reCAPTCHA scores such
+browsers low), so Gemini returned 401 and Firestore refused writes. That is expected there,
+but it showed three faults that also hit real users whenever the cloud cannot be reached:
+
+- **Weekly went blank after "Share weekly summaries".** The first upload threw, so the
+  preview never navigated back, the screen kept stale settings, and returning to Weekly wrote
+  nothing (the same screen stays mounted when `?preview=1` is dropped). Now the choice is kept,
+  the failure is caught (`confirmFirstUpload` returns false), the preview always goes back,
+  Weekly writes on return, the plain summary stays visible while the model writes, and a line
+  says which weeks are not shared yet. Test: `apps/web/test/cloudFailure.test.tsx`.
+- **The ledger counts hid failed cloud requests.** "0 in the cloud" next to two "cloud (left
+  this device, failed)" entries read as a contradiction. The counts line now adds "including N
+  cloud requests that failed" (web and iOS).
+- The cloud check in a real Chrome and the Gemini Nano numbers (tasks G, H, B) are still open:
+  both need a normal Chrome on a laptop, the second with the on-device model downloaded.

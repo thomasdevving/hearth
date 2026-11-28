@@ -35,11 +35,22 @@ export async function syncWeeks(): Promise<void> {
   emitChange();
 }
 
-/** The user saw the exact JSON and agreed (first upload). */
-export async function confirmFirstUpload(): Promise<void> {
+/**
+ * The user saw the exact JSON and agreed (first upload). The choice is kept even when the
+ * cloud cannot be reached; the weeks then stay marked "not shared" and go with the next sync.
+ * Returns false when the upload itself failed.
+ */
+export async function confirmFirstUpload(): Promise<boolean> {
   await updateSettings({ firstUploadConfirmed: true });
   for (const i of await openInbox()) if (i.type === "upload_preview") await db.inbox.update(i.id, { status: "done" });
-  await syncWeeks();
+  emitChange();
+  try {
+    await syncWeeks();
+    return true;
+  } catch (e) {
+    console.warn("upload", e);
+    return false;
+  }
 }
 
 export async function saveReport(kind: "weekly" | "clinician", body: unknown, model: "on_device" | "cloud" | "template", promptVersion: string, variant: "full" | "lite" | null): Promise<void> {

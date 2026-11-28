@@ -27,9 +27,12 @@ function Preview({ weeks }: { weeks: WeekAggregate[] }) {
           disabled={busy}
           onClick={async () => {
             setBusy(true);
-            await confirmFirstUpload();
-            setBusy(false);
-            navigate("weekly");
+            try {
+              await confirmFirstUpload();
+            } finally {
+              setBusy(false);
+              navigate("weekly");
+            }
           }}
         >
           Share weekly summaries
@@ -68,6 +71,8 @@ export function Weekly({ params }: { params: Record<string, string> }) {
       await saveReport("weekly", { reflection: r.reflection, open_question: r.open_question, isoWeek: latest }, r.ranOn, `D@${promptFor("D").version}`, r.variant);
       return;
     }
+    // The plain summary stays visible while the model writes, so the screen is never empty.
+    setRef((prev) => prev ?? { ...weeklyTemplate(weeks), ranOn: "template", variant: null });
     const res = await router().run<{ reflection: string; open_question: string }>("D", { variant: "full", "number of weeks": weeks.length, weeks: weeks.map((w) => readableWeek(w)) }, {
       // The number of weeks is a fact from code, so the model may say "12 weeks" (R2, number
       // check). Weeks go in plain words (readableWeek), oldest first.
@@ -81,10 +86,12 @@ export function Weekly({ params }: { params: Record<string, string> }) {
     setRef(r);
     await saveReport("weekly", { reflection: r.reflection, open_question: r.open_question, isoWeek: latest }, r.ranOn, `D@${promptFor("D").version}`, r.variant);
   };
+  // Also on the way back from the preview: the same screen stays mounted, so `latest` alone
+  // does not change and nothing would be written.
   useEffect(() => {
-    if (latest && !ref && !params.preview) void write();
+    if (latest && !ref && !params.preview && !busy) void write();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latest]);
+  }, [latest, params.preview]);
   // Right after the first upload is confirmed, write the reflection again, now with Gemini.
   const confirmed = d?.settings.firstUploadConfirmed ?? false;
   useEffect(() => {
@@ -104,6 +111,10 @@ export function Weekly({ params }: { params: Record<string, string> }) {
           <a href="#/weekly?preview=1">Review what would be shared</a>
         </p>
       )}
+      {d.settings.cloudConsent && d.settings.firstUploadConfirmed && d.weeks.some((w) => !w.uploaded) && (
+        <p className="muted">Some weeks are not shared yet: Hearth could not reach the cloud. They stay on this device and are sent the next time it can.</p>
+      )}
+      {busy && <p className="muted">Writing the reflection…</p>}
       {ref && (
         <>
           {ref.variant === "lite" && <p className="muted">Short version, written on this device (you are offline or the cloud was not reachable).</p>}

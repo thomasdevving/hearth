@@ -52,12 +52,15 @@ export function Ledger() {
   // Counted by what actually produced the text: a failed model call counts as "without a model".
   const ok = (e: (typeof d.ledger)[number]) => e.outcome === "ok";
   const counts = { device: d.ledger.filter((e) => e.ranOn === "on_device" && ok(e)).length, cloud: d.ledger.filter((e) => e.ranOn === "cloud" && ok(e)).length, none: d.ledger.filter((e) => e.ranOn === "none" || !ok(e)).length };
+  // Failed cloud calls still left the device, so they are named next to the counts.
+  const cloudFailed = d.ledger.filter((e) => e.ranOn === "cloud" && !ok(e)).length;
   return (
     <Screen title="Privacy ledger">
       <p className="muted">Every model call: which task, where it ran and exactly what was sent.</p>
       <PrivacyProof />
       <p>
         {counts.device} on this device · {counts.cloud} in the cloud · {counts.none} without a model
+        {cloudFailed > 0 && ` (including ${cloudFailed} cloud ${cloudFailed === 1 ? "request" : "requests"} that failed)`}
       </p>
       <label className="toggle">
         <span>Only show what left this device</span>
