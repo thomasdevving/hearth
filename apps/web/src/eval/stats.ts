@@ -46,7 +46,8 @@ export function ledgerStats(entries: LedgerEntry[]): TaskStats[] {
       onDeviceShare: model.length ? model.filter((e) => e.ranOn === "on_device").length / model.length : null,
       onDevice: { p50: pct(lat("on_device"), 0.5), p95: pct(lat("on_device"), 0.95) },
       cloud: { p50: pct(lat("cloud"), 0.5), p95: pct(lat("cloud"), 0.95) },
-      fallbacks: es.filter((e) => e.ranOn === "none").length,
+      // Rules-only answers plus model tries that failed or were rejected (each try is one row).
+      fallbacks: es.filter((e) => e.ranOn === "none" || e.outcome !== "ok").length,
     };
   });
 }

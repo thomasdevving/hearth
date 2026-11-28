@@ -99,10 +99,13 @@ export function Weekly({ params }: { params: Record<string, string> }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmed, params.preview]);
 
+  // The plain summary is code, so it follows the weeks as they arrive (a time-machine jump
+  // aggregates weeks while this screen is open); model text stays as written.
+  const shown = ref?.ranOn === "template" && weeks.length ? { ...ref, ...weeklyTemplate(weeks) } : ref;
   if (!d) return <Screen title="Weekly reflection">Loading…</Screen>;
   if (params.preview) return <Preview weeks={d.weeks.filter((w) => !w.uploaded).map((w) => w.aggregate)} />;
   return (
-    <Screen title="Weekly reflection" back="home" badge={ref ? <ModelBadge ranOn={ref.ranOn} /> : undefined}>
+    <Screen title="Weekly reflection" back="home" badge={shown ? <ModelBadge ranOn={shown.ranOn} /> : undefined}>
       {weeks.length === 0 && <p className="muted">No finished week yet.</p>}
       {!d.settings.cloudConsent && <p className="muted">{cloudConfigured ? "Allow the cloud model in Settings for a longer reflection by Gemini." : "A short summary, written on this device."}</p>}
       {d.settings.cloudConsent && !d.settings.firstUploadConfirmed && weeks.length > 0 && (
@@ -115,14 +118,14 @@ export function Weekly({ params }: { params: Record<string, string> }) {
         <p className="muted">Some weeks are not shared yet: Hearth could not reach the cloud. They stay on this device and are sent the next time it can.</p>
       )}
       {busy && <p className="muted">Writing the reflection…</p>}
-      {ref && (
+      {shown && (
         <>
-          {ref.variant === "lite" && <p className="muted">Short version, written on this device (you are offline or the cloud was not reachable).</p>}
+          {shown.variant === "lite" && <p className="muted">Short version, written on this device (you are offline or the cloud was not reachable).</p>}
           <p className="item-text" style={{ fontWeight: 400 }}>
-            {ref.reflection}
+            {shown.reflection}
           </p>
           <p>
-            <em>{ref.open_question}</em>
+            <em>{shown.open_question}</em>
           </p>
         </>
       )}

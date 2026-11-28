@@ -174,7 +174,7 @@ struct LedgerView: View {
         VStack(alignment: .leading, spacing: 4) {
           (Text(Copy.taskName[e.task] ?? e.task).font(HearthFont.body(16, weight: "SemiBold")) + Text(" · \(Self.where(e))"))
           Text(Self.detail(e)).font(HearthFont.body(13)).foregroundStyle(Theme.muted)
-          if e.ranOn == "cloud" {
+          if e.ranOn == "cloud" || e.bytesSent > 0 {
             Button(open == e.id ? "Hide" : "What was sent (\(e.bytesSent) bytes)") { open = open == e.id ? nil : e.id }.buttonStyle(.link)
             if open == e.id { Text(e.payloadSent ?? "(nothing)").font(.system(.caption, design: .monospaced)).textSelection(.enabled) }
           }

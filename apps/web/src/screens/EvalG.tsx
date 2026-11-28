@@ -183,7 +183,7 @@ export function EvalG() {
                 <th>On-device share</th>
                 <th>On-device p50 / p95 ms</th>
                 <th>Cloud p50 / p95 ms</th>
-                <th>Fallbacks</th>
+                <th>Fallbacks or failed tries</th>
               </tr>
             </thead>
             <tbody>

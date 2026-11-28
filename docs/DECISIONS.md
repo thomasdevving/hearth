@@ -1050,3 +1050,19 @@ but it showed three faults that also hit real users whenever the cloud cannot be
   cloud requests that failed" (web and iOS).
 - The cloud check in a real Chrome and the Gemini Nano numbers (tasks G, H, B) are still open:
   both need a normal Chrome on a laptop, the second with the on-device model downloaded.
+
+## First run in a real Chrome with Gemini Nano (2026-11-28)
+
+- **Cloud:** works on the live site in a normal Chrome. Gemini 3.5 Flash returned HTTP 500 and
+  503 on the first weekly reflections and took about 50 s when it answered; the report for a
+  clinician took 3 s. The SDK then answered on the device, which the ledger showed only as "on
+  this device" without the payload, although the request had left the device. Now such an
+  entry reads "on this device after a cloud request (left this device)", shows "What was sent",
+  and counts among failed cloud requests (R4). The evaluation table counts failed or rejected
+  tries next to rules-only fallbacks ("Fallbacks or failed tries").
+- **Weekly template:** written once, it kept the first week while a time-machine jump added
+  weeks ("In the week of 15 Jun" with 14 Sept as the newest). The plain summary is now computed
+  from the current weeks on every render; model text stays as written.
+- **Nano accuracy** (docs/10 rows 7–9b, 11, 12): task H 29/30, task B 20/20 crisis but 7/30
+  everyday texts `possible`, task G precision 42 % (target 80 %). Task G is the weak spot;
+  wrong cards are caught at confirmation, but the prompt needs work for Nano.

@@ -338,7 +338,9 @@ struct ScienceView: View {
     ("Requests leaving the browser with the cloud off", "0, and 0 containing your text"),
     ("Crisis sentences opening the support screen (keywords)", "20 of 20, 0 of 20 neutral ones; the list was extended after a first run found 13 of 20, so this is not an unbiased estimate"),
     ("Full demo script holding on every seed", "16 of 20 (target was 18), counting the person's own signs over the first 3 days of the change; 10 of 20 if only the first day counts"),
-    ("Accuracy of the on-device model reading a plan", "not measured yet with Gemini Nano; the test set and scorer are ready"),
+    ("Gemini Nano reading a plan into cards (35 plans, one run)", "42% of proposed signals right (target 80%), 44% of expected ones found; every card waits for your confirmation"),
+    ("Gemini Nano reading a context from a note (30 sentences)", "29 of 30 right"),
+    ("Gemini Nano on crisis wording", "20 of 20 crisis sentences flagged; 7 of 30 everyday low-mood texts also flagged as \"possible\", which adds a support card"),
   ]
 
   @ViewBuilder private var measured: some View {

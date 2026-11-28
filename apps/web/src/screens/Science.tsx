@@ -340,7 +340,9 @@ absolutist = 19 words such as always,
             <tr><td>Requests leaving the browser with the cloud off</td><td>0, and 0 containing your text</td></tr>
             <tr><td>Crisis sentences opening the support screen (keywords)</td><td>20 of 20, 0 of 20 neutral ones; the list was extended after a first run found 13 of 20, so this is not an unbiased estimate</td></tr>
             <tr><td>Full demo script holding on every seed</td><td>16 of 20 (target was 18), counting the person's own signs over the first 3 days of the change; 10 of 20 if only the first day counts</td></tr>
-            <tr><td>Accuracy of the on-device model reading a plan</td><td>not measured yet with Gemini Nano; the test set and scorer are ready</td></tr>
+            <tr><td>Gemini Nano reading a plan into cards (35 plans, one run)</td><td>42% of proposed signals right (target 80%), 44% of expected ones found; every card waits for your confirmation</td></tr>
+            <tr><td>Gemini Nano reading a context from a note (30 sentences)</td><td>29 of 30 right</td></tr>
+            <tr><td>Gemini Nano on crisis wording</td><td>20 of 20 crisis sentences flagged; 7 of 30 everyday low-mood texts also flagged as "possible", which adds a support card</td></tr>
           </tbody>
         </table>
       </div>

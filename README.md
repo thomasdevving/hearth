@@ -134,8 +134,12 @@ ones that missed their target:
 - **Unanswered check-ins:** when a simulated person stops answering most check-ins, Hearth
   offers two short questions after a median 9–13 days; for people who keep answering as usual,
   about one needless offer per 150–1400 days.
-- Task accuracy with Gemini Nano (plan reading, context, crisis wording) is not measured yet;
-  the sets and an in-app scorer are ready (Settings → "Test how Hearth reads a plan").
+- **Gemini Nano, measured once in Chrome (28 Nov):** reading context from a note 29 of 30
+  right; crisis sentences 20 of 20 flagged, but 7 of 30 everyday low-mood texts also got a
+  "possible" flag (a support card, no takeover). Turning a written plan into cards is the weak
+  spot: rule precision 42 %, below the 80 % target, because Nano proposes too many signals.
+  Every card waits for the user's confirmation; the prompt still needs work for Nano. Scorer:
+  Settings → "Test how Hearth reads a plan".
 
 ## Platforms
 

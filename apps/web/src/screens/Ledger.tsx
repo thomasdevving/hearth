@@ -33,6 +33,9 @@ const CLASS_TEXT: Record<string, string> = {
 function where(e: LedgerEntry): string {
   // A refused or failed request still left the device, so it says both.
   const failed = e.outcome === "error" ? ", failed" : e.outcome === "invalid_output" ? ", answer not usable" : "";
+  // The SDK can try the cloud first and answer on the device when that fails: the request
+  // still left the device, so it is named and its payload shown (R4).
+  if (e.ranOn === "on_device" && e.bytesSent > 0) return `on this device after a cloud request (left this device${failed})`;
   if (e.ranOn === "on_device") return `on this device${failed}`;
   if (e.ranOn === "cloud") return `cloud (left this device${failed})`;
   return "no model (fallback)";
@@ -53,7 +56,7 @@ export function Ledger() {
   const ok = (e: (typeof d.ledger)[number]) => e.outcome === "ok";
   const counts = { device: d.ledger.filter((e) => e.ranOn === "on_device" && ok(e)).length, cloud: d.ledger.filter((e) => e.ranOn === "cloud" && ok(e)).length, none: d.ledger.filter((e) => e.ranOn === "none" || !ok(e)).length };
   // Failed cloud calls still left the device, so they are named next to the counts.
-  const cloudFailed = d.ledger.filter((e) => e.ranOn === "cloud" && !ok(e)).length;
+  const cloudFailed = d.ledger.filter((e) => (e.ranOn === "cloud" && !ok(e)) || (e.ranOn === "on_device" && e.bytesSent > 0)).length;
   return (
     <Screen title="Privacy ledger">
       <p className="muted">Every model call: which task, where it ran and exactly what was sent.</p>
@@ -81,7 +84,7 @@ export function Ledger() {
                   {e.decision.run !== "model" ? " · simple rules, no model" : ""}
                 </small>
               </span>
-              {e.ranOn === "cloud" && (
+              {(e.ranOn === "cloud" || e.bytesSent > 0) && (
                 <button className="link" onClick={() => setOpen(open === e.id ? null : e.id)} aria-expanded={open === e.id}>
                   {open === e.id ? "Hide" : `What was sent (${e.bytesSent} bytes)`}
                 </button>
