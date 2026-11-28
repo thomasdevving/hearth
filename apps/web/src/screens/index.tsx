@@ -39,7 +39,8 @@ export const SCREENS: Record<string, ComponentType<{ params: Record<string, stri
   share: Share,
   settings: Settings,
   report: Report,
-  eval_g: EvalG,
+  // Evaluation and prompt tuning: local development builds only, never on the public site.
+  ...(import.meta.env.DEV ? { eval_g: EvalG } : {}),
   helped_new: HelpedNew,
   people: People,
   plan_print: PlanPrint,

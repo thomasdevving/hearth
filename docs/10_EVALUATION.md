@@ -52,7 +52,7 @@ Scripts live in `eval/` and print a table that is pasted here.
 - Metrics 2–6: `npx tsx eval/engine_metrics.ts` → `eval/results/engine_metrics.md`.
 - Metrics 8 (code part) and 9: `npx tsx eval/text_metrics.ts` → `eval/results/text_metrics.md`.
 - Metric 10: `node eval/privacy.cjs [--fake-model]` against `vite preview` → `eval/results/privacy.md`.
-- Metrics 7, 8 (labels), 11, 12: the hidden `#/eval_g` screen in Chrome with Gemini Nano.
+- Metrics 7, 8 (labels), 11, 12: the `#/eval_g` screen in Chrome with Gemini Nano. It exists in local development builds only (`npm --prefix apps/web run dev`); the public site has no evaluation or tuning screens. Task G also has a holdout set (`eval/task_g_holdout.json`, 30 cases) that the screen reports as summary numbers only.
   The build container could not download the model, so these are still open.
 
 ### Notes on the misses

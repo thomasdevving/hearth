@@ -83,9 +83,11 @@ export function Settings() {
         <button className="link" onClick={() => checkOnDevice()}>
           Check the on-device model again
         </button>
-        <button className="link" onClick={() => navigate("eval_g")}>
-          Test how Hearth reads a plan ›
-        </button>
+        {import.meta.env.DEV && (
+          <button className="link" onClick={() => navigate("eval_g")}>
+            Test how Hearth reads a plan ›
+          </button>
+        )}
       </div>
 
       <h2>Check-ins</h2>

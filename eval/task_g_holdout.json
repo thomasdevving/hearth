@@ -1,0 +1,541 @@
+{
+ "note": "Holdout set for task G (2026-11-28), written after the first Gemini Nano run without looking at its output and never used for tuning. Same conventions as eval/task_g.json: phone-domain signs are not rules (cfg.phone.enabled is false), late phone use counts as a later rest midpoint, items and actions by meaning (counted), rules scored exactly. Only summary numbers may be read while tuning a prompt; the evaluation screen hides its per-case table.",
+ "cases": [
+  {
+   "id": "h_list",
+   "text": "Signs:\n- up past 1am most nights\n- skipping band practice\n- cereal for dinner\nHelps:\n- texting my best friend\n- a cold shower",
+   "rules": [
+    [
+     "rest_midpoint",
+     "later"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "band practice"
+    ]
+   ],
+   "items": [
+    "eat a proper dinner"
+   ],
+   "actions": [
+    "text best friend",
+    "cold shower"
+   ]
+  },
+  {
+   "id": "h_gym_helps",
+   "text": "Going to the gym really helps me, and so does seeing my cousin. When it starts I sleep ten or eleven hours and I stop answering emails.",
+   "rules": [
+    [
+     "rest_duration",
+     "higher"
+    ]
+   ],
+   "items": [
+    "answer emails"
+   ],
+   "actions": [
+    "go to the gym",
+    "see cousin"
+   ]
+  },
+  {
+   "id": "h_still_work",
+   "text": "I still go to work every day, that never changes, but I stop leaving the house at weekends and I go to bed much later.",
+   "rules": [
+    [
+     "home_stay",
+     "higher"
+    ],
+    [
+     "rest_midpoint",
+     "later"
+    ]
+   ],
+   "items": [],
+   "actions": []
+  },
+  {
+   "id": "h_girlfriend",
+   "text": "My girlfriend notices it before I do: I stop going to the climbing hall, I hardly walk anywhere and I don't call my parents anymore. Cooking together helps.",
+   "rules": [
+    [
+     "place_visits",
+     "lower",
+     "climbing hall"
+    ],
+    [
+     "steps",
+     "lower"
+    ]
+   ],
+   "items": [
+    "call parents"
+   ],
+   "actions": [
+    "cook together"
+   ]
+  },
+  {
+   "id": "h_early",
+   "text": "Weirdly I go to bed at eight and wake up at four. I also stop going to church on Sunday. A chat with the pastor helps.",
+   "rules": [
+    [
+     "rest_midpoint",
+     "earlier"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "church"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "chat with the pastor"
+   ]
+  },
+  {
+   "id": "h_slow",
+   "text": "I walk more slowly and everything takes longer. I stop shaving. My dog makes me go out.",
+   "rules": [
+    [
+     "walking_speed",
+     "lower"
+    ]
+   ],
+   "items": [
+    "shave"
+   ],
+   "actions": [
+    "go out with the dog"
+   ]
+  },
+  {
+   "id": "h_routine",
+   "text": "My usual weekly routine falls apart. Planning my week on Sunday helps.",
+   "rules": [
+    [
+     "routine_regularity",
+     "lower"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "plan the week on Sunday"
+   ]
+  },
+  {
+   "id": "h_fewer",
+   "text": "I end up going to fewer and fewer places. I also stop washing my hair. Meeting a friend at a café helps.",
+   "rules": [
+    [
+     "places_visited",
+     "lower"
+    ]
+   ],
+   "items": [
+    "wash hair"
+   ],
+   "actions": [
+    "meet a friend at a café"
+   ]
+  },
+  {
+   "id": "h_vague",
+   "text": "Things just feel heavy and I don't really know why.",
+   "rules": [],
+   "items": [],
+   "actions": []
+  },
+  {
+   "id": "h_helps_only",
+   "text": "I haven't figured out my warning signs. Gardening, podcasts and my sister's cooking help.",
+   "rules": [],
+   "items": [],
+   "actions": [
+    "gardening",
+    "podcasts",
+    "sister's cooking"
+   ]
+  },
+  {
+   "id": "h_hrv",
+   "text": "My watch shows my heart rate variability dropping, and I go to bed later and later. Yoga helps.",
+   "rules": [
+    [
+     "hrv",
+     "lower"
+    ],
+    [
+     "rest_midpoint",
+     "later"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "yoga"
+   ]
+  },
+  {
+   "id": "h_typos",
+   "text": "i stop going to college, sleep wayy less and dont eat breakfst. talking to my tutor helps",
+   "rules": [
+    [
+     "place_visits",
+     "lower",
+     "college"
+    ],
+    [
+     "rest_duration",
+     "lower"
+    ]
+   ],
+   "items": [
+    "eat breakfast"
+   ],
+   "actions": [
+    "talk to tutor"
+   ]
+  },
+  {
+   "id": "h_you",
+   "text": "You notice you stay in your flat all day and you stop going to choir. Calling your brother helps.",
+   "rules": [
+    [
+     "home_stay",
+     "higher"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "choir"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "call brother"
+   ]
+  },
+  {
+   "id": "h_many",
+   "text": "I stop brushing my teeth, stop paying bills, stop replying to my group chat and I go to bed really late. Making a small list helps.",
+   "rules": [
+    [
+     "rest_midpoint",
+     "later"
+    ]
+   ],
+   "items": [
+    "brush teeth",
+    "pay bills",
+    "reply to group chat"
+   ],
+   "actions": [
+    "make a small list"
+   ]
+  },
+  {
+   "id": "h_rambling",
+   "text": "It's not one thing. Work is busy, my landlord is annoying, and the weather doesn't help, but that's life. What I do notice, looking back at the last two times, is that I stop going to my running club, then I spend whole weekends indoors, and my sleep times get completely irregular, some nights at ten, some at three. I also stop seeing my friends. What helps most is a walk with my neighbour and putting my phone in another room in the evening.",
+   "rules": [
+    [
+     "place_visits",
+     "lower",
+     "running club"
+    ],
+    [
+     "home_stay",
+     "higher"
+    ],
+    [
+     "rest_regularity",
+     "less_regular"
+    ]
+   ],
+   "items": [
+    "see friends"
+   ],
+   "actions": [
+    "walk with neighbour",
+    "phone in another room"
+   ]
+  },
+  {
+   "id": "h_if",
+   "text": "If I start missing football training and stop moving much during the day, that's the sign. Listening to old music helps.",
+   "rules": [
+    [
+     "place_visits",
+     "lower",
+     "football"
+    ],
+    [
+     "steps",
+     "lower"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "old music"
+   ]
+  },
+  {
+   "id": "h_past",
+   "text": "Last time it began with me staying in bed until eleven every day and not going to the library to study anymore. My mentor checking in helped.",
+   "rules": [
+    [
+     "rest_midpoint",
+     "later"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "library"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "mentor checking in"
+   ]
+  },
+  {
+   "id": "h_more_sleep",
+   "text": "I sleep so much more, like twelve hours, and I hardly go outside. Fresh air helps.",
+   "rules": [
+    [
+     "rest_duration",
+     "higher"
+    ],
+    [
+     "home_stay",
+     "higher"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "fresh air"
+   ]
+  },
+  {
+   "id": "h_rhythm",
+   "text": "My days stop having any rhythm, I eat at random times and nap whenever. A fixed lunch time helps.",
+   "rules": [
+    [
+     "rhythm_stability",
+     "less_regular"
+    ]
+   ],
+   "items": [
+    "regular meals"
+   ],
+   "actions": [
+    "fixed lunch time"
+   ]
+  },
+  {
+   "id": "h_phone_night",
+   "text": "I'm on my phone until 3am and I stop going to the office. Leaving my phone in the kitchen helps.",
+   "rules": [
+    [
+     "rest_midpoint",
+     "later"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "office"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "phone in the kitchen"
+   ]
+  },
+  {
+   "id": "h_numbers",
+   "text": "1. bed after midnight\n2. no more swimming pool\n3. no walks\nWhat helps: my niece visiting.",
+   "rules": [
+    [
+     "rest_midpoint",
+     "later"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "swimming pool"
+    ],
+    [
+     "steps",
+     "lower"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "niece visiting"
+   ]
+  },
+  {
+   "id": "h_short",
+   "text": "Less walking, staying in more.",
+   "rules": [
+    [
+     "steps",
+     "lower"
+    ],
+    [
+     "home_stay",
+     "higher"
+    ]
+   ],
+   "items": [],
+   "actions": []
+  },
+  {
+   "id": "h_social",
+   "text": "I avoid my friends, I don't answer the door and I stop texting back. Seeing my therapist helps.",
+   "rules": [],
+   "items": [
+    "see friends",
+    "answer the door",
+    "text back"
+   ],
+   "actions": [
+    "see therapist"
+   ]
+  },
+  {
+   "id": "h_feelings",
+   "text": "I feel empty and tired, and I stop going to my evening class. Talking to my flatmate helps.",
+   "rules": [
+    [
+     "place_visits",
+     "lower",
+     "evening class"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "talk to flatmate"
+   ]
+  },
+  {
+   "id": "h_two_places",
+   "text": "I stop going to work and to the gym, and I sleep in until the afternoon. A morning alarm across the room helps.",
+   "rules": [
+    [
+     "place_visits",
+     "lower",
+     "work"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "gym"
+    ],
+    [
+     "rest_midpoint",
+     "later"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "alarm across the room"
+   ]
+  },
+  {
+   "id": "h_hr_denied",
+   "text": "My resting heart rate doesn't change, but I go to fewer places and walk less. Calling my aunt helps.",
+   "rules": [
+    [
+     "places_visited",
+     "lower"
+    ],
+    [
+     "steps",
+     "lower"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "call aunt"
+   ]
+  },
+  {
+   "id": "h_questions",
+   "text": "Am I going to bed later? Am I skipping the pottery studio? Those are my signs. Making something with my hands helps.",
+   "rules": [
+    [
+     "rest_midpoint",
+     "later"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "pottery studio"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "make something with my hands"
+   ]
+  },
+  {
+   "id": "h_mixed_lang",
+   "text": "When it gets bad I stop going to my volleyball club and I basically live on my couch. Fietsen helps, honestly.",
+   "rules": [
+    [
+     "place_visits",
+     "lower",
+     "volleyball club"
+    ],
+    [
+     "home_stay",
+     "higher"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "fietsen"
+   ]
+  },
+  {
+   "id": "h_bedtime",
+   "text": "My bedtime moves around a lot and I stop going to the market on Saturdays. Baking bread helps.",
+   "rules": [
+    [
+     "rest_regularity",
+     "less_regular"
+    ],
+    [
+     "place_visits",
+     "lower",
+     "market"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "bake bread"
+   ]
+  },
+  {
+   "id": "h_less_sleep",
+   "text": "I sleep much less than usual and I stop leaving my room. Breathing exercises help.",
+   "rules": [
+    [
+     "rest_duration",
+     "lower"
+    ],
+    [
+     "home_stay",
+     "higher"
+    ]
+   ],
+   "items": [],
+   "actions": [
+    "breathing exercises"
+   ]
+  }
+ ]
+}

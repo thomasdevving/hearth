@@ -20,7 +20,7 @@ export function EvalG() {
   // Prompt tuning on the device (2026-11-28): another system prompt for task G, this screen only.
   const builtIn = promptFor("G");
   const [promptText, setPromptText] = useState(builtIn.text);
-  const [setId, setSetId] = useState<GSetId>("all");
+  const [setId, setSetId] = useState<GSetId>("tune");
   const [ranWith, setRanWith] = useState<{ prompt: string; set: GSetId } | null>(null);
   const custom = promptText.trim() !== builtIn.text.trim();
   const run = async () => {
@@ -73,7 +73,7 @@ export function EvalG() {
     <Screen title="Model evaluation" back="settings">
       <h2>Task G · plans to cards</h2>
       <p className="muted">
-        Runs the {G_CASES.length} written plans (eval/task_g.json), or one part of them, through task G with prompt {builtIn.id}@{builtIn.version} or the one below, then scores the cards that pass the guardrails. Tune a prompt on cases 1–20 and check it once on 21–35. Everything stays on this device; each run is in the ledger.
+        Runs the {G_CASES.length} written plans (eval/task_g.json), or one part of them, through task G with prompt {builtIn.id}@{builtIn.version} or the one below, then scores the cards that pass the guardrails. Tune a prompt on the 35 cases; the holdout set shows only its summary. Everything stays on this device; each run is in the ledger.
       </p>
       <label htmlFor="g-set">Cases</label>
       <select id="g-set" value={setId} disabled={busy} onChange={(e) => setSetId(e.target.value as GSetId)}>
@@ -109,6 +109,7 @@ export function EvalG() {
             <li>Model rules rejected by the quote check: {pct(s.quoteRejectedShare)}</li>
             <li>Check-in questions: {s.itemsFound}; actions: {s.actionsFound}</li>
           </ul>
+          {!(ranWith && G_SETS[ranWith.set].summaryOnly) && (
           <button
             className="secondary"
             onClick={() => {
@@ -121,6 +122,10 @@ export function EvalG() {
           >
             Download results
           </button>
+          )}
+          {ranWith && G_SETS[ranWith.set].summaryOnly ? (
+            <p className="muted">Per-case results are hidden for the holdout set, so a prompt is never tuned on it.</p>
+          ) : (
           <div className="table-wrap" style={{ maxHeight: "none" }}>
             <table>
               <thead>
@@ -151,7 +156,8 @@ export function EvalG() {
               </tbody>
             </table>
           </div>
-          {open && (
+          )}
+          {open && !(ranWith && G_SETS[ranWith.set].summaryOnly) && (
             <pre className="json">{JSON.stringify(results.find((r) => r.id === open), null, 2)}</pre>
           )}
         </>

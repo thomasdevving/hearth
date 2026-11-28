@@ -138,8 +138,8 @@ ones that missed their target:
   right; crisis sentences 20 of 20 flagged, but 7 of 30 everyday low-mood texts also got a
   "possible" flag (a support card, no takeover). Turning a written plan into cards is the weak
   spot: rule precision 42 %, below the 80 % target, because Nano proposes too many signals.
-  Every card waits for the user's confirmation; the prompt still needs work for Nano. Scorer:
-  Settings → "Test how Hearth reads a plan".
+  Every card waits for the user's confirmation; the prompt still needs work for Nano. The scorer runs
+  in a local development build only (`npm --prefix apps/web run dev`, then `#/eval_g`).
 
 ## Platforms
 

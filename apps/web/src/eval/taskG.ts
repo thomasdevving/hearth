@@ -1,6 +1,7 @@
 // docs/10 metric 7: task G accuracy on hand-written plans, scored after the guardrails.
 import { verifyQuote, type VerifiedPlan } from "@hearth/engine";
 import evalSet from "../../../../eval/task_g.json";
+import holdoutSet from "../../../../eval/task_g_holdout.json";
 
 export interface GCase {
   id: string;
@@ -10,11 +11,13 @@ export interface GCase {
   actions: string[];
 }
 export const G_CASES: GCase[] = evalSet.cases as GCase[];
-/** Prompt tuning uses cases 1–20 only; 21–35 are kept apart to check the result (docs/10 metric 7). */
+/**
+ * Prompt tuning looks at the 35 cases in detail; the 30 holdout cases (written separately, never
+ * tuned on) are read as summary numbers only, to show whether a prompt works beyond the set.
+ */
 export const G_SETS = {
-  tune: { label: "Tuning set (cases 1–20)", cases: G_CASES.slice(0, 20) },
-  check: { label: "Check set (cases 21–35)", cases: G_CASES.slice(20) },
-  all: { label: "All 35 cases", cases: G_CASES },
+  tune: { label: "Tuning set (35 cases)", cases: G_CASES, summaryOnly: false },
+  holdout: { label: "Holdout set (30 new cases, summary only)", cases: holdoutSet.cases as GCase[], summaryOnly: true },
 } as const;
 export type GSetId = keyof typeof G_SETS;
 
