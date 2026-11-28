@@ -115,16 +115,16 @@ const TOUCH = `
   await page.waitForSelector("text=Your starting point");
   mark("phq");
   await pause(1200);
-  await tap("text=Use scripted answer", { hold: 300 });
+  await tap("text=Sam's answers", { hold: 300 });
   await tap("button:has-text('Start')", { hold: 600 });
 
   // 2. Holiday: a note, one question, the user decides.
   mark("jump_holiday");
   await page.selectOption('select[aria-label="Jump to"]', "holiday");
-  await page.waitForSelector("text=Use scripted note", { timeout: 120000 });
+  await page.waitForSelector("text=Send Sam's note", { timeout: 120000 });
   mark("note");
   await page.evaluate(() => scrollTo(0, 0));
-  await tap("text=Use scripted note", { hold: 900 });
+  await tap("text=Send Sam's note", { hold: 900 });
   await tap('button[aria-label="Confirm what is going on"]', { hold: 300 });
   await page.waitForSelector("text=One quick check");
   mark("holiday_check");

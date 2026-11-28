@@ -1,5 +1,8 @@
 # Jury demo: script and voice-over (2:58)
 
+Updated 28 Nov 2026 for the feature freeze: current button names, personal weights in the
+"What Hearth watches" line, and only numbers that have been measured.
+
 Draft video: `video/demo/hearth-jury-draft.mp4` (1920×1080). The small timecode in the top
 right corner of every frame matches the times below, so you can line up your webcam clips and
 voice-over in any editor (CapCut, iMovie, Premiere, DaVinci).
@@ -36,7 +39,8 @@ Your own words, to camera. A suggestion to adapt (38 words, about 15 seconds):
 > early: later nights, skipping the gym, staying in. They'd even written them down with their
 > therapist. But a plan on paper doesn't notice anything."
 
-(Use your own story if you have one. Keep it under 16 seconds.)
+(Only say this if it is true; otherwise tell your own reason for building Hearth. Keep it
+under 16 seconds.)
 
 ### 0:16–0:24 · Slide "Today"
 > VO: "Today, a relapse-prevention plan sits in a drawer, and appointments are weeks apart.
@@ -72,8 +76,8 @@ questionnaires, and the FHIR R4 copy.
 > the practice, made on the device."
 
 ### 2:08–2:16 · What Hearth watches, and why
-> VO: "Hearth watches what research links to harder periods, each only against your own
-> usual days."
+> VO: "Hearth watches signals research links to harder periods, against your own usual
+> days, and learns which ones matter most for you."
 
 ### 2:16–2:26 · What counts as a drift, and how Hearth helps
 The chart is Sam's real index from the engine. Day 107 spikes but the trend stays inside
@@ -94,8 +98,10 @@ Sam's usual range; on day 109 the trend crosses.
 > VO: "On fifty simulated people: drift noticed in a median of seven days, one false-alarm
 > day per hundred, nothing left the browser."
 
-Fill in the amber card before recording: run `#/eval_g` in Chrome with Gemini Nano and use
-the precision it shows.
+The six cards: 7 days, 1.0 false-alarm days per 100, 0 vs 92 holiday alarm days, 0 requests
+with the cloud off, $0 per on-device call, and 29 / 30 notes read correctly by Gemini Nano
+(measured in Chrome on 28 Nov). The task G accuracy is not on it: 42 % rule precision before
+tuning. Swap it in only if the tuned prompt reaches its target.
 
 ### 2:50–2:58 · Close (optional small WEBCAM)
 > VO / WEBCAM: "When your days drift, Hearth notices. Built with Firebase AI Logic and Gemini.
@@ -108,8 +114,8 @@ The QR code opens https://hearth-9de01.web.app; the GitHub link is shown under i
 1. **Re-record the live demo with the real Gemini Nano.** The draft uses a stand-in model
    (marked "DRAFT" on screen), because Gemini Nano cannot run in the build container. Two ways:
    - **Screen-record it yourself** in Chrome with the on-device model enabled, following the
-     same steps: Plan setup → type Sam's words → Make cards → Save → Use scripted answer →
-     Start → Jump to: Holiday → Use scripted note → confirm → Yes → Jump to: First change →
+     same steps: Set up my plan → type Sam's words → Turn into my plan → Save these cards →
+     Sam's answers → Start → Jump to: Holiday → Send Sam's note → confirm → Yes → Jump to: First change →
      Today → Why? → tap the first reason (the Why? screen) → Today → open the check-in → answer, type "Yeah, I've started avoiding people again.
      Haven't answered anyone in days." → Save → Yes, that's it → Draft that text → Today tab (scroll to "Call a friend") → Privacy tab.
      Then put your recording over 0:30–1:58 (the phone frame), or use it full screen.
@@ -132,5 +138,7 @@ The QR code opens https://hearth-9de01.web.app; the GitHub link is shown under i
      happen by itself. Then either say what the check does without showing it, or show the
      holiday confirmation as the verification moment. Do not present the stand-in's
      invented sign as Gemini Nano's.
-2. Fill in the amber number card (`#/eval_g`).
+2. Record after the task G prompt has been tuned for Gemini Nano (branch `tune-g-nano`), and
+   with the cloud off, so the ledger at 1:54 shows only on-device calls. If Nano still makes a
+   wrong card on camera, untick it: that is the "Sam stays in control" moment at 0:49.
 3. Check the length after adding your clips: under 3:00.
