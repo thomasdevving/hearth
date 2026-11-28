@@ -12,6 +12,10 @@ import {
   verifyContext,
   verifyMarkers,
   verifyPlan,
+  ruleDirections,
+  ruleSignals,
+  expandRuleSignals,
+  directionLegal,
   verifyQuote,
   verifyTask,
   normalizeForQuote,
@@ -83,6 +87,53 @@ describe("verifyPlan (task G)", () => {
     expect(p.valid).toBe(true);
     expect(p.rules.map((r) => r.feature)).toEqual(["home_stay"]);
     expect(p.dropped).toBe(1);
+  });
+});
+
+describe("verifyPlan: one sign, one card, nothing from what helps (2026-11-28)", () => {
+  const plan = (rules: [string, string, string, string][], items: [string, string][] = [], actions: [string, string][] = []) => ({
+    rules: rules.map(([feature, direction, place_label, quote]) => ({ feature, direction, place_label, quote })),
+    personal_checkin_items: items.map(([question, quote]) => ({ question, quote })),
+    actions: actions.map(([text, quote]) => ({ text, quote })),
+  });
+  it("allows only the direction that signals a harder time", () => {
+    expect(ruleDirections("steps")).toEqual(["lower"]);
+    expect(ruleDirections("home_stay")).toEqual(["higher"]);
+    expect(ruleDirections("rest_duration")).toEqual(["higher", "lower"]);
+    expect(ruleDirections("rest_midpoint")).toEqual(["later", "earlier"]);
+    const text = "I walk much less and I stay home more.";
+    const v = verifyPlan(plan([["steps", "higher", "", "I walk much less"], ["home_stay", "lower", "", "I stay home more"], ["rest_midpoint", "higher", "", "I walk much less"]]), text);
+    expect(v.rules).toEqual([]);
+    expect(v.dropped).toBe(3);
+  });
+  it("reads any direction on a regularity feature as less regular", () => {
+    const v = verifyPlan(plan([["rhythm_stability", "lower", "", "my days lose their shape"]]), "When it starts my days lose their shape.");
+    expect(v.rules.map((r) => `${r.feature}:${r.direction}`)).toEqual(["rhythm_stability:less_regular"]);
+  });
+  it("drops a sign quoted from what helps, but keeps a stopped helper", () => {
+    const text = "Going to the gym really helps me. When it starts I sleep ten hours and I stop going to choir, which helps.";
+    const v = verifyPlan(plan([["place_visits", "lower", "gym", "Going to the gym"], ["rest_duration", "higher", "", "I sleep ten hours"], ["place_visits", "lower", "choir", "I stop going to choir"]], [], [["Go to the gym", "Going to the gym really helps me"]]), text);
+    expect(v.rules.map((r) => r.place_label ?? r.feature)).toEqual(["rest_duration", "choir"]);
+  });
+  it("drops a sign listed under a 'What helps:' heading", () => {
+    const text = "Signs:\n- no gym\n- bed after midnight\nWhat helps:\n- walking my dog\n- music";
+    const v = verifyPlan(plan([["place_visits", "lower", "gym", "no gym"], ["rest_midpoint", "later", "", "bed after midnight"], ["steps", "lower", "", "walking my dog"]]), text);
+    expect(v.rules.map((r) => r.feature)).toEqual(["place_visits", "rest_midpoint"]);
+  });
+  it("writes no question for a sign that already has a rule", () => {
+    const text = "I stay inside more and I stop replying to messages.";
+    const v = verifyPlan(plan([["home_stay", "higher", "", "I stay inside more"]], [["Did you go outside today?", "I stay inside more"], ["Did you reply to messages today?", "I stop replying to messages"]]), text);
+    expect(v.personal_checkin_items.map((i) => i.question)).toEqual(["Did you reply to messages today?"]);
+  });
+  it("offers the on-device model only legal combined signals and expands them back", () => {
+    const signals = ruleSignals();
+    expect(signals).toContain("steps, lower");
+    expect(signals).toContain("rest_midpoint, earlier");
+    expect(signals).not.toContain("steps, higher");
+    expect(signals.some((x) => x.startsWith("screen_time"))).toBe(false);
+    expect(signals.every((x) => { const [f, d] = x.split(", "); return directionLegal(f, d as never); })).toBe(true);
+    const raw = expandRuleSignals({ rules: [{ signal: "home_stay, higher", place_label: "", quote: "I stay inside more" }], personal_checkin_items: [], actions: [] });
+    expect(verifyPlan(raw, "I stay inside more.").rules.map((r) => `${r.feature}:${r.direction}`)).toEqual(["home_stay:higher"]);
   });
 });
 

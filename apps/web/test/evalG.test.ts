@@ -15,7 +15,10 @@ describe("task G evaluation scoring", () => {
     expect(G_CASES).toHaveLength(35);
     for (const c of G_CASES) {
       expect(c.text.length).toBeGreaterThan(10);
-      const raw = { rules: c.rules.map(([f, d, l]) => ({ feature: f, direction: d, place_label: l ?? "", quote: c.text.slice(0, 12) })), personal_checkin_items: [], actions: [] };
+      // A quote from a sentence about the signs, not about what helps (those are actions).
+      const sign = c.text.split(/(?<=[.!?\n])/).find((x) => !/\bhelp/i.test(x) && x.trim().length >= 12) ?? c.text;
+      const quote = sign.trim().slice(0, 12);
+      const raw = { rules: c.rules.map(([f, d, l]) => ({ feature: f, direction: d, place_label: l ?? "", quote })), personal_checkin_items: [], actions: [] };
       expect(verifyPlan(raw, c.text).rules).toHaveLength(c.rules.length);
     }
   });

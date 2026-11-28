@@ -10,18 +10,89 @@ import { hasBannedWords, numberCheck, piiCheck } from "./text";
 
 const PHONE_FEATURES = new Set(["screen_time", "night_use", "communication_time"]);
 
-/** docs/05 task G rule 3: which directions are legal for a feature. */
-export function directionLegal(feature: string, direction: RuleDirection): boolean {
-  if (direction === "later" || direction === "earlier") return feature === "rest_midpoint";
-  if (direction === "less_regular") return feature === "rest_regularity" || feature === "rhythm_stability";
-  return true;
+/**
+ * docs/05 task G rule 3: the directions a personal rule may take. A warning sign is the
+ * direction that signals a harder time (the catalogue's `dir`): fewer steps, more time at home.
+ * Sleep length and timing can go either way; regularity only gets less regular.
+ */
+export function ruleDirections(feature: string): RuleDirection[] {
+  const d = featureDef(feature);
+  if (!d) return [];
+  if (feature === "rest_midpoint") return ["later", "earlier"];
+  if (feature === "rest_regularity" || feature === "rhythm_stability") return ["less_regular"];
+  if (d.dir === "±") return ["higher", "lower"];
+  return [d.dir === "+" ? "higher" : "lower"];
 }
+
+export function directionLegal(feature: string, direction: RuleDirection): boolean {
+  return ruleDirections(feature).includes(direction);
+}
+
+/**
+ * The one combined choice the on-device model gets per rule ("steps, lower"): only legal
+ * pairs, and only features a person's own words map to. Location entropy and the like stay
+ * research signals for everyone, not something people write about themselves.
+ */
+const SIGNAL_FEATURES = ["rest_midpoint", "rest_duration", "rest_regularity", "rhythm_stability", "routine_regularity", "steps", "walking_speed", "home_stay", "places_visited", "place_visits", "resting_hr", "hrv"];
+export function ruleSignals(cfg: Config = defaultConfig): string[] {
+  const features = cfg.phone.enabled ? [...SIGNAL_FEATURES, ...PHONE_FEATURES] : SIGNAL_FEATURES;
+  return features.flatMap((f) => ruleDirections(f).map((d) => `${f}, ${d}`));
+}
+/** Turns `{ signal: "steps, lower" }` rules back into `{ feature, direction }` (other fields kept). */
+export function expandRuleSignals(raw: unknown): unknown {
+  if (!raw || typeof raw !== "object" || !Array.isArray((raw as { rules?: unknown }).rules)) return raw;
+  const r = raw as { rules: unknown[] };
+  return {
+    ...r,
+    rules: r.rules.map((x) => {
+      if (!x || typeof x !== "object" || typeof (x as { signal?: unknown }).signal !== "string") return x;
+      const { signal, ...rest } = x as { signal: string };
+      const [feature, direction] = signal.split(",").map((t) => t.trim());
+      return { ...rest, feature, direction };
+    }),
+  };
+}
+
+// "What helps" text (docs/05 task G): an entry quoted from it is an action, never a sign.
+const HELP_WORD = /\bhelp(s|ed|ing)?\b/i;
+const SIGN_WORD = /\b(stop|stops|stopped|skip|skips|skipped|miss|misses|missed|less|fewer|no longer|don'?t|doesn'?t|do not|not|never|hardly|barely|avoid|avoids|quit)\b/i;
+const HELP_HEADER = /^\s*(what\s+)?helps?(\s+me)?\s*:/i;
+
+/**
+ * Character ranges of the source that talk about what helps: clauses with "helps" (split at
+ * sentence ends, commas and semicolons, so "I sleep ten hours, which helps" keeps the sign),
+ * and lists under a "What helps:" heading.
+ */
+function helpRanges(text: string): [number, number][] {
+  const out: [number, number][] = [];
+  const re = /[^.!?\n,;]+[.!?,;]*/g;
+  for (let m; (m = re.exec(text)); ) if (HELP_WORD.test(m[0])) out.push([m.index, m.index + m[0].length]);
+  let pos = 0, inList = false;
+  for (const line of text.split("\n")) {
+    const end = pos + line.length;
+    if (HELP_HEADER.test(line)) inList = true;
+    else if (line.trim() === "" || /:\s*$/.test(line)) inList = false;
+    if (inList) out.push([pos, end]);
+    pos = end + 1;
+  }
+  return out;
+}
+function spanOf(quote: string, text: string): [number, number] | null {
+  const q = findQuoteSpan(quote, text);
+  if (!q) return null;
+  let i = text.indexOf(q);
+  if (i < 0) i = text.toLowerCase().indexOf(q.toLowerCase());
+  return i < 0 ? null : [i, i + q.length];
+}
+const overlaps = (a: [number, number] | null, b: [number, number] | null) => !!a && !!b && a[0] < b[1] && b[0] < a[1];
+const inside = (a: [number, number] | null, ranges: [number, number][]) => !!a && ranges.some((r) => a[0] >= r[0] && a[1] <= r[1]);
 
 const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
 
 /**
  * Task G guardrails: schema, quote verification on every entry, legal directions, merged
- * duplicates (first quote wins). Phone-domain rules are dropped while `cfg.phone.enabled` is off.
+ * duplicates (first quote wins), nothing quoted from what helps, no question for a sign that is
+ * already a rule. Phone-domain rules are dropped while `cfg.phone.enabled` is off.
  */
 const gRules = (schemas.G as { properties: { rules: { items: { properties: { feature: { enum: string[] }; direction: { enum: string[] } } } } } }).properties.rules.items.properties;
 const RULE_FEATURES = new Set(gRules.feature.enum);
@@ -76,12 +147,24 @@ export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defau
     actions: { text: string; quote: string }[];
   };
   let dropped = clean.dropped;
+  const helps = helpRanges(sourceText);
+  const actionSpans = g.actions.map((a) => spanOf(a.quote, sourceText));
+  // A sign quoted from what helps ("Going to the gym helps") is an action; the model listed
+  // it as one too, or the sentence is about helping and says nothing about stopping.
+  const fromHelps = (quote: string) => {
+    const sp = spanOf(quote, sourceText);
+    return actionSpans.some((a) => overlaps(sp, a)) || (inside(sp, helps) && !SIGN_WORD.test(quote));
+  };
   const rules: VerifiedRule[] = [];
+  const ruleSpans: ([number, number] | null)[] = [];
   const seen = new Set<string>();
-  for (const r of g.rules) {
+  for (const r0 of g.rules) {
+    // Regularity only gets less regular: "rhythm_stability, lower" means the same thing.
+    const r = r0.feature === "rest_regularity" || r0.feature === "rhythm_stability" ? { ...r0, direction: "less_regular" as RuleDirection } : r0;
     const label = r.feature === "place_visits" ? norm(r.place_label ?? "") : "";
     const ok =
       featureDef(r.feature) !== null &&
+      !fromHelps(r.quote) &&
       verifyQuote(r.quote, sourceText) &&
       !quoteDropsNegation(r.quote, sourceText) &&
       directionLegal(r.feature, r.direction) &&
@@ -93,13 +176,17 @@ export function verifyPlan(raw: unknown, sourceText: string, cfg: Config = defau
       continue;
     }
     seen.add(key);
+    ruleSpans.push(spanOf(r.quote, sourceText));
     rules.push({ feature: r.feature, direction: r.direction, place_label: label || null, quote: findQuoteSpan(r.quote, sourceText) ?? r.quote });
   }
   const items: { question: string; quote: string }[] = [];
   const seenItems = new Set<string>();
   for (const it of g.personal_checkin_items) {
     const key = norm(it.question);
-    if (!verifyQuote(it.quote, sourceText) || quoteDropsNegation(it.quote, sourceText) || key.length === 0 || seenItems.has(key) || hasBannedWords(it.question)) {
+    // One sign, one card: no question for a sign that already became a rule, or for what helps.
+    const sp = spanOf(it.quote, sourceText);
+    const covered = ruleSpans.some((r) => overlaps(sp, r)) || fromHelps(it.quote);
+    if (!verifyQuote(it.quote, sourceText) || quoteDropsNegation(it.quote, sourceText) || key.length === 0 || seenItems.has(key) || hasBannedWords(it.question) || covered) {
       dropped++;
       continue;
     }

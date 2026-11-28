@@ -51,6 +51,31 @@ describe("InferenceRouter (web, M5)", () => {
     expect(fakeCalls[0].constraint).toMatchObject({ type: "object" });
   });
 
+  it("task G on the device picks one combined signal per rule, turned back into feature and direction", async () => {
+    installFakeLanguageModel("available", (system) =>
+      system.includes("early warning signs")
+        ? {
+            rules: [
+              { signal: "rest_midpoint, later", place_label: "", quote: "going to bed later" },
+              { signal: "place_visits, lower", place_label: "gym", quote: "I skip the gym" },
+              { signal: "home_stay, higher", place_label: "", quote: "I stay inside more" },
+            ],
+            personal_checkin_items: [],
+            actions: [{ text: "Call my sister", quote: "Calling my sister helps" }],
+          }
+        : {},
+    );
+    const r = new WebInferenceRouter();
+    const g = await r.run<VerifiedPlan>("G", { text: SAM_PLAN_TEXT }, { sourceText: SAM_PLAN_TEXT });
+    expect(g.ok && g.value.rules.map((x) => `${x.feature}:${x.direction}`)).toEqual(["rest_midpoint:later", "place_visits:lower", "home_stay:higher"]);
+    const c = fakeCalls[fakeCalls.length - 1].constraint as { properties: { rules: { items: { properties: Record<string, { enum?: string[] }>; required: string[] } } } };
+    const items = c.properties.rules.items;
+    expect(items.properties.signal.enum).toContain("steps, lower");
+    expect(items.properties.signal.enum).not.toContain("steps, higher");
+    expect(items.properties.feature).toBeUndefined();
+    expect(items.required).toContain("signal");
+  });
+
   it("with the on-device model off, S3 tasks fall back and nothing is sent", async () => {
     installFakeLanguageModel("available");
     await updateSettings({ onDeviceEnabled: false, cloudConsent: true });

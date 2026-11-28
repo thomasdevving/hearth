@@ -1,6 +1,6 @@
 // The InferenceRouter for web (docs/02 §5) on the Firebase JS SDK's hybrid inference.
 import { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode, type AI } from "firebase/ai";
-import { mayReachCloud, numberCheck, parseJsonLoose, Q_CLASSIFY_CLASS, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@hearth/engine";
+import { defaultConfig, expandRuleSignals, mayReachCloud, numberCheck, parseJsonLoose, ruleSignals, Q_CLASSIFY_CLASS, route, schemas, TASKS, verifyTask, type LedgerEntry, type RouteDecision, type TaskId } from "@hearth/engine";
 import { cloudConfigured, deviceApp, firebaseApp, GEMINI_MODEL } from "../firebase";
 import { db, getSettings, newId } from "../store/db";
 import { nowStamp } from "../app/clock";
@@ -34,6 +34,19 @@ export function onDeviceSchema(s: unknown): unknown {
     out[k] = k === "properties" ? Object.fromEntries(Object.entries(v as object).map(([pk, pv]) => [pk, onDeviceSchema(pv)])) : onDeviceSchema(v);
   }
   return out;
+}
+/**
+ * Task G on the device: one combined choice per rule ("steps, lower") instead of a feature and
+ * a direction picked apart, so a small model cannot pick an impossible pair. The answer is
+ * turned back into feature and direction before the guardrails (`expandRuleSignals`).
+ */
+export function signalSchema(s: object): object {
+  const g = structuredClone(s) as { properties: { rules: { items: { properties: Record<string, unknown>; required: string[] } } } };
+  const items = g.properties.rules.items;
+  const { feature: _f, direction: _d, ...rest } = items.properties;
+  items.properties = { signal: { type: "string", enum: ruleSignals(defaultConfig) }, ...rest };
+  items.required = ["signal", ...items.required.filter((k) => k !== "feature" && k !== "direction")];
+  return g;
 }
 function cloudSchema(s: object): object {
   const { $id: _id, ...rest } = s as Record<string, unknown>;
@@ -132,7 +145,7 @@ export class WebInferenceRouter implements InferenceRouter {
       mode: MODE[decision.mode],
       onDeviceParams: {
         createOptions: { ...CREATE_OPTIONS, ...(opts.image ? { expectedInputs: [...CREATE_OPTIONS.expectedInputs, { type: "image" as const }] } : {}), initialPrompts: [{ role: "system", content: [{ type: "text", value: prompt.text + liteNote }] }] },
-        promptOptions: { responseConstraint: onDeviceSchema(schema) as object },
+        promptOptions: { responseConstraint: onDeviceSchema(task === "G" ? signalSchema(schema) : schema) as object },
       },
       inCloudParams: {
         model: GEMINI_MODEL,
@@ -164,7 +177,7 @@ export class WebInferenceRouter implements InferenceRouter {
       } catch {
         text = "";
       }
-      const raw = parseJsonLoose(text);
+      const raw = task === "G" ? expandRuleSignals(parseJsonLoose(text)) : parseJsonLoose(text);
       opts.onRaw?.(raw, text, attempt);
       const usedVariant = ranOn === "on_device" && def.hasLiteVariant ? "lite" : variant;
       const v = verifyTask(task, raw, { ...opts.verify, sourceText: opts.sourceText ?? opts.verify?.sourceText, facts: opts.verify?.facts ?? finalInput, variant: usedVariant });

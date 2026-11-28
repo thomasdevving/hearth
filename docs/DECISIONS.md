@@ -1066,3 +1066,23 @@ but it showed three faults that also hit real users whenever the cloud cannot be
 - **Nano accuracy** (docs/10 rows 7–9b, 11, 12): task H 29/30, task B 20/20 crisis but 7/30
   everyday texts `possible`, task G precision 42 % (target 80 %). Task G is the weak spot;
   wrong cards are caught at confirmation, but the prompt needs work for Nano.
+
+## Task G: structure in code, not only in the prompt (2026-11-28)
+
+Prompt tuning on Gemini Nano got stuck at about 65 % rule precision. The model was picking
+freely from 20 features and 5 directions, and the code passed any direction that was not
+"later/earlier" on a non-sleep feature. Three changes, all general (none uses a test sentence):
+- **Legal directions per feature** (`ruleDirections`): the direction that signals a harder
+  time, from the feature catalogue. Sleep length and timing go both ways; regularity only gets
+  less regular (any direction on a regularity feature is read that way). "Steps higher" or
+  "time at home lower" is dropped.
+- **One combined choice on the device** (`ruleSignals`, web `signalSchema`): Nano's response
+  constraint offers 14 legal pairs such as "steps, lower" instead of a feature and a direction
+  picked apart; `expandRuleSignals` turns the answer back before the guardrails. Features that
+  people do not describe in their own words (location entropy, fragmentation, …) stay research
+  signals for everyone and are not offered as personal rules. The cloud and iOS keep the full
+  schema and get the same direction check.
+- **What helps is never a sign, one sign is one card**: a rule quoted from a clause about what
+  helps ("Going to the gym really helps me") or from an action's quote is dropped unless the
+  quote itself says the person stops or skips it; a check-in question is dropped when its
+  quote overlaps a rule's. In both eval sets no expected rule sits in a clause about helping.
